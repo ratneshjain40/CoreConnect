@@ -1,0 +1,138 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  email              String    @unique
+  emailVerified      DateTime?
+  image              String?
+  password           String?
+  role               UserRole  @default(USER)
+  accounts           Account[]
+  isTwoFactorEnabled Boolean   @default(false)
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+enum TokenType {
+  RESET_PASSWORD
+  EMAIL_VERIFICATION
+  TWO_FACTOR
+}
+
+model Token {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String    @db.ObjectId
+  type      TokenType
+  token     String    @unique
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+
+  @@unique([type, token])
+}
+
+model Blog {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  slug       String   @unique
+  coverImage String?
+  categories String[]
+  isPaid     Boolean  @default(false)
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum EventStatus {
+  UPCOMING
+  COMPLETED
+  CANCELLED
+}
+
+model Event {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String      @unique
+  coverImage  String?
+  description String
+  price       String
+  location    String
+  date        DateTime
+  status      EventStatus @default(UPCOMING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Course {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String    @unique
+  coverImage  String?
+  price       String
+  duration    String
+  description String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Chapter     Chapter[]
+}
+
+model Chapter {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String       @unique
+  description String
+  freePreview Boolean      @default(true)
+  video       String
+  courseId    String       @db.ObjectId
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  attachments Attachment[]
+}
+
+model Attachment {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  size      Int
+  url       String
+  chapterId String   @db.ObjectId
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
