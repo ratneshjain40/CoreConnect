@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { prisma } from '@/db/prisma';
 import { Blog, Event, User } from '@prisma/client';
 

@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { userService } from '@/features/users/server/service';
 import { ErrorResponse } from '@/types/errors';
 import { login2FASchema, loginWithCredsSchema, newPasswordSchema, registerSchema, resetSchema } from '../schema/auth';

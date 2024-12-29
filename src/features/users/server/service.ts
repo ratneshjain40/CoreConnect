@@ -1,3 +1,4 @@
+import 'server-only';
 import { ErrorResponse } from '@/types/errors';
 import { userRepo } from './repo';
 import { z } from 'zod';

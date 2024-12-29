@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 
@@ -20,7 +22,7 @@ import { Button } from '@/components/ui/button';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { auth } from '@/features/auth/server/next-auth-config';
+import { useSession } from 'next-auth/react';
 
 const DropdownLink = ({ url, name, description }: NavbarOption) => (
   <Link
@@ -33,8 +35,8 @@ const DropdownLink = ({ url, name, description }: NavbarOption) => (
   </Link>
 );
 
-export const Navbar = async () => {
-  const session = await auth();
+export const Navbar = () => {
+  const session = useSession().data;
   const user = session?.user as User;
 
   return (

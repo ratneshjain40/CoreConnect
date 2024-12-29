@@ -1,3 +1,4 @@
+import 'server-only';
 import { prisma } from '@/db/prisma';
 import { Blog } from '@prisma/client';
 

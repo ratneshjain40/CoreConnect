@@ -1,3 +1,4 @@
+import 'server-only';
 import { prisma } from '@/db/prisma';
 import NextAuth, { DefaultSession, NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
