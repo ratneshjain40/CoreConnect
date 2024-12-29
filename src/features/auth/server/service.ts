@@ -129,6 +129,9 @@ async function resetPassword(data: z.infer<typeof newPasswordSchema>): Promise<U
     throw new ErrorResponse('Invalid token');
   }
   const user = await userService.getUserById(tokenRecord.userId);
+  if (!user.emailVerified) {
+    throw new ErrorResponse('Email not verified');
+  }
   const password = await hashAndSaltPassword(data.password);
   return await userService.updatePassword(user.id, password);
 }

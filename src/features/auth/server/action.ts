@@ -10,6 +10,11 @@ import { sendTwoFactorEmail, sendVerificationEmail } from './mail';
 import { z } from 'zod';
 
 export const registerUser = actionClient.schema(registerSchema).action(async (data) => {
+  const existingUser = await userService.getUserByEmail(data.parsedInput.email);
+  if (existingUser) {
+    const emailToken = await authService.generateEmailVerificationToken(existingUser);
+    await sendVerificationEmail(existingUser.email, emailToken.token);
+  }
   const user = await authService.register(data.parsedInput);
   const emailToken = await authService.generateEmailVerificationToken(user);
   await sendVerificationEmail(user.email, emailToken.token);
