@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,12 +9,12 @@ import { FormError, FormSuccess } from '@/components/custom';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { resetPassword, sendResetPasswordEmail } from '../server/action';
+import { useAction } from 'next-safe-action/hooks';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 export const ResetForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
+  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(sendResetPasswordEmail);
 
   const form = useForm<z.infer<typeof resetSchema>>({
     resolver: zodResolver(resetSchema),
@@ -26,7 +24,7 @@ export const ResetForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof resetSchema>) => {
-
+    execute(values);
   };
 
   return (
@@ -53,8 +51,8 @@ export const ResetForm = () => {
           />
         </div>
 
-        <FormError message={error} />
-        <FormSuccess message={success} />
+        {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
+        {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
         <Button type="submit" disabled={isPending} className="w-full">
           Send reset email
         </Button>

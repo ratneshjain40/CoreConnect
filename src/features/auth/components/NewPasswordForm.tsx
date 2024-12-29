@@ -1,26 +1,23 @@
 'use client';
 
-import { useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import * as z from 'zod';
 import { useForm } from 'react-hook-form';
-// import { newPasswordAction } from '@/actions/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { newPasswordSchema } from '../schema/auth';
 import { FormError, FormSuccess } from '@/components/custom';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { resetPassword } from '../server/action';
+import { useAction } from 'next-safe-action/hooks';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 export const NewPasswordForm = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
-
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
+  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(resetPassword);
 
   const form = useForm<z.infer<typeof newPasswordSchema>>({
     resolver: zodResolver(newPasswordSchema),
@@ -30,20 +27,7 @@ export const NewPasswordForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof newPasswordSchema>) => {
-    setError('');
-    setSuccess('');
-
-    if (!token) {
-      setError('Missing token!');
-      return;
-    }
-
-    startTransition(() => {
-      // newPasswordAction(values, token).then((data) => {
-      //   setError(data?.error);
-      //   setSuccess(data?.success);
-      // });
-    });
+    if (token) execute({ ...values, token });
   };
 
   return (
@@ -71,8 +55,8 @@ export const NewPasswordForm = () => {
           />
         </div>
 
-        <FormError message={error} />
-        <FormSuccess message={success} />
+        {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
+        {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
         <Button type="submit" disabled={isPending} className="w-full">
           Reset Password
         </Button>

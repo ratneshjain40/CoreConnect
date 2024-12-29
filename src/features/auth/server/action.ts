@@ -3,21 +3,24 @@
 import { actionClient } from '@/lib/action-clients';
 import { loginSchema, newPasswordSchema, registerSchema } from '../schema/auth';
 import { authService } from './service';
-import { signIn } from './next-auth-config';
+import { signIn, signOut } from './next-auth-config';
 import { DEFAULT_LOGIN_REDIRECT } from '@/lib/routes';
 import { userService } from '@/features/users/server/service';
 import { sendTwoFactorEmail, sendVerificationEmail } from './mail';
 import { z } from 'zod';
+import { ErrorResponse } from '@/types/errors';
+import { emailSchema } from '@/constants/email';
 
 export const registerUser = actionClient.schema(registerSchema).action(async (data) => {
   const existingUser = await userService.getUserByEmail(data.parsedInput.email);
   if (existingUser) {
     const emailToken = await authService.generateEmailVerificationToken(existingUser);
     await sendVerificationEmail(existingUser.email, emailToken.token);
+  } else {
+    const user = await authService.register(data.parsedInput);
+    const emailToken = await authService.generateEmailVerificationToken(user);
+    await sendVerificationEmail(user.email, emailToken.token);
   }
-  const user = await authService.register(data.parsedInput);
-  const emailToken = await authService.generateEmailVerificationToken(user);
-  await sendVerificationEmail(user.email, emailToken.token);
   return { success: 'Confirmation email sent!' };
 });
 
@@ -40,11 +43,10 @@ export const loginUser = actionClient.schema(loginSchema).action(async (data) =>
         await sendTwoFactorEmail(user.email, twoFactorToken.token);
         return { success: 'Confirmation email sent!' };
       }
-    }
-    else {
+    } else {
       const emailToken = await authService.generateEmailVerificationToken(user);
       await sendVerificationEmail(user.email, emailToken.token);
-      throw new Error('Email not verified. Confirmation email sent!');
+      throw new ErrorResponse('Email not verified. Confirmation email sent!');
     }
   } else {
     await signIn('credentials', {
@@ -61,12 +63,17 @@ export const verifyEmail = actionClient.schema(z.object({ token: z.string() })).
   return { success: 'Email verified!' };
 });
 
-export const sendResetPasswordEmail = actionClient.schema(z.object({ email: z.string() })).action(async (data) => {
+export const sendResetPasswordEmail = actionClient.schema(z.object({ email: emailSchema })).action(async (data) => {
   await authService.resetPasswordEmail(data.parsedInput);
   return { success: 'Password reset email sent!' };
 });
 
 export const resetPassword = actionClient.schema(newPasswordSchema).action(async (data) => {
   await authService.resetPassword(data.parsedInput);
+  return { success: 'Password reset!' };
+});
+
+export const logout = actionClient.action(async () => {
+  await signOut();
   return { success: 'Password reset!' };
 });

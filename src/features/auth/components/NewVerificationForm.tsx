@@ -14,7 +14,6 @@ export const NewVerificationForm = () => {
   const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(verifyEmail);
 
   useEffect(() => {
-    console.log(isPending, token);
     if (token) {
       execute({ token });
     }

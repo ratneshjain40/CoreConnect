@@ -1,14 +1,17 @@
 'use client';
 
-// import { logoutAction } from '@/actions/auth';
+import { useAction } from 'next-safe-action/hooks';
+import { logout } from '../server/action';
 
 type LoginButtonProps = {
   children?: React.ReactNode;
 };
 
 export const LogoutButton = ({ children }: LoginButtonProps) => {
-  const onClicked = async () => {
-    // await logoutAction();
+  const { execute } = useAction(logout);
+
+  const onClicked = () => {
+    execute();
   };
 
   return (
