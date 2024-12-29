@@ -11,7 +11,6 @@ import { z } from 'zod';
 
 export const registerUser = actionClient.schema(registerSchema).action(async (data) => {
   const user = await authService.register(data.parsedInput);
-  console.log(user);
   const emailToken = await authService.generateEmailVerificationToken(user);
   await sendVerificationEmail(user.email, emailToken.token);
   return { success: 'Confirmation email sent!' };
@@ -20,27 +19,27 @@ export const registerUser = actionClient.schema(registerSchema).action(async (da
 export const loginUser = actionClient.schema(loginSchema).action(async (data) => {
   const parsedInput = data.parsedInput;
   if ('password' in parsedInput) {
-    console.log('parsedInput', parsedInput);
     let user = await userService.getUserByEmail(parsedInput.email);
-    if (!user.isTwoFactorEnabled) {
-      // Continue with normal login flow through NextAuth
-      await signIn('credentials', {
-        email: parsedInput.email,
-        password: parsedInput.password,
-        redirectTo: parsedInput.callbackUrl || DEFAULT_LOGIN_REDIRECT,
-      });
-    } else {
-      // If 2FA is enabled, check creds and then generate a 2FA token
-      let user = await authService.loginWithCreds(parsedInput);
-      if (user.emailVerified) {
+    if (user.emailVerified) {
+      if (!user.isTwoFactorEnabled) {
+        // Continue with normal login flow through NextAuth
+        await signIn('credentials', {
+          email: parsedInput.email,
+          password: parsedInput.password,
+          redirectTo: parsedInput.callbackUrl || DEFAULT_LOGIN_REDIRECT,
+        });
+      } else {
+        // If 2FA is enabled, check creds and then generate a 2FA token
+        let user = await authService.loginWithCreds(parsedInput);
         const twoFactorToken = await authService.generate2FAToken(user);
         await sendTwoFactorEmail(user.email, twoFactorToken.token);
         return { success: 'Confirmation email sent!' };
-      } else {
-        const emailToken = await authService.generateEmailVerificationToken(user);
-        await sendVerificationEmail(user.email, emailToken.token);
-        return { success: 'Confirmation email sent!' };
       }
+    }
+    else {
+      const emailToken = await authService.generateEmailVerificationToken(user);
+      await sendVerificationEmail(user.email, emailToken.token);
+      throw new Error('Email not verified. Confirmation email sent!');
     }
   } else {
     await signIn('credentials', {
