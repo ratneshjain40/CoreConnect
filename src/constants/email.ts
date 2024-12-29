@@ -108,6 +108,7 @@ export const emailSchema = z
   .email({ message: 'Invalid email address.' })
   .refine(
     (email) => {
+      if (!email.includes('@')) return false;
       const domain = email.split('@')[1].toLowerCase();
       return allowedDomainsSet.has(domain);
     },

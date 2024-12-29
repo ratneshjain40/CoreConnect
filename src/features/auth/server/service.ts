@@ -92,9 +92,7 @@ async function verifyEmailVerificationToken(token: string): Promise<User> {
   if (!tokenRecord) {
     throw new ErrorResponse('Invalid token');
   }
-  console.log(tokenRecord);
   const user = await userService.getUserById(tokenRecord.userId);
-  console.log(user);
   userService.updateEmailVerifiedDate(user.id, new Date(Date.now()));
   return user;
 }

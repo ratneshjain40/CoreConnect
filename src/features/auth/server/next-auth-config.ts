@@ -1,6 +1,6 @@
 import 'server-only';
 import { prisma } from '@/db/prisma';
-import NextAuth, { DefaultSession, NextAuthConfig } from 'next-auth';
+import NextAuth, { CredentialsSignin, DefaultSession, NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -8,6 +8,7 @@ import { login2FASchema, loginWithCredsSchema } from '../schema/auth';
 import { authService } from './service';
 import { userService } from '@/features/users/server/service';
 import { UserRole } from '@prisma/client';
+import { ErrorResponse } from '@/types/errors';
 
 declare module 'next-auth' {
   interface Session {
@@ -33,21 +34,28 @@ const providersConfig = {
     Google,
     Credentials({
       async authorize(credentials) {
-        const creds = loginWithCredsSchema.safeParse(credentials);
-        if (creds.success) {
-          let user = await authService.loginWithCreds(creds.data);
-          if (user.isTwoFactorEnabled) {
-            return null;
+        try {
+          const creds = loginWithCredsSchema.safeParse(credentials);
+          if (creds.success) {
+            let user = await authService.loginWithCreds(creds.data);
+            if (user.isTwoFactorEnabled) {
+              return null;
+            }
+            return user;
+          } else {
+            const creds2fa = login2FASchema.safeParse(credentials);
+            if (creds2fa.success) {
+              return authService.login2FA(creds2fa.data);
+            }
           }
-          return user;
-        } else {
-          const creds2fa = login2FASchema.safeParse(credentials);
-          if (creds2fa.success) {
-            return authService.login2FA(creds2fa.data);
+          return null;
+        } catch (e) {
+          if (e instanceof ErrorResponse) {
+            throw new CredentialsSignin(e.message);
           }
+          throw new CredentialsSignin('Invalid credentials');
         }
-        return null;
-      },
+      }
     }),
   ],
 } satisfies NextAuthConfig;

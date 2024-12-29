@@ -7,11 +7,11 @@ import { z } from 'zod';
 
 export const actionClient = createSafeActionClient({
   defaultValidationErrorsShape: 'flattened',
-  // defineMetadataSchema() {
-  //   return z.object({
-  //     roleGate: z.enum([UserRole.ADMIN, UserRole.USER]).default(UserRole.USER).optional(),
-  //   });
-  // },
+  defineMetadataSchema() {
+    return z.object({
+      roleGate: z.enum([UserRole.ADMIN, UserRole.USER]),
+    });
+  },
   handleServerError(e) {
     console.error('Action error:', e.message);
 
@@ -20,16 +20,21 @@ export const actionClient = createSafeActionClient({
     }
 
     if (e instanceof AuthError) {
+      console.error('Auth error:', e.type);
       if (e.type == 'CredentialsSignin') {
-        return { error: 'Invalid credentials!' };
+        return 'Invalid credentials!';
       } else {
-        return { error: 'Authentication error!' };
+        return 'Authentication error!';
       }
     }
 
     return DEFAULT_SERVER_ERROR_MESSAGE;
   },
-});
+}).metadata(
+  {
+    roleGate: UserRole.USER,
+  }
+);
 
 export const authActionClient = actionClient.use(async ({ next, metadata }) => {
   const session = await auth();
@@ -40,9 +45,9 @@ export const authActionClient = actionClient.use(async ({ next, metadata }) => {
     throw new ErrorResponse('User not authenticated');
   }
 
-  // if (metadata.roleGate === UserRole.ADMIN && session.user.role !== UserRole.ADMIN) {
-  //   throw new ErrorResponse('User not authorized');
-  // }
+  if (metadata.roleGate === UserRole.ADMIN && session.user.role !== UserRole.ADMIN) {
+    throw new ErrorResponse('User not authorized');
+  }
 
   return next({
     ctx: {

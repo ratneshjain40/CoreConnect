@@ -14,7 +14,6 @@ async function getUserByEmail(email: string) {
 
 async function getUserById(id: string) {
   const user = await userRepo.getUserById(id);
-  console.log('USER:', user);
   if (!user) {
     throw new ErrorResponse('User not found');
   }

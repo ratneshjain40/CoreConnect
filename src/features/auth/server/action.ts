@@ -1,6 +1,6 @@
 'use server';
 
-import { actionClient } from '@/lib/action-clients';
+import { actionClient, authActionClient } from '@/lib/action-clients';
 import { loginSchema, newPasswordSchema, registerSchema } from '../schema/auth';
 import { authService } from './service';
 import { signIn, signOut } from './next-auth-config';
@@ -73,7 +73,7 @@ export const resetPassword = actionClient.schema(newPasswordSchema).action(async
   return { success: 'Password reset!' };
 });
 
-export const logout = actionClient.action(async () => {
+export const logout = authActionClient.action(async () => {
   await signOut();
   return { success: 'Password reset!' };
 });
