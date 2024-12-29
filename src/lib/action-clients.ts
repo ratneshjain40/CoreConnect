@@ -7,11 +7,11 @@ import { z } from 'zod';
 
 export const actionClient = createSafeActionClient({
   defaultValidationErrorsShape: 'flattened',
-  defineMetadataSchema() {
-    return z.object({
-      roleGate: z.enum([UserRole.ADMIN, UserRole.USER]).default(UserRole.USER),
-    });
-  },
+  // defineMetadataSchema() {
+  //   return z.object({
+  //     roleGate: z.enum([UserRole.ADMIN, UserRole.USER]).default(UserRole.USER).optional(),
+  //   });
+  // },
   handleServerError(e) {
     console.error('Action error:', e.message);
 
@@ -40,9 +40,9 @@ export const authActionClient = actionClient.use(async ({ next, metadata }) => {
     throw new ErrorResponse('User not authenticated');
   }
 
-  if (metadata.roleGate === UserRole.ADMIN && session.user.role !== UserRole.ADMIN) {
-    throw new ErrorResponse('User not authorized');
-  }
+  // if (metadata.roleGate === UserRole.ADMIN && session.user.role !== UserRole.ADMIN) {
+  //   throw new ErrorResponse('User not authorized');
+  // }
 
   return next({
     ctx: {

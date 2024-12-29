@@ -1,9 +1,14 @@
 import React from 'react';
 
+import { Home } from '@/features/home/components';
+import { Navbar, Footer } from '@/components/custom';
+
 const HomePage = () => {
   return (
     <>
-      <h1>Hello World</h1>
+      <Navbar />
+      <Home />
+      <Footer />
     </>
   );
 };

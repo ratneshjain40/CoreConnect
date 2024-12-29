@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { emailSchema } from '../schema/email';
+import { emailSchema } from '@/constants/email';
 
 const loginWithCredsSchema = z.object({
   email: emailSchema,

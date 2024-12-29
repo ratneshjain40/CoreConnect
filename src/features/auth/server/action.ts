@@ -19,11 +19,12 @@ export const registerUser = actionClient.schema(registerSchema).action(async (da
 export const loginUser = actionClient.schema(loginSchema).action(async (data) => {
   const parsedInput = data.parsedInput;
   if ('password' in parsedInput) {
+    console.log('parsedInput', parsedInput);
     let user = await userService.getUserByEmail(parsedInput.email);
     if (!user.isTwoFactorEnabled) {
       // Continue with normal login flow through NextAuth
       await signIn('credentials', {
-        email: parsedInput,
+        email: parsedInput.email,
         password: parsedInput.password,
         redirectTo: parsedInput.callbackUrl || DEFAULT_LOGIN_REDIRECT,
       });

@@ -38,6 +38,7 @@ const providersConfig = {
           if (user.isTwoFactorEnabled) {
             return null;
           }
+          return user;
         } else {
           const creds2fa = login2FASchema.safeParse(credentials);
           if (creds2fa.success) {
