@@ -12,6 +12,8 @@ import { sendPasswordResetEmail } from './mail';
 
 // ---------------------------------------------- Auth with Creds ----------------------------------------------
 
+const TOKEN_EXPIRY_TIME = 300 * 1000;
+
 async function register(data: z.infer<typeof registerSchema>): Promise<User> {
   const password = await hashAndSaltPassword(data.password);
   return await userService.createUser({
@@ -50,7 +52,7 @@ async function generate2FAToken(user: User): Promise<Token> {
   return await authRepo.createToken({
     userId: user.id,
     type: 'TWO_FACTOR',
-    expiresAt: new Date(new Date().getTime() + 3600 * 1000),
+    expiresAt: new Date(new Date().getTime() + TOKEN_EXPIRY_TIME),
     token: code,
   });
 }
@@ -80,7 +82,7 @@ async function generateEmailVerificationToken(user: User): Promise<Token> {
   return await authRepo.createToken({
     userId: user.id,
     type: 'EMAIL_VERIFICATION',
-    expiresAt: new Date(new Date().getTime() + 3600 * 1000),
+    expiresAt: new Date(new Date().getTime() + TOKEN_EXPIRY_TIME),
     token: code,
   });
 }
@@ -90,7 +92,9 @@ async function verifyEmailVerificationToken(token: string): Promise<User> {
   if (!tokenRecord) {
     throw new ErrorResponse('Invalid token');
   }
+  console.log(tokenRecord);
   const user = await userService.getUserById(tokenRecord.userId);
+  console.log(user);
   userService.updateEmailVerifiedDate(user.id, new Date(Date.now()));
   return user;
 }
@@ -112,7 +116,7 @@ async function resetPasswordEmail(data: z.infer<typeof resetSchema>): Promise<Us
   const token = await authRepo.createToken({
     userId: user.id,
     type: 'RESET_PASSWORD',
-    expiresAt: new Date(new Date().getTime() + 3600 * 1000),
+    expiresAt: new Date(new Date().getTime() + TOKEN_EXPIRY_TIME),
     token: code,
   });
   await sendPasswordResetEmail(user.email, token.token);

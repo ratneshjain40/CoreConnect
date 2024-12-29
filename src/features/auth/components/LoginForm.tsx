@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-// import { loginAction } from '@/actions/auth';
 import { loginUser } from '../server/action';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../schema/auth';
@@ -17,15 +16,13 @@ import { FormError, FormSuccess } from '@/components/custom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useAction } from 'next-safe-action/hooks';
 
 export const LoginForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || undefined;
-
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
   const [showTwoFactor, setShowTwoFactor] = useState<boolean>(false);
+  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(loginUser);
 
   const urlError =
     searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with a different provider' : '';
@@ -38,28 +35,8 @@ export const LoginForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    setError('');
-    setSuccess('');
-
-    await loginUser(values);
-
-    startTransition(() => {
-      // loginAction(values, callbackUrl)
-      //   .then((data) => {
-      //     if (data?.error) {
-      //       form.reset();
-      //       setError(data.error);
-      //     }
-      //     if (data?.success) {
-      //       form.reset();
-      //       setSuccess(data.success);
-      //     } else if (data?.twoFactor) {
-      //       setShowTwoFactor(true);
-      //     }
-      //   })
-      //   .catch(() => setError('Something went wrong!'));
-    });
+  const onSubmit = (values: z.infer<typeof loginSchema>) => {
+    execute({ ...values, callbackUrl });
   };
 
   return (
@@ -133,8 +110,8 @@ export const LoginForm = () => {
           </>
         )}
 
-        <FormError message={error || urlError} />
-        <FormSuccess message={success} />
+        {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
+        {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
         <Button type="submit" disabled={isPending} className="w-full">
           {showTwoFactor ? 'Confirm' : 'Login'}
         </Button>

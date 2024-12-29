@@ -11,6 +11,7 @@ import { z } from 'zod';
 
 export const registerUser = actionClient.schema(registerSchema).action(async (data) => {
   const user = await authService.register(data.parsedInput);
+  console.log(user);
   const emailToken = await authService.generateEmailVerificationToken(user);
   await sendVerificationEmail(user.email, emailToken.token);
   return { success: 'Confirmation email sent!' };

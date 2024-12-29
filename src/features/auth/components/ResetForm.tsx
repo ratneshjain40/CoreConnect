@@ -6,7 +6,6 @@ import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// import { resetAction } from '@/actions/auth';
 import { resetSchema } from '../schema/auth';
 import { FormError, FormSuccess } from '@/components/custom';
 
@@ -27,16 +26,7 @@ export const ResetForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof resetSchema>) => {
-    setError('');
-    setSuccess('');
 
-    startTransition(() => {
-      // resetAction(values).then((response) => {
-      //   form.reset();
-      //   setError(response?.error);
-      //   setSuccess(response?.success);
-      // });
-    });
   };
 
   return (

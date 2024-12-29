@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState } from 'react';
+import { useAction } from 'next-safe-action/hooks';
 
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-// import { registerAction } from '@/actions/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '../schema/auth';
 
@@ -14,11 +14,10 @@ import { FormError, FormSuccess } from '@/components/custom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { registerUser } from '../server/action';
 
 export const RegisterForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
+  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(registerUser);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -31,16 +30,7 @@ export const RegisterForm = () => {
   });
 
   const onSubmit = (data: z.infer<typeof registerSchema>) => {
-    setError('');
-    setSuccess('');
-
-    startTransition(() => {
-      // registerAction(data).then((response) => {
-      //   form.reset();
-      //   setError(response?.error);
-      //   setSuccess(response?.success);
-      // });
-    });
+    execute(data);
   };
 
   return (
@@ -114,8 +104,8 @@ export const RegisterForm = () => {
           )}
         />
 
-        <FormError message={error} />
-        <FormSuccess message={success} />
+        {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
+        {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
         <Button type="submit" disabled={isPending} className="w-full">
           Create an account
         </Button>
