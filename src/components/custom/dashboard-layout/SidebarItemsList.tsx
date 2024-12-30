@@ -98,6 +98,11 @@ export const userSidebarItemsList: SidebarItems = [
     url: '#',
     items: [
       {
+        title: 'Blogs',
+        url: '/user/blogs',
+        icon: 'blog',
+      },
+      {
         title: 'Courses',
         url: '/user/courses',
         icon: 'course',
