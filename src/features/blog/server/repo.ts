@@ -24,17 +24,21 @@ async function getAllBlogSlugs(): Promise<string[]> {
   return slugs.map((slug) => slug.slug);
 }
 
-// type BlogSlug = Pick<Blog, 'slug'>;
-// async function getAllBlogSlugs(): Promise<BlogSlug[]> {
-//   return await prisma.blog.findMany({
-//     select: {
-//       slug: true,
-//     },
-//   });
-// }
+type BlogSpecificFields = Pick<Blog, 'title' | 'slug' | 'categories' | 'isPaid'>;
+async function getAllBlogsForAdminTable(): Promise<BlogSpecificFields[]> {
+  return await prisma.blog.findMany({
+    select: {
+      title: true,
+      slug: true,
+      categories: true,
+      isPaid: true,
+    },
+  });
+}
 
 export const blogRepo = {
   getAllBlogs,
   getBlogBySlug,
   getAllBlogSlugs,
+  getAllBlogsForAdminTable,
 };

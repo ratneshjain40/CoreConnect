@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { DataTable } from '@/components/custom/table';
-import { adminRepo } from '@/features/admin/server/repo';
-import { columns } from '@/features/admin/components/users';
+import { columns } from '@/features/users/components';
+import { userRepo } from '@/features/users/server/repo';
 
 const AdminUsersPage = async () => {
-  const data = await adminRepo.getAllUsersForAdminTable();
+  const data = await userRepo.getAllUsersForAdminTable();
   const users = data.map((user) => ({
     ...user,
     emailVerified: !!user.emailVerified,

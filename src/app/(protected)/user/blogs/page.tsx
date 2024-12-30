@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
-import { columns } from '@/features/admin/components/blogs';
+import { columns } from '@/features/blog/components';
 
 const UserBlogsPage = async () => {
   return (

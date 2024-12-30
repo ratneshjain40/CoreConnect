@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
-import { adminRepo } from '@/features/admin/server/repo';
-import { columns } from '@/features/admin/components/blogs';
+import { columns } from '@/features/blog/components';
+import { blogRepo } from '@/features/blog/server/repo';
 
 const AdminBlogsPage = async () => {
-  const blogs = await adminRepo.getAllBlogsForAdminTable();
+  const blogs = await blogRepo.getAllBlogsForAdminTable();
 
   return (
     <>

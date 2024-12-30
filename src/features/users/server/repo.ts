@@ -34,10 +34,23 @@ async function updatePassword(id: string, password: string): Promise<User> {
   });
 }
 
+type UserSpecificFields = Pick<User, 'name' | 'email' | 'role' | 'emailVerified'>;
+async function getAllUsersForAdminTable(): Promise<UserSpecificFields[]> {
+  return await prisma.user.findMany({
+    select: {
+      name: true,
+      email: true,
+      role: true,
+      emailVerified: true,
+    },
+  });
+}
+
 export const userRepo = {
   getUserByEmail,
   getUserById,
   createUser,
   updateEmailVerifiedDate,
   updatePassword,
+  getAllUsersForAdminTable,
 };

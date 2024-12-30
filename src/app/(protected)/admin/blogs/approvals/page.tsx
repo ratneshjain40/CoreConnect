@@ -1,6 +1,6 @@
 import React from 'react';
 import { DataTable } from '@/components/custom/table';
-import { columns } from '@/features/admin/components/approvals';
+import { columns } from '@/features/approvals/components';
 
 const BlogApprovalsPage = () => {
   return (
