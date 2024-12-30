@@ -1,6 +1,6 @@
 import React from 'react';
 import { blogRepo } from '@/features/blog/server/repo';
-import { BlogList } from '@/features/resources/components/blogs';
+import { BlogList } from '@/features/blog/components';
 
 const BlogsPage = async () => {
   const blogs = await blogRepo.getAllBlogs();

@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { Loading } from '@/components/custom';
 import { blogRepo } from '@/features/blog/server/repo';
-import { ViewBlog } from '@/features/resources/components/blogs';
+import { ViewBlog } from '@/features/blog/components';
 
 export const revalidate = 3600;
 

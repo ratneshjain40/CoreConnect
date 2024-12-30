@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import DOMPurify from 'isomorphic-dompurify';
-import { BlogFormType } from '../../../blog/schema/blog';
+import { BlogFormType } from '../schema/blog';
 
 type ViewBlogProps = {
   data: BlogFormType | null;
