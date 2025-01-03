@@ -8,7 +8,7 @@ import { columns } from '@/features/blog/components';
 import { blogRepo } from '@/features/blog/server/repo';
 
 const AdminBlogsPage = async () => {
-  const blogs = await blogRepo.getAllBlogsForAdminTable();
+  const blogs = await blogRepo.selectFromAllBlogs();
 
   return (
     <>

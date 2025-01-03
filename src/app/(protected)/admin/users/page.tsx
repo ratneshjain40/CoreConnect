@@ -5,7 +5,7 @@ import { columns } from '@/features/users/components';
 import { userRepo } from '@/features/users/server/repo';
 
 const AdminUsersPage = async () => {
-  const data = await userRepo.getAllUsersForAdminTable();
+  const data = await userRepo.selectAllUsers();
   const users = data.map((user) => ({
     ...user,
     emailVerified: !!user.emailVerified,

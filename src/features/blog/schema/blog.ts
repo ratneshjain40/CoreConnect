@@ -11,7 +11,18 @@ const blogSchema = z.object({
   updatedAt: z.date().optional(),
 });
 
-type BlogFormType = z.infer<typeof blogSchema>;
+const updateBlogSchema = z.object({
+  blogId: z.string(),
+  title: z.string().min(1).optional(),
+  coverImage: z.string().optional(),
+  categories: z.tuple([z.string()]).or(z.array(z.string())).optional(),
+  isPaid: z.boolean().optional(),
+  content: z.string().min(1).optional(),
+});
 
-export { blogSchema };
-export type { BlogFormType };
+
+type BlogFormType = z.infer<typeof blogSchema>;
+type UpdateBlogType = z.infer<typeof updateBlogSchema>;
+
+export { blogSchema, updateBlogSchema };
+export type { BlogFormType, UpdateBlogType };

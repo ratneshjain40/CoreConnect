@@ -1,6 +1,7 @@
 import 'server-only';
 import { prisma } from '@/db/prisma';
-import { Blog } from '@prisma/client';
+import { Blog, Prisma } from '@prisma/client';
+import { UpdateBlogType } from '../schema/blog';
 
 async function getAllBlogs(): Promise<Blog[]> {
   return await prisma.blog.findMany();
@@ -24,11 +25,12 @@ async function getAllBlogSlugs(): Promise<string[]> {
   return slugs.map((slug) => slug.slug);
 }
 
-type BlogSpecificFields = Pick<Blog, 'title' | 'slug' | 'categories' | 'isPaid'>;
-async function getAllBlogsForAdminTable(): Promise<BlogSpecificFields[]> {
+type BlogSpecificFields = Pick<Blog, 'title' | 'slug' | 'categories' | 'isPaid' | 'userId'>;
+async function selectFromAllBlogs(): Promise<BlogSpecificFields[]> {
   return await prisma.blog.findMany({
     select: {
       title: true,
+      userId: true,
       slug: true,
       categories: true,
       isPaid: true,
@@ -36,9 +38,63 @@ async function getAllBlogsForAdminTable(): Promise<BlogSpecificFields[]> {
   });
 }
 
+async function selectBlogById(blogId: string): Promise<BlogSpecificFields | null> {
+  return await prisma.blog.findUnique({
+    where: {
+      id: blogId,
+    },
+    select: {
+      title: true,
+      userId: true,
+      slug: true,
+      categories: true,
+      isPaid: true,
+    },
+  });
+}
+
+async function selectFromAllBlogsByUser(userId: string): Promise<BlogSpecificFields[]> {
+  return await prisma.blog.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      title: true,
+      userId: true,
+      slug: true,
+      categories: true,
+      isPaid: true,
+    },
+  });
+}
+
+async function createBlog(data: Prisma.BlogCreateInput): Promise<Blog> {
+  return await prisma.blog.create({
+    data,
+  });
+}
+
+async function updateBlog(blogId: string, data: UpdateBlogType): Promise<Blog> {
+  return await prisma.blog.update({
+    where: { id: blogId },
+    data: { ...data },
+  });
+}
+
+async function deleteBlog(blogId: string): Promise<Blog> {
+  return await prisma.blog.delete({
+    where: { id: blogId },
+  });
+}
+
 export const blogRepo = {
   getAllBlogs,
   getBlogBySlug,
   getAllBlogSlugs,
-  getAllBlogsForAdminTable,
+  selectFromAllBlogs,
+  selectBlogById,
+  selectFromAllBlogsByUser,
+  createBlog,
+  updateBlog,
+  deleteBlog
 };

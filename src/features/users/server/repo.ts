@@ -35,7 +35,7 @@ async function updatePassword(id: string, password: string): Promise<User> {
 }
 
 type UserSpecificFields = Pick<User, 'name' | 'email' | 'role' | 'emailVerified'>;
-async function getAllUsersForAdminTable(): Promise<UserSpecificFields[]> {
+async function selectAllUsers(): Promise<UserSpecificFields[]> {
   return await prisma.user.findMany({
     select: {
       name: true,
@@ -52,5 +52,5 @@ export const userRepo = {
   createUser,
   updateEmailVerifiedDate,
   updatePassword,
-  getAllUsersForAdminTable,
+  selectAllUsers,
 };

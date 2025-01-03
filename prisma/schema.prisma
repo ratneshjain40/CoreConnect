@@ -63,9 +63,10 @@ model Token {
 
 model Blog {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
   title      String
   slug       String   @unique
-  coverImage String
+  coverImage String?
   categories String[]
   isPaid     Boolean  @default(false)
   content    String
