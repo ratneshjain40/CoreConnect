@@ -57,3 +57,12 @@ const deleteBlogAdmin = authActionClient.metadata({
     return await blogService.deleteBlogAdmin(data.parsedInput.blogId);
 });
 
+export const blogActions = {
+    getAllBlogsData,
+    getAllBlogsDataByUser,
+    getBlogBySlug,
+    createBlog,
+    updateBlog,
+    deleteBlog,
+    deleteBlogAdmin,
+};
