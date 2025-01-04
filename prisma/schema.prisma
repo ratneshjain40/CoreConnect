@@ -64,6 +64,7 @@ model Token {
 model Blog {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   userId     String   @db.ObjectId
+  author     String
   title      String
   slug       String   @unique
   coverImage String

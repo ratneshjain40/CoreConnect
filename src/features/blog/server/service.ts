@@ -1,9 +1,11 @@
 import 'server-only';
 
 import { ErrorResponse } from '@/types/errors';
-import { BlogFormType, UpdateBlogType } from '../schema/blog';
+import { BlogFormType, updateBlogSchema, UpdateBlogType } from '../schema/blog';
 import { blogRepo } from './repo';
 import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+import { userService } from '@/features/users/server/service';
 
 async function getBlogBySlug(slug: string) {
   let blog = await blogRepo.getBlogBySlug(slug);
@@ -22,9 +24,11 @@ async function getAllBlogsDataByUser(userId: string) {
 }
 
 async function createBlog(userId: string, data: BlogFormType) {
+  let user = await userService.getUserById(userId);
   return await blogRepo.createBlog({
     ...data,
     userId,
+    author: user.name
   });
 }
 

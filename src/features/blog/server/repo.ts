@@ -74,7 +74,14 @@ async function createBlog(data: Prisma.BlogCreateInput): Promise<Blog> {
   });
 }
 
-async function updateBlog(blogId: string, data: Prisma.BlogUpdateInput): Promise<Blog> {
+async function updateBlog(blogId: string, data: {
+  title: string;
+  slug: string;
+  coverImage: string;
+  categories: string[];
+  isPaid: boolean;
+  content: string;
+}): Promise<Blog> {
   return await prisma.blog.update({
     where: { id: blogId },
     data: data,
