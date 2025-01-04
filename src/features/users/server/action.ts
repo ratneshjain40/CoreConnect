@@ -1,8 +1,9 @@
 import { blogService } from "@/features/blog/server/service";
 import { authActionClient } from "@/lib/action-clients";
+import { userService } from "./service";
 
-export const getAllBlogsData = authActionClient.metadata({
+export const getAllUserData = authActionClient.metadata({
     roleGate: "ADMIN"
 }).action(async () => {
-    return await blogService.getAllBlogsData();
+    return await userService.getAllUsersData();
 });
