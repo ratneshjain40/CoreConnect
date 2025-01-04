@@ -3,6 +3,7 @@ import 'server-only';
 import { ErrorResponse } from '@/types/errors';
 import { BlogFormType, UpdateBlogType } from '../schema/blog';
 import { blogRepo } from './repo';
+import { Prisma } from '@prisma/client';
 
 async function getBlogBySlug(slug: string) {
   let blog = await blogRepo.getBlogBySlug(slug);
@@ -36,8 +37,8 @@ async function updateBlog(userId: string, data: UpdateBlogType) {
     throw new ErrorResponse('You are not authorized to update this blog');
   }
   return blogRepo.updateBlog(data.id, {
-    slug: data.slug,
     title: data.title,
+    slug: data.slug,
     coverImage: data.coverImage,
     categories: data.categories,
     isPaid: data.isPaid,
