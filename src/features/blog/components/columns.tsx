@@ -7,7 +7,6 @@ import { ActionsCell } from '@/components/custom/table/cell-actions';
 import { MultipleBadges } from '@/components/custom/table/cell-badge';
 
 export type AdminBlogsColumns = {
-  id: string;
   title: string;
   slug: string;
   categories: string[];
