@@ -6,7 +6,8 @@ import { SlugLink } from '@/components/custom/table/slug-link';
 import { SingleBadge } from '@/components/custom/table/cell-badge';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 
-type AdminEventsColumns = {
+export type AdminEventsColumns = {
+  id: string;
   title: string;
   slug: string;
   location: string;
@@ -21,7 +22,7 @@ export const AdminEventsColumns: ColumnDef<AdminEventsColumns>[] = [
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Title" />,
-    cell: ({ row }) => <SlugLink value={row.getValue('title')} slug={row.original.slug} />,
+    cell: ({ row }) => <SlugLink route="events" value={row.getValue('title')} slug={row.original.slug} />,
   },
   {
     accessorKey: 'location',
@@ -54,6 +55,6 @@ export const AdminEventsColumns: ColumnDef<AdminEventsColumns>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell row={row} actions={['edit', 'delete']} />,
+    cell: ({ row }) => <ActionsCell route="events" row={row} actions={['edit', 'delete']} />,
   },
 ];

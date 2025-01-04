@@ -1,12 +1,12 @@
 import React from 'react';
-import { CreateUpdateBlog } from '@/features/blog/components';
+import { CreateBlog } from '@/features/blog/components';
 
-const CreateUpdateBlogPage = () => {
+const CreateBlogPage = () => {
   return (
     <>
-      <CreateUpdateBlog data={null} />
+      <CreateBlog />
     </>
   );
 };
 
-export default CreateUpdateBlogPage;
+export default CreateBlogPage;

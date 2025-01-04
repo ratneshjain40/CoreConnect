@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { BlogFormType } from '../schema/blog';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { BlogDataType } from '../types/blog';
 
 type BlogListProps = {
-  blogs: BlogFormType[];
+  blogs: BlogDataType[];
 };
 
 export const BlogList = ({ blogs }: BlogListProps) => {
@@ -14,7 +14,7 @@ export const BlogList = ({ blogs }: BlogListProps) => {
       {blogs.map((blog) => (
         <Card key={blog.slug} className="flex flex-col overflow-hidden">
           <div className="relative w-full pt-[56.25%]">
-            <Image src={blog.coverImage ? blog.coverImage : ''} alt={blog.title} fill className="object-cover" />
+            <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" />
           </div>
 
           <CardHeader>
@@ -31,10 +31,7 @@ export const BlogList = ({ blogs }: BlogListProps) => {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Created: {blog.createdAt ? new Date(blog.createdAt).toDateString() : 'N/A'}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Updated: {blog.createdAt ? new Date(blog.createdAt).toDateString() : 'N/A'}
+              Updated: {blog.updatedAt ? new Date(blog.updatedAt).toDateString() : 'N/A'}
             </p>
           </CardContent>
 

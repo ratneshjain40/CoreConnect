@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, useTransition } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import Link from '@tiptap/extension-link';
 import { useEditor } from '@tiptap/react';
@@ -21,32 +21,24 @@ import { BlogForm } from './BlogForm';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { convertFileToBase64 } from '@/lib/base64';
-// import { editBlogAction, createBlogAction } from '@/actions/admin/blog';
-import { BlogFormType, blogSchema } from '../schema/blog';
+import { UpdateBlogType, blogSchema } from '../schema/blog';
+import { useAction } from 'next-safe-action/hooks';
+import { updateBlog } from '../server/actions';
 
-type CreateUpdateBlogProps = {
-  data: BlogFormType | null;
+type EditBlogProps = {
+  data: UpdateBlogType;
 };
 
-export const CreateUpdateBlog = ({ data }: CreateUpdateBlogProps) => {
+export const EditBlog = ({ data }: EditBlogProps) => {
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>(data?.coverImage ?? '');
+  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(updateBlog);
 
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),
-    defaultValues: data || {
-      title: '',
-      slug: '',
-      coverImage: '',
-      categories: [],
-      isPaid: false,
-      content: '',
-    },
+    defaultValues: data,
   });
 
   const editor = useEditor({
@@ -68,25 +60,16 @@ export const CreateUpdateBlog = ({ data }: CreateUpdateBlogProps) => {
       TextAlign.configure({ types: ['heading', 'paragraph', 'image'] }),
       Placeholder.configure({ placeholder: 'Write something …' }),
     ],
-    content: data ? data.content : '',
-    onUpdate: ({ editor }) => {
-      form.setValue('content', editor.getHTML());
-    },
+    content: data.content,
   });
 
-  const handleResetBlog = useCallback(() => {
+  const handleResetBlog = () => {
     form.clearErrors();
 
-    if (data) {
-      form.reset(data);
-      editor?.commands.setContent(data.content || '');
-      setCoverImagePreview(data.coverImage || null);
-    } else {
-      form.reset();
-      editor?.commands.clearContent();
-      setCoverImagePreview(null);
-    }
-  }, [data, form, editor]);
+    form.reset(data);
+    editor?.commands.setContent(data.content);
+    setCoverImagePreview(data.coverImage || null);
+  };
 
   const handleCoverImageChange = useCallback(
     async (file: File) => {
@@ -95,50 +78,35 @@ export const CreateUpdateBlog = ({ data }: CreateUpdateBlogProps) => {
         form.setValue('coverImage', base64CoverImage);
         setCoverImagePreview(base64CoverImage);
       } catch (error) {
-        setError('Failed to process the image. Please retry.');
         console.error('Error converting file to Base64:', error);
       }
     },
     [form]
   );
 
-  const commonAction = (info: { error?: string; success?: string }) => {
-    if (!data) handleResetBlog();
-    if (info?.error) setError(info.error);
-    if (info?.success) setSuccess(info.success);
+  const onSubmit = (values: z.infer<typeof blogSchema>) => {
+    execute({ ...values, id: data.id });
   };
 
-  const onSubmit = async (values: z.infer<typeof blogSchema>) => {
-    setError('');
-    setSuccess('');
-
-    startTransition(async () => {
-      // try {
-      //   const action = data ? editBlogAction(values, data.slug) : createBlogAction(values);
-      //   const result = await action;
-      //   commonAction(result);
-      //   setTimeout(() => {
-      //     router.push('/admin/blogs');
-      //   }, 500);
-      // } catch (error) {
-      //   setError('Something went wrong!');
-      // }
-    });
-  };
+  if (!isPending && hasSucceeded) {
+    setTimeout(() => {
+      router.push('/admin/blogs');
+    }, 500);
+  }
 
   const handleContainerClick = () => fileInputRef.current?.click();
 
   return (
     <BlogForm
       form={form}
-      error={error}
       editor={editor}
-      success={success}
-      isEditing={!!data}
+      isEditing={true}
       onSubmit={onSubmit}
       isPending={isPending}
       fileInputRef={fileInputRef}
+      success={result?.data?.success}
       handleResetBlog={handleResetBlog}
+      error={result.serverError?.toString()}
       coverImagePreview={coverImagePreview}
       handleContainerClick={handleContainerClick}
       handleCoverImageChange={handleCoverImageChange}

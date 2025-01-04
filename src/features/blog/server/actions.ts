@@ -4,6 +4,7 @@ import { authActionClient } from '@/lib/action-clients';
 import { blogService } from './service';
 import { z } from 'zod';
 import { blogSchema, updateBlogSchema } from '../schema/blog';
+import { revalidatePath } from 'next/cache';
 
 export const getAllBlogsData = authActionClient
   .metadata({
@@ -41,9 +42,9 @@ export const createBlog = authActionClient
   })
   .schema(blogSchema)
   .action(async (data) => {
-    console.log('BLOG DATA', data);
     let sessionUser = data.ctx.session.user;
     await blogService.createBlog(sessionUser.id, data.parsedInput);
+    revalidatePath('/admin/blogs');
     return { success: 'Blog created successfully' };
   });
 
@@ -55,6 +56,7 @@ export const updateBlog = authActionClient
   .action(async (data) => {
     let sessionUser = data.ctx.session.user;
     await blogService.updateBlog(sessionUser.id, data.parsedInput);
+    revalidatePath('/admin/blogs');
     return { success: 'Blog updated successfully' };
   });
 

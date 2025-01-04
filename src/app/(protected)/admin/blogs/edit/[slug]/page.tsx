@@ -1,16 +1,16 @@
 import React from 'react';
-import { blogRepo } from '@/features/blog/server/repo';
-import { CreateUpdateBlog } from '@/features/blog/components';
+import { EditBlog } from '@/features/blog/components';
+import { getBlogBySlug } from '@/features/blog/server/actions';
 
-const EditBlog = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const EditBlogPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const slug = (await params).slug;
-  const blog = await blogRepo.getBlogBySlug(slug);
-
+  const blog = await getBlogBySlug({ slug });
+  
   return (
     <>
-      <CreateUpdateBlog data={blog} />
+      <EditBlog data={blog?.data!!} />
     </>
   );
 };
 
-export default EditBlog;
+export default EditBlogPage;

@@ -1,10 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
 import DOMPurify from 'isomorphic-dompurify';
-import { BlogFormType } from '../schema/blog';
+import { BlogDataWithContentType } from '../types/blog';
 
 type ViewBlogProps = {
-  data: BlogFormType | null;
+  data: BlogDataWithContentType | null;
 };
 
 export const ViewBlog = ({ data }: ViewBlogProps) => {
@@ -61,7 +61,7 @@ export const ViewBlog = ({ data }: ViewBlogProps) => {
 
         <div className="mt-10 flex flex-col space-y-2 border-t border-gray-200 pt-4 text-sm text-gray-600">
           <p>
-            <strong>Author:</strong> Entomon Institute
+            <strong>Author:</strong> {data.author}
           </p>
           <p>
             <strong>Last Updated:</strong> {updatedAt ? new Date(updatedAt).toLocaleDateString() : 'N/A'}

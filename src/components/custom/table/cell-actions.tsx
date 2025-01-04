@@ -3,18 +3,25 @@ import Link from 'next/link';
 
 import { Icon } from '@/constants/icons';
 import { CustomModal } from '../CustomModal';
+import { Row } from '@tanstack/react-table';
+import { AdminBlogsColumns } from '@/features/blog/components/columns';
+import { AdminCoursesColumns } from '@/features/courses/components/columns';
+import { AdminEventsColumns } from '@/features/events/components/columns';
+import { useAction } from 'next-safe-action/hooks';
+import { deleteBlogAdmin } from '@/features/blog/server/actions';
 
 type ActionProps = {
-  row: any;
+  row: Row<AdminBlogsColumns | AdminCoursesColumns | AdminEventsColumns>;
+  route: string;
 };
 
-const DeleteAction = ({ row }: ActionProps) => {
+const DeleteAction = ({ row, route }: ActionProps) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const { execute } = useAction(deleteBlogAdmin);
 
   const handleDelete = () => {
-    console.log('Delete action triggered for', row.original.id);
     setDialogOpen(false);
-    // Perform delete logic here
+    execute({ slug: row.original.slug });
   };
 
   return (
@@ -36,35 +43,29 @@ const DeleteAction = ({ row }: ActionProps) => {
   );
 };
 
-const EditAction = ({ row }: ActionProps) => (
-  <Link href={`/admin/blogs/edit/${encodeURIComponent(row.original.id)}`}>
+const EditAction = ({ row, route }: ActionProps) => (
+  <Link href={`/admin/${route}/edit/${encodeURIComponent(row.original.slug)}`}>
     <Icon name="edit" className="h-5 w-5 cursor-pointer" />
   </Link>
-);
-
-const CheckAction = ({ row }: ActionProps) => (
-  <span onClick={() => console.log('Check action triggered for', row.original.id)}>
-    <Icon name="check" className="h-5 w-5 cursor-pointer" />
-  </span>
 );
 
 const ACTION_COMPONENTS = {
   delete: DeleteAction,
   edit: EditAction,
-  check: CheckAction,
 };
 
 type ActionsCellProps = {
-  actions: ('delete' | 'edit' | 'check')[];
+  actions: ('delete' | 'edit')[];
   row: any;
+  route: string;
 };
 
-export const ActionsCell = ({ actions, row }: ActionsCellProps) => {
+export const ActionsCell = ({ actions, row, route }: ActionsCellProps) => {
   return (
     <div className="flex items-center space-x-4">
       {actions.map((action) => {
         const ActionComponent = ACTION_COMPONENTS[action];
-        return <ActionComponent key={action} row={row} />;
+        return <ActionComponent key={action} row={row} route={route} />;
       })}
     </div>
   );

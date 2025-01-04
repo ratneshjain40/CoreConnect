@@ -6,7 +6,8 @@ import { SlugLink } from '@/components/custom/table/slug-link';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 import { MultipleBadges } from '@/components/custom/table/cell-badge';
 
-type AdminBlogsColumns = {
+export type AdminBlogsColumns = {
+  id: string;
   title: string;
   slug: string;
   categories: string[];
@@ -19,14 +20,14 @@ export const AdminBlogsColumns: ColumnDef<AdminBlogsColumns>[] = [
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Title" />,
-    cell: ({ row }) => <SlugLink value={row.getValue('title')} slug={row.original.slug} />,
+    cell: ({ row }) => <SlugLink route="blogs" value={row.getValue('title')} slug={row.original.slug} />,
   },
   {
     accessorKey: 'slug',
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Slug" />,
-    cell: ({ row }) => <SlugLink value={row.getValue('slug')} slug={row.original.slug} />,
+    cell: ({ row }) => <SlugLink route="blogs" value={row.getValue('slug')} slug={row.original.slug} />,
   },
   {
     accessorKey: 'categories',
@@ -45,6 +46,6 @@ export const AdminBlogsColumns: ColumnDef<AdminBlogsColumns>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell row={row} actions={['edit', 'delete']} />,
+    cell: ({ row }) => <ActionsCell route="blogs" row={row} actions={['edit', 'delete']} />,
   },
 ];

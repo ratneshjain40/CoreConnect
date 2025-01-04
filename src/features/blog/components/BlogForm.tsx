@@ -37,7 +37,11 @@ export const BlogForm = ({
     <>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.setValue('content', editor?.getHTML() || '');
+            form.handleSubmit(onSubmit)();
+          }}
           className="flex h-screen w-full flex-col items-center gap-3 overflow-hidden"
         >
           <div className="flex w-full gap-8">

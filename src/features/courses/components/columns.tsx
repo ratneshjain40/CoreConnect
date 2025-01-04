@@ -6,7 +6,8 @@ import { SlugLink } from '@/components/custom/table/slug-link';
 import { SingleBadge } from '@/components/custom/table/cell-badge';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 
-type AdminCoursesColumns = {
+export type AdminCoursesColumns = {
+  id: string;
   title: string;
   slug: string;
   price: string;
@@ -19,7 +20,7 @@ export const AdminCoursesColumns: ColumnDef<AdminCoursesColumns>[] = [
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Title" />,
-    cell: ({ row }) => <SlugLink value={row.getValue('title')} slug={row.original.slug} />,
+    cell: ({ row }) => <SlugLink route="courses" value={row.getValue('title')} slug={row.original.slug} />,
   },
   {
     accessorKey: 'price',
@@ -39,6 +40,6 @@ export const AdminCoursesColumns: ColumnDef<AdminCoursesColumns>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell row={row} actions={['edit', 'delete']} />,
+    cell: ({ row }) => <ActionsCell route="courses" row={row} actions={['edit', 'delete']} />,
   },
 ];

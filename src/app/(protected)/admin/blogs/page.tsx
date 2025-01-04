@@ -5,10 +5,10 @@ import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
 import { columns } from '@/features/blog/components';
-import { blogRepo } from '@/features/blog/server/repo';
+import { getAllBlogsData } from '@/features/blog/server/actions';
 
 const AdminBlogsPage = async () => {
-  const blogs = await blogRepo.selectFromAllBlogs();
+  const blogs = await getAllBlogsData();
 
   return (
     <>
@@ -26,7 +26,7 @@ const AdminBlogsPage = async () => {
         </Button>
       </Link>
 
-      <DataTable columns={columns} showExportButton={false} filterField="title" data={blogs ?? []} />
+      <DataTable columns={columns} showExportButton={false} filterField="title" data={blogs?.data ?? []} />
     </>
   );
 };
