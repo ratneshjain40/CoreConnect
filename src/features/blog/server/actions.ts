@@ -30,7 +30,8 @@ const createBlog = authActionClient.metadata({
     roleGate: "USER",
 }).schema(blogSchema).action(async (data) => {
     let sessionUser = data.ctx.session.user;
-    return await blogService.createBlog(sessionUser.id, data.parsedInput);
+    await blogService.createBlog(sessionUser.id, data.parsedInput);
+    return { success: true, message: "Blog created successfully" };
 });
 
 const updateBlog = authActionClient.metadata({
