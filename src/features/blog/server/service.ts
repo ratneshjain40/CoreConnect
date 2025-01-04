@@ -50,19 +50,23 @@ async function updateBlog(userId: string, data: UpdateBlogType) {
   });
 }
 
-async function deleteBlog(userId: string, blogId: string) {
-  let blog = await blogRepo.selectBlogById(blogId);
+async function deleteBlog(userId: string, slug: string) {
+  let blog = await blogRepo.getBlogBySlug(slug);
   if (!blog) {
     throw new ErrorResponse('Blog not found');
   }
   if (blog.userId !== userId) {
     throw new ErrorResponse('You are not authorized to delete this blog');
   }
-  return blogRepo.deleteBlog(blogId);
+  return blogRepo.deleteBlog(blog.id);
 }
 
-async function deleteBlogAdmin(blogId: string) {
-  return blogRepo.deleteBlog(blogId);
+async function deleteBlogAdmin(slug: string) {
+    let blog = await blogRepo.getBlogBySlug(slug);
+    if (!blog) {
+      throw new ErrorResponse('Blog not found');
+    }
+  return blogRepo.deleteBlog(blog.id);
 }
 
 export const blogService = {

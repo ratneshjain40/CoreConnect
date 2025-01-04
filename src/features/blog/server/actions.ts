@@ -64,12 +64,12 @@ export const deleteBlog = authActionClient
   })
   .schema(
     z.object({
-      blogId: z.string(),
+      slug: z.string(),
     })
   )
   .action(async (data) => {
     let sessionUser = data.ctx.session.user;
-    await blogService.deleteBlog(sessionUser.id, data.parsedInput.blogId);
+    await blogService.deleteBlog(sessionUser.id, data.parsedInput.slug);
     return { success: 'Blog deleted successfully' };
   });
 
@@ -79,10 +79,10 @@ export const deleteBlogAdmin = authActionClient
   })
   .schema(
     z.object({
-      blogId: z.string(),
+      slug: z.string(),
     })
   )
   .action(async (data) => {
-    await blogService.deleteBlogAdmin(data.parsedInput.blogId);
+    await blogService.deleteBlogAdmin(data.parsedInput.slug);
     return { success: 'Blog deleted successfully' };
   });
