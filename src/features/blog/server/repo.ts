@@ -25,10 +25,11 @@ async function getAllBlogSlugs(): Promise<string[]> {
   return slugs.map((slug) => slug.slug);
 }
 
-type BlogSpecificFields = Pick<Blog, 'title' | 'slug' | 'categories' | 'isPaid' | 'userId'>;
+type BlogSpecificFields = Pick<Blog, 'id' | 'title' | 'slug' | 'categories' | 'isPaid' | 'userId'>;
 async function selectFromAllBlogs(): Promise<BlogSpecificFields[]> {
   return await prisma.blog.findMany({
     select: {
+      id: true,
       title: true,
       userId: true,
       slug: true,
@@ -44,6 +45,7 @@ async function selectBlogById(blogId: string): Promise<BlogSpecificFields | null
       id: blogId,
     },
     select: {
+      id: true,
       title: true,
       userId: true,
       slug: true,
@@ -59,6 +61,7 @@ async function selectFromAllBlogsByUser(userId: string): Promise<BlogSpecificFie
       userId,
     },
     select: {
+      id: true,
       title: true,
       userId: true,
       slug: true,
@@ -74,14 +77,7 @@ async function createBlog(data: Prisma.BlogCreateInput): Promise<Blog> {
   });
 }
 
-async function updateBlog(blogId: string, data: {
-  title: string;
-  slug: string;
-  coverImage: string;
-  categories: string[];
-  isPaid: boolean;
-  content: string;
-}): Promise<Blog> {
+async function updateBlog(blogId: string, data: Prisma.BlogUpdateInput): Promise<Blog> {
   return await prisma.blog.update({
     where: { id: blogId },
     data: data,
