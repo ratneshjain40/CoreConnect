@@ -23,23 +23,10 @@ async function getAllBlogSlugs(): Promise<string[]> {
   });
 
   return slugs.map((slug) => slug.slug);
+
 }
 
-type BlogSpecificFields = Pick<Blog, 'id' | 'title' | 'slug' | 'categories' | 'isPaid' | 'userId'>;
-async function selectFromAllBlogs(): Promise<BlogSpecificFields[]> {
-  return await prisma.blog.findMany({
-    select: {
-      id: true,
-      title: true,
-      userId: true,
-      slug: true,
-      categories: true,
-      isPaid: true,
-    },
-  });
-}
-
-async function selectBlogById(blogId: string): Promise<BlogSpecificFields | null> {
+async function getBlogDataById(blogId: string) {
   return await prisma.blog.findUnique({
     where: {
       id: blogId,
@@ -47,10 +34,26 @@ async function selectBlogById(blogId: string): Promise<BlogSpecificFields | null
     select: {
       id: true,
       title: true,
-      userId: true,
       slug: true,
       categories: true,
       isPaid: true,
+      author: true,
+      userId: true,
+    },
+  });
+}
+
+type BlogSpecificFields = Pick<Blog, 'title' | 'slug' | 'categories' | 'isPaid' | 'author' | 'updatedAt'>;
+
+async function selectFromAllBlogs(): Promise<BlogSpecificFields[]> {
+  return await prisma.blog.findMany({
+    select: {
+      title: true,
+      slug: true,
+      categories: true,
+      isPaid: true,
+      author: true,
+      updatedAt: true,
     },
   });
 }
@@ -61,12 +64,12 @@ async function selectFromAllBlogsByUser(userId: string): Promise<BlogSpecificFie
       userId,
     },
     select: {
-      id: true,
       title: true,
-      userId: true,
       slug: true,
       categories: true,
       isPaid: true,
+      author: true,
+      updatedAt: true,
     },
   });
 }
@@ -95,7 +98,7 @@ export const blogRepo = {
   getBlogBySlug,
   getAllBlogSlugs,
   selectFromAllBlogs,
-  selectBlogById,
+  getBlogDataById,
   selectFromAllBlogsByUser,
   createBlog,
   updateBlog,

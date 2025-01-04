@@ -33,7 +33,7 @@ async function createBlog(userId: string, data: BlogFormType) {
 }
 
 async function updateBlog(userId: string, data: UpdateBlogType) {
-  let blog = await blogRepo.selectBlogById(data.id);
+  let blog = await blogRepo.getBlogDataById(data.id);
   if (!blog) {
     throw new ErrorResponse('Blog not found');
   }
