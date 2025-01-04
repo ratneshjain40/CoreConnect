@@ -36,7 +36,7 @@ async function updateBlog(userId: string, data: UpdateBlogType) {
     throw new ErrorResponse('You are not authorized to update this blog');
   }
   return blogRepo.updateBlog(data.id, {
-    slug: blog.slug,
+    slug: data.slug,
     title: data.title,
     coverImage: data.coverImage,
     categories: data.categories,
