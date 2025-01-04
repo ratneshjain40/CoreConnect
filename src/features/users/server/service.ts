@@ -36,6 +36,10 @@ async function updatePassword(id: string, password: string) {
   return await userRepo.updatePassword(id, password);
 }
 
+async function getAllUsersData() {
+  return userRepo.selectAllUsers();
+}
+
 export const userService = {
   getUserByEmail,
   getUserById,
