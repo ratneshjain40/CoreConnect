@@ -13,11 +13,11 @@ const blogSchema = z.object({
 
 const updateBlogSchema = z.object({
   id: z.string().min(1),
-  title: z.string().min(1).optional(),
-  coverImage: z.string().optional(),
-  categories: z.tuple([z.string()]).or(z.array(z.string())).optional(),
-  isPaid: z.boolean().optional(),
-  content: z.string().min(1).optional(),
+  title: z.string().min(1),
+  coverImage: z.string(),
+  categories: z.tuple([z.string()]).or(z.array(z.string())),
+  isPaid: z.boolean(),
+  content: z.string().min(1),
 });
 
 type BlogFormType = z.infer<typeof blogSchema>;

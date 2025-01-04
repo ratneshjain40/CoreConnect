@@ -35,7 +35,13 @@ async function updateBlog(userId: string, data: UpdateBlogType) {
   if (blog.userId !== userId) {
     throw new ErrorResponse('You are not authorized to update this blog');
   }
-  return blogRepo.updateBlog(data.id, data);
+  return blogRepo.updateBlog(data.id, {
+    title: data.title,
+    coverImage: data.coverImage,
+    categories: data.categories,
+    isPaid: data.isPaid,
+    content: data.content,
+  });
 }
 
 async function deleteBlog(userId: string, blogId: string) {
