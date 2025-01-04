@@ -12,7 +12,7 @@ const blogSchema = z.object({
 });
 
 const updateBlogSchema = z.object({
-  slug: z.string().min(1),
+  id: z.string().min(1),
   title: z.string().min(1).optional(),
   coverImage: z.string().optional(),
   categories: z.tuple([z.string()]).or(z.array(z.string())).optional(),

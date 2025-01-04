@@ -28,14 +28,14 @@ async function createBlog(userId: string, data: BlogFormType) {
 }
 
 async function updateBlog(userId: string, data: UpdateBlogType) {
-  let blog = await blogRepo.getBlogBySlug(data.slug);
+  let blog = await blogRepo.selectBlogById(data.id);
   if (!blog) {
     throw new ErrorResponse('Blog not found');
   }
   if (blog.userId !== userId) {
     throw new ErrorResponse('You are not authorized to update this blog');
   }
-  return blogRepo.updateBlog(blog.id, data);
+  return blogRepo.updateBlog(data.id, data);
 }
 
 async function deleteBlog(userId: string, blogId: string) {
