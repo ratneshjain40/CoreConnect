@@ -43,5 +43,5 @@ export const eventRepo = {
   getEventById,
   createEvent,
   updateEvent,
-  deleteEvent
+  deleteEvent,
 };

@@ -5,65 +5,84 @@ import { blogService } from './service';
 import { z } from 'zod';
 import { blogSchema, updateBlogSchema } from '../schema/blog';
 
-const getAllBlogsData = authActionClient.metadata({
-    roleGate: "USER",
-}).action(async () => {
+export const getAllBlogsData = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .action(async () => {
     return await blogService.getAllBlogsData();
-});
+  });
 
-const getAllBlogsDataByUser = authActionClient.metadata({
-    roleGate: "USER",
-}).action(async (data) => {
+export const getAllBlogsDataByUser = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .action(async (data) => {
     let sessionUser = data.ctx.session.user;
     return await blogService.getAllBlogsDataByUser(sessionUser.id);
-});
+  });
 
-const getBlogBySlug = authActionClient.metadata({
-    roleGate: "USER",
-}).schema(z.object({
-    slug: z.string(),
-})).action(async (data) => {
+export const getBlogBySlug = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .schema(
+    z.object({
+      slug: z.string(),
+    })
+  )
+  .action(async (data) => {
     return await blogService.getBlogBySlug(data.parsedInput.slug);
-});
+  });
 
-const createBlog = authActionClient.metadata({
-    roleGate: "USER",
-}).schema(blogSchema).action(async (data) => {
+export const createBlog = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .schema(blogSchema)
+  .action(async (data) => {
+    console.log('BLOG DATA', data);
     let sessionUser = data.ctx.session.user;
     await blogService.createBlog(sessionUser.id, data.parsedInput);
-    return { success: true, message: "Blog created successfully" };
-});
+    return { success: 'Blog created successfully' };
+  });
 
-const updateBlog = authActionClient.metadata({
-    roleGate: "USER",
-}).schema(updateBlogSchema).action(async (data) => {
+export const updateBlog = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .schema(updateBlogSchema)
+  .action(async (data) => {
     let sessionUser = data.ctx.session.user;
-    return await blogService.updateBlog(sessionUser.id, data.parsedInput);
-});
+    await blogService.updateBlog(sessionUser.id, data.parsedInput);
+    return { success: 'Blog updated successfully' };
+  });
 
-const deleteBlog = authActionClient.metadata({
-    roleGate: "USER",
-}).schema(z.object({
-    blogId: z.string(),
-})).action(async (data) => {
+export const deleteBlog = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .schema(
+    z.object({
+      blogId: z.string(),
+    })
+  )
+  .action(async (data) => {
     let sessionUser = data.ctx.session.user;
-    return await blogService.deleteBlog(sessionUser.id, data.parsedInput.blogId);
-});
+    await blogService.deleteBlog(sessionUser.id, data.parsedInput.blogId);
+    return { success: 'Blog deleted successfully' };
+  });
 
-const deleteBlogAdmin = authActionClient.metadata({
-    roleGate: "ADMIN",
-}).schema(z.object({
-    blogId: z.string(),
-})).action(async (data) => {
-    return await blogService.deleteBlogAdmin(data.parsedInput.blogId);
-});
-
-export const blogActions = {
-    getAllBlogsData,
-    getAllBlogsDataByUser,
-    getBlogBySlug,
-    createBlog,
-    updateBlog,
-    deleteBlog,
-    deleteBlogAdmin,
-};
+export const deleteBlogAdmin = authActionClient
+  .metadata({
+    roleGate: 'ADMIN',
+  })
+  .schema(
+    z.object({
+      blogId: z.string(),
+    })
+  )
+  .action(async (data) => {
+    await blogService.deleteBlogAdmin(data.parsedInput.blogId);
+    return { success: 'Blog deleted successfully' };
+  });

@@ -30,11 +30,9 @@ export const actionClient = createSafeActionClient({
 
     return DEFAULT_SERVER_ERROR_MESSAGE;
   },
-}).metadata(
-  {
-    roleGate: UserRole.USER,
-  }
-);
+}).metadata({
+  roleGate: UserRole.USER,
+});
 
 export const authActionClient = actionClient.use(async ({ next, metadata }) => {
   const session = await auth();

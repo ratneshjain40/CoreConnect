@@ -96,5 +96,5 @@ export const blogRepo = {
   selectFromAllBlogsByUser,
   createBlog,
   updateBlog,
-  deleteBlog
+  deleteBlog,
 };

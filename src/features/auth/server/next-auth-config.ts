@@ -55,7 +55,7 @@ const providersConfig = {
           }
           throw new CredentialsSignin('Invalid credentials');
         }
-      }
+      },
     }),
   ],
 } satisfies NextAuthConfig;
