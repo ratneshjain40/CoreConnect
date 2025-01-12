@@ -39,3 +39,9 @@ export type BlogDataWithContentType = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type CommentDataType = {
+  username: string;
+  content: string;
+  createdAt: Date;
+};

@@ -2,8 +2,9 @@ import 'server-only';
 
 import { blogRepo } from './repo';
 import { ErrorResponse } from '@/types/errors';
-import { BlogFormType, UpdateBlogType } from '../schema/blog';
+import { BlogFormType, createCommentSchema, UpdateBlogType } from '../schema/blog';
 import { userService } from '@/features/users/server/service';
+import { z } from 'zod';
 
 async function getBlogBySlug(slug: string) {
   let blog = await blogRepo.getBlogBySlug(slug);
@@ -67,6 +68,39 @@ async function deleteBlogAdmin(slug: string) {
   return blogRepo.deleteBlog(blog.id);
 }
 
+// -------------------------- Comments --------------------------
+
+async function getAllBlogComments(blogSlug: string) {
+  let blog = await blogRepo.getBlogBySlug(blogSlug);
+  if (!blog) {
+    throw new ErrorResponse('Blog not found');
+  }
+  return blogRepo.getAllBlogComments(blog.id);
+}
+
+async function createBlogComment(userId: string, data: z.infer<typeof createCommentSchema>) {
+  let blog = await blogRepo.getBlogBySlug(data.blogSlug);
+  if (!blog) {
+    throw new ErrorResponse('Blog not found');
+  }
+  return await blogRepo.createBlogComment({
+    content: data.content,
+    blogId: blog.id,
+    userId: userId,
+  });
+}
+
+async function deleteBlogComment(userId: string, blogCommentId: string) {
+  let blogComment = await blogRepo.getBlogCommentById(blogCommentId);
+  if (!blogComment) {
+    throw new ErrorResponse('Blog comment not found');
+  }
+  if (blogComment.userId !== userId) {
+    throw new ErrorResponse('You are not authorized to delete this blog comment');
+  }
+  return blogRepo.deleteBlogComment(blogCommentId);
+}
+
 export const blogService = {
   getBlogBySlug,
   getAllBlogsData,
@@ -75,4 +109,7 @@ export const blogService = {
   updateBlog,
   deleteBlog,
   deleteBlogAdmin,
+  getAllBlogComments,
+  createBlogComment,
+  deleteBlogComment,
 };

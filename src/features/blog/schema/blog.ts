@@ -21,15 +21,13 @@ const updateBlogSchema = z.object({
   content: z.string().min(1),
 });
 
-const commentSchema = z.object({
-  author: z.string().min(1),
-  image: z.string().min(1),
-  content: z.string().min(1),
-  date: z.date(),
+const createCommentSchema = z.object({
+  content: z.string().min(1, { message: 'Comment is required.' }),
+  blogSlug: z.string().min(1, { message: 'Blog slug is required.' }),
 });
 
 type BlogFormType = z.infer<typeof blogSchema>;
 type UpdateBlogType = z.infer<typeof updateBlogSchema>;
 
-export { blogSchema, updateBlogSchema, commentSchema };
+export { blogSchema, updateBlogSchema, createCommentSchema };
 export type { BlogFormType, UpdateBlogType };
