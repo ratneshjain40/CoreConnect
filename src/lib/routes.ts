@@ -1,6 +1,6 @@
 const ADMIN_ROUTES = /^\/admin(\/.*)?$/;
 
-const PUBLIC_ROUTES = /^\/($|about$|contact$|auth\/new-verification$|blogs(\/[^/]+)?$)/;
+const PUBLIC_ROUTES = /^\/($|about$|contact$|auth\/new-verification$|blogs(\/[^/]+)?$|events(\/[^/]+)?$)/;
 
 const AUTH_ROUTES = ['/auth/login', '/auth/register', '/auth/error', '/auth/reset', '/auth/new-password'];
 

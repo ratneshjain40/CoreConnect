@@ -19,6 +19,11 @@ const nextConfig = {
         hostname: 'wallpapercat.com',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+        port: '',
+      },
     ],
   },
 };

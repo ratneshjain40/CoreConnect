@@ -1,8 +1,10 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { BlogDataType } from '../types/blog';
+import { Badge } from '@/components/ui/badge';
+import { ButtonLink } from '@/components/custom/ButtonLink';
+import { CalendarIcon, LockIcon, UserIcon } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 type BlogListProps = {
   blogs: BlogDataType[];
@@ -10,38 +12,46 @@ type BlogListProps = {
 
 export const BlogList = ({ blogs }: BlogListProps) => {
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-wrap gap-8">
       {blogs.map((blog) => (
-        <Card key={blog.slug} className="flex flex-col overflow-hidden">
-          <div className="relative w-full pt-[56.25%]">
-            <Image src={blog.coverImage} alt={blog.title} fill className="object-cover" />
-          </div>
-
-          <CardHeader>
-            <CardTitle className="line-clamp-2">{blog.title}</CardTitle>
+        <Card key={blog.slug} className="w-full max-w-sm overflow-hidden">
+          <CardHeader className="p-0">
+            <div className="relative h-48 w-full">
+              <Image src={blog.coverImage} alt={blog.title} layout="fill" objectFit="cover" />
+              {blog.isPaid ? (
+                <Badge className="absolute right-2 top-2 bg-yellow-500" variant="secondary">
+                  <LockIcon className="mr-1 h-3 w-3" />
+                  Premium
+                </Badge>
+              ) : (
+                <Badge className="absolute right-2 top-2 bg-green-500">Free</Badge>
+              )}
+            </div>
           </CardHeader>
 
-          <CardContent>
-            <div className="mb-2 flex flex-wrap gap-2">
+          <CardContent className="p-4">
+            <h2 className="mb-2 line-clamp-2 text-xl font-semibold">{blog.title}</h2>
+            <div className="mb-3 flex flex-wrap gap-2">
               {blog.categories.map((category) => (
-                <Badge key={category} variant="secondary">
+                <Badge key={category} variant="outline">
                   {category}
                 </Badge>
               ))}
             </div>
-
-            <p className="text-sm text-muted-foreground">
-              Updated: {blog.updatedAt ? new Date(blog.updatedAt).toDateString() : 'N/A'}
-            </p>
+            <div className="mb-2 flex items-center text-sm text-gray-500">
+              <UserIcon className="mr-2 h-4 w-4" />
+              {blog.author}
+            </div>
+            <div className="flex items-center text-sm text-gray-500">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {blog.updatedAt
+                ? `Updated ${new Date(blog.updatedAt).toLocaleDateString()}`
+                : `Published ${new Date(blog.createdAt).toLocaleDateString()}`}
+            </div>
           </CardContent>
 
-          <CardFooter className="mt-auto">
-            <Link href={`/blogs/${blog.slug}`} className="text-primary hover:underline">
-              Read more
-            </Link>
-            <Badge variant={blog.isPaid ? 'destructive' : 'default'} className="ml-auto">
-              {blog.isPaid ? 'Paid' : 'Free'}
-            </Badge>
+          <CardFooter className="bg-gray-50 p-4">
+            <ButtonLink name="Read more" url={`/blogs/${blog.slug}`} />
           </CardFooter>
         </Card>
       ))}

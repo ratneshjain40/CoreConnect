@@ -7,8 +7,12 @@ const BlogsPage = async () => {
 
   return (
     <>
-      <h1>Blogs</h1>
-      <BlogList blogs={blogs?.data || []} />
+      <section className="w-full py-10">
+        <div className="container gap-8 px-4 md:px-6">
+          <h2 className="p-2 text-3xl font-bold tracking-tight">Blogs</h2>
+          <BlogList blogs={blogs?.data || []} />
+        </div>
+      </section>
     </>
   );
 };

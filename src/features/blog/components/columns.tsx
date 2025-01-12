@@ -11,6 +11,8 @@ export type AdminBlogsColumns = {
   slug: string;
   categories: string[];
   isPaid: boolean;
+  userId: string;
+  author: string;
 };
 
 export const AdminBlogsColumns: ColumnDef<AdminBlogsColumns>[] = [
@@ -43,8 +45,13 @@ export const AdminBlogsColumns: ColumnDef<AdminBlogsColumns>[] = [
     enableHiding: true,
   },
   {
+    accessorKey: 'author',
+    header: ({ column }) => <SortColumnButton column={column} label="Author" />,
+    enableHiding: true,
+  },
+  {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell route="blogs" row={row} actions={['edit', 'delete']} />,
+    cell: ({ row }) => <ActionsCell row={row} actions={['editBlog', 'deleteBlog']} />,
   },
 ];

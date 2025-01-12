@@ -1,10 +1,8 @@
 import 'server-only';
 
-import { ErrorResponse } from '@/types/errors';
-import { BlogFormType, updateBlogSchema, UpdateBlogType } from '../schema/blog';
 import { blogRepo } from './repo';
-import { Prisma } from '@prisma/client';
-import { z } from 'zod';
+import { ErrorResponse } from '@/types/errors';
+import { BlogFormType, UpdateBlogType } from '../schema/blog';
 import { userService } from '@/features/users/server/service';
 
 async function getBlogBySlug(slug: string) {
@@ -28,7 +26,7 @@ async function createBlog(userId: string, data: BlogFormType) {
   return await blogRepo.createBlog({
     ...data,
     userId,
-    author: user.name
+    author: user.name,
   });
 }
 
@@ -62,10 +60,10 @@ async function deleteBlog(userId: string, slug: string) {
 }
 
 async function deleteBlogAdmin(slug: string) {
-    let blog = await blogRepo.getBlogBySlug(slug);
-    if (!blog) {
-      throw new ErrorResponse('Blog not found');
-    }
+  let blog = await blogRepo.getBlogBySlug(slug);
+  if (!blog) {
+    throw new ErrorResponse('Blog not found');
+  }
   return blogRepo.deleteBlog(blog.id);
 }
 

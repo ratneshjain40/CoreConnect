@@ -95,8 +95,8 @@ export const ContactForm = () => {
               <FormLabel>Message</FormLabel>
               <FormControl>
                 <Textarea
-                  {...field}
                   rows={4}
+                  {...field}
                   placeholder="Your message"
                   className={fieldState.invalid ? 'border-red-500' : ''}
                 />

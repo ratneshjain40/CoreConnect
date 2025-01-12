@@ -9,15 +9,7 @@ export const NAVBAR: NavbarProps[] = [
   {
     name: 'Events',
     url: '/events',
-    type: 'Dropdown',
-    options: [
-      {
-        name: 'Upcoming Events',
-        url: '/events/upcoming-events',
-        description: 'Check out our upcoming events & workshops.',
-      },
-      { name: 'Past Events', url: '/events/past-events', description: 'Explore our past events & activities.' },
-    ],
+    type: 'Link',
   },
   {
     name: 'Resources',

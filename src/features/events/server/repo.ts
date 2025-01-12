@@ -38,10 +38,21 @@ async function deleteEvent(id: string): Promise<Event> {
   });
 }
 
+async function getAllEventIDs(): Promise<string[]> {
+  const eventIDs = await prisma.event.findMany({
+    select: {
+      id: true,
+    },
+  });
+
+  return eventIDs.map((id) => id.id);
+}
+
 export const eventRepo = {
   getAllEvents,
   getEventById,
   createEvent,
   updateEvent,
   deleteEvent,
+  getAllEventIDs,
 };

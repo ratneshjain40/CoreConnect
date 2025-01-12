@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,15 +13,17 @@ enum UserRole {
 }
 
 model User {
-  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
   name               String
-  email              String    @unique
+  email              String          @unique
   emailVerified      DateTime?
   image              String?
   password           String?
-  role               UserRole  @default(USER)
+  role               UserRole        @default(USER)
   accounts           Account[]
-  isTwoFactorEnabled Boolean   @default(false)
+  isTwoFactorEnabled Boolean         @default(false)
+  Payment            Payment[]
+  StripeCustomer     StripeCustomer?
 }
 
 model Account {
@@ -84,15 +85,17 @@ enum EventStatus {
 model Event {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
   title       String
-  slug        String      @unique
-  coverImage  String?
+  coverImage  String
   description String
   price       String
+  categories  String[]
   location    String
-  date        DateTime
+  startDate   DateTime
+  endDate     DateTime
   status      EventStatus @default(UPCOMING)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  Payment     Payment[]
 }
 
 enum CourseStatus {
@@ -137,4 +140,31 @@ model Attachment {
   chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId
+  eventId         String   @db.ObjectId
+  stripePaymentId String   @unique
+  amount          Float
+  status          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([userId, eventId])
+}
+
+model StripeCustomer {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String @unique @db.ObjectId
+  stripeCustomerId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

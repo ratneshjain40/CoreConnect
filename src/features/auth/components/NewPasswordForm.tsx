@@ -23,16 +23,28 @@ export const NewPasswordForm = () => {
     resolver: zodResolver(newPasswordSchema),
     defaultValues: {
       password: '',
+      token: '',
     },
   });
 
   const onSubmit = (values: z.infer<typeof newPasswordSchema>) => {
-    if (token) execute({ ...values, token });
+    execute(values);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (token) {
+            form.setValue('token', token);
+            form.handleSubmit(onSubmit)();
+          } else {
+            alert('No token found');
+          }
+        }}
+        className="space-y-6"
+      >
         <div className="space-y-4">
           <FormField
             name="password"

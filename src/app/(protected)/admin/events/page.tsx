@@ -5,8 +5,16 @@ import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
 import { columns } from '@/features/events/components';
+import { getEvents } from '@/features/events/server/actions';
 
 const AdminEventsPage = async () => {
+  const result = await getEvents();
+  const events = result?.data?.map((event) => ({
+    ...event,
+    createdAt: event.createdAt.toISOString(),
+    updatedAt: event.updatedAt.toISOString(),
+  }));
+
   return (
     <>
       <Link href="/admin/events/create">
@@ -16,7 +24,7 @@ const AdminEventsPage = async () => {
         </Button>
       </Link>
 
-      <DataTable columns={columns} data={[]} showExportButton={false} filterField="title" />
+      <DataTable columns={columns} data={events ?? []} showExportButton={false} filterField="title" />
     </>
   );
 };

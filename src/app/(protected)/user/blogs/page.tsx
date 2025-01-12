@@ -5,8 +5,11 @@ import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
 import { columns } from '@/features/blog/components';
+import { getAllBlogsDataByUser } from '@/features/blog/server/actions';
 
 const UserBlogsPage = async () => {
+  const blogs = await getAllBlogsDataByUser();
+
   return (
     <>
       <Link href="/user/blogs/create">
@@ -16,7 +19,7 @@ const UserBlogsPage = async () => {
         </Button>
       </Link>
 
-      <DataTable columns={columns} showExportButton={false} filterField="title" data={[]} />
+      <DataTable columns={columns} showExportButton={false} filterField="title" data={blogs?.data ?? []} />
     </>
   );
 };

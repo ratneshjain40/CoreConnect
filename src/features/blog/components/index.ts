@@ -1,4 +1,4 @@
-export { ViewBlog } from './ViewBlog';
+export { SingleBlog } from './SingleBlog';
 export { BlogList } from './BlogList';
 export { EditBlog } from './EditBlog';
 export { CreateBlog } from './CreateBlog';

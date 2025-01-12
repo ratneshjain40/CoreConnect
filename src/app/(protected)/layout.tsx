@@ -26,11 +26,10 @@ import {
   userSidebarItemsList,
   adminSidebarItemsList,
 } from '@/components/custom/dashboard-layout';
-import { auth } from '@/features/auth/server/next-auth-config';
+import { currentUser } from '@/lib/auth';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-  const user = session?.user;
+  const user = await currentUser();
 
   return (
     <SidebarProvider>

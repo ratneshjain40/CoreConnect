@@ -10,10 +10,10 @@ import { sendTwoFactorEmail, sendVerificationEmail } from './mail';
 import { z } from 'zod';
 import { ErrorResponse } from '@/types/errors';
 import { emailSchema } from '@/constants/email';
-import { userRepo } from '@/features/users/server/repo';
+import { revalidatePath } from 'next/cache';
 
 export const registerUser = actionClient.schema(registerSchema).action(async (data) => {
-  const existingUser = await userRepo.getUserByEmail(data.parsedInput.email);
+  const existingUser = await userService.getUserByEmail(data.parsedInput.email);
   if (existingUser) {
     const emailToken = await authService.generateEmailVerificationToken(existingUser);
     await sendVerificationEmail(existingUser.email, emailToken.token);
@@ -76,5 +76,6 @@ export const resetPassword = actionClient.schema(newPasswordSchema).action(async
 
 export const logout = authActionClient.action(async () => {
   await signOut();
+  revalidatePath('/', 'layout');
   return { success: 'Password reset!' };
 });

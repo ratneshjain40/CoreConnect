@@ -1,6 +1,6 @@
 import { UserRole } from '@prisma/client';
 import { FormError } from '@/components/custom';
-import { auth } from '@/features/auth/server/next-auth-config';
+import { currentRole } from './auth';
 
 type RoleGateProps = {
   children: React.ReactNode;
@@ -9,8 +9,7 @@ type RoleGateProps = {
 };
 
 export const RoleGate = async ({ children, allowedRole, fallbackComponent }: RoleGateProps) => {
-  const session = await auth();
-  const role = session?.user?.role;
+  const role = await currentRole();
 
   // If the role is Admin, they can access all routes.
   if (role === UserRole.ADMIN) {

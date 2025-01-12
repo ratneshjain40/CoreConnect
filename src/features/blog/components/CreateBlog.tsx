@@ -19,18 +19,18 @@ import CharacterCount from '@tiptap/extension-character-count';
 import { z } from 'zod';
 import { BlogForm } from './BlogForm';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { convertFileToBase64 } from '@/lib/base64';
 import { blogSchema } from '../schema/blog';
-import { useAction } from 'next-safe-action/hooks';
 import { createBlog } from '../server/actions';
+import { convertFileToBase64 } from '@/lib/base64';
+import { useAction } from 'next-safe-action/hooks';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const CreateBlog = () => {
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [coverImagePreview, setCoverImagePreview] = useState<string | null>('');
-  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(createBlog);
+  const { execute, result, isPending, hasSucceeded } = useAction(createBlog);
 
   const form = useForm<z.infer<typeof blogSchema>>({
     resolver: zodResolver(blogSchema),

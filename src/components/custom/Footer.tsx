@@ -5,7 +5,7 @@ import { Icon } from '@/constants/icons';
 export const FOOTER_LINKS = [
   { id: 1, href: '/about', label: 'About' },
   { id: 2, href: '/events', label: 'Events' },
-  { id: 3, href: '/resources', label: 'Resources' },
+  { id: 3, href: '/blogs', label: 'Resources' },
   { id: 4, href: '/contact', label: 'Contact' },
 ];
 

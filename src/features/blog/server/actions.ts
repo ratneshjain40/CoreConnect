@@ -1,18 +1,14 @@
 'use server';
 
-import { authActionClient } from '@/lib/action-clients';
-import { blogService } from './service';
-import { z } from 'zod';
-import { blogSchema, updateBlogSchema } from '../schema/blog';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
+import { blogService } from './service';
+import { blogSchema, updateBlogSchema } from '../schema/blog';
+import { actionClient, authActionClient } from '@/lib/action-clients';
 
-export const getAllBlogsData = authActionClient
-  .metadata({
-    roleGate: 'USER',
-  })
-  .action(async () => {
-    return await blogService.getAllBlogsData();
-  });
+export const getAllBlogsData = actionClient.action(async () => {
+  return await blogService.getAllBlogsData();
+});
 
 export const getAllBlogsDataByUser = authActionClient
   .metadata({
@@ -23,10 +19,7 @@ export const getAllBlogsDataByUser = authActionClient
     return await blogService.getAllBlogsDataByUser(sessionUser.id);
   });
 
-export const getBlogBySlug = authActionClient
-  .metadata({
-    roleGate: 'USER',
-  })
+export const getBlogBySlug = actionClient
   .schema(
     z.object({
       slug: z.string(),
@@ -72,6 +65,7 @@ export const deleteBlog = authActionClient
   .action(async (data) => {
     let sessionUser = data.ctx.session.user;
     await blogService.deleteBlog(sessionUser.id, data.parsedInput.slug);
+    revalidatePath('/user/blogs');
     return { success: 'Blog deleted successfully' };
   });
 
@@ -86,5 +80,6 @@ export const deleteBlogAdmin = authActionClient
   )
   .action(async (data) => {
     await blogService.deleteBlogAdmin(data.parsedInput.slug);
+    revalidatePath('/admin/blogs');
     return { success: 'Blog deleted successfully' };
   });

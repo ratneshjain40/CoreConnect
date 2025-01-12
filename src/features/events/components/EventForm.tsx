@@ -1,17 +1,17 @@
 import { MultiSelect } from '@/components/ui/multi-select';
 import { FormError, FormSuccess } from '@/components/custom';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 import NextImage from 'next/image';
 import { Controller } from 'react-hook-form';
-import { BlogFormProps } from '../types/blog';
+import { CreateEvent } from '../schema/event';
 import { Input } from '@/components/ui/input';
-import { BlogFormType } from '../schema/blog';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { EventFormProps } from '../types/event';
 import { TextEditor } from '@/components/custom/editor';
+import { DatePicker } from '@/components/ui/DatePicker';
 
-const blogCategories = [
+const eventCategories = [
   { label: 'Technology', value: 'Technology', checked: false },
   { label: 'Lifestyle', value: 'Lifestyle', checked: false },
   { label: 'Education', value: 'Education', checked: false },
@@ -19,10 +19,10 @@ const blogCategories = [
   { label: 'Business', value: 'Business', checked: false },
 ];
 
-export const BlogForm = ({
+export const EventForm = ({
   form,
   onSubmit,
-  handleResetBlog,
+  handleResetEvent,
   handleCoverImageChange,
   coverImagePreview,
   handleContainerClick,
@@ -32,14 +32,14 @@ export const BlogForm = ({
   success,
   editor,
   isEditing,
-}: BlogFormProps<BlogFormType>) => {
+}: EventFormProps<CreateEvent>) => {
   return (
     <>
       <Form {...form}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            form.setValue('content', editor?.getHTML() || '');
+            form.setValue('description', editor?.getHTML() || '');
             form.handleSubmit(onSubmit)();
           }}
           className="flex h-screen w-full flex-col items-center gap-3 overflow-hidden"
@@ -56,7 +56,7 @@ export const BlogForm = ({
                         {...field}
                         type="text"
                         disabled={isPending}
-                        placeholder="Blog Title"
+                        placeholder="Event Title"
                         className={fieldState.invalid ? 'border-red-500' : ''}
                       />
                     </FormControl>
@@ -65,7 +65,26 @@ export const BlogForm = ({
               />
 
               <FormField
-                name="slug"
+                name="price"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormControl className="rounded-md border-gray-300">
+                      <Input
+                        min="0"
+                        {...field}
+                        type="number"
+                        placeholder="Price"
+                        disabled={isPending}
+                        className={fieldState.invalid ? 'border-red-500' : ''}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="location"
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <FormItem>
@@ -74,14 +93,40 @@ export const BlogForm = ({
                         {...field}
                         type="text"
                         disabled={isPending}
-                        placeholder="Slug"
-                        onChange={(e) => {
-                          field.onChange(e.target.value.replace(/\s+/g, '-').toLowerCase());
-                        }}
-                        onBlur={(e) => {
-                          form.setValue('slug', e.target.value.trim().replace(/^-+|-+$/g, ''));
-                        }}
+                        placeholder="Location"
                         className={fieldState.invalid ? 'border-red-500' : ''}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="startDate"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl className="rounded-md border-gray-300">
+                      <DatePicker
+                        {...field}
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={(date) => field.onChange(date)}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="endDate"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl className="rounded-md border-gray-300">
+                      <DatePicker
+                        {...field}
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={(date) => field.onChange(date)}
                       />
                     </FormControl>
                   </FormItem>
@@ -98,9 +143,9 @@ export const BlogForm = ({
                         {...field}
                         maxSelect={3}
                         disabled={isPending}
-                        options={blogCategories}
+                        options={eventCategories}
                         placeholder="Select categories..."
-                        className={fieldState.invalid ? 'border-red-500' : 'rounded-md border-gray-300 text-gray-500'}
+                        className={`rounded-md border-gray-300 text-gray-500 ${fieldState.invalid ? 'border-red-500' : ''}`}
                       />
                     </FormControl>
                   </FormItem>
@@ -149,35 +194,20 @@ export const BlogForm = ({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="isPaid"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center gap-3 space-y-0 rounded-lg px-2 py-2">
-                    <FormControl>
-                      <Switch id="Is Paid" checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                    <FormLabel htmlFor="Is Paid" className="text-sm font-medium text-gray-600">
-                      Is Paid
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
-
               {/* Reset and Submit Buttons */}
-              <div className="mt-4 flex w-full flex-col gap-2">
+              <div className="mt-2 flex w-full flex-col gap-2">
                 <FormError message={error} />
                 <FormSuccess message={success} />
 
                 <Button
                   type="button"
-                  onClick={handleResetBlog}
+                  onClick={handleResetEvent}
                   className="w-full rounded-md bg-red-200 p-2 font-semibold text-black hover:bg-red-100"
                 >
                   Reset
                 </Button>
                 <Button type="submit" className="w-full rounded-md p-2 font-semibold text-white">
-                  {isEditing ? 'Update Blog' : 'Create Blog'}
+                  {isEditing ? 'Update Event' : 'Create Event'}
                 </Button>
               </div>
             </div>

@@ -1,22 +1,16 @@
 'use server';
 
-import { authActionClient } from '@/lib/action-clients';
-import { eventService } from './service';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { eventService } from './service';
+import { actionClient, authActionClient } from '@/lib/action-clients';
 import { createEventSchema, updateEventSchema } from '../schema/event';
 
-const getEvents = authActionClient
-  .metadata({
-    roleGate: 'USER',
-  })
-  .action(async () => {
-    return await eventService.getEvents();
-  });
+export const getEvents = actionClient.action(async () => {
+  return await eventService.getEvents();
+});
 
-const getEventById = authActionClient
-  .metadata({
-    roleGate: 'USER',
-  })
+export const getEventById = actionClient
   .schema(
     z.object({
       id: z.string(),
@@ -26,25 +20,29 @@ const getEventById = authActionClient
     return await eventService.getEventById(data.parsedInput.id);
   });
 
-const createEvent = authActionClient
+export const createEvent = authActionClient
   .metadata({
     roleGate: 'ADMIN',
   })
   .schema(createEventSchema)
   .action(async (data) => {
-    return await eventService.createEvent(data.parsedInput);
+    await eventService.createEvent(data.parsedInput);
+    revalidatePath('/admin/events');
+    return { success: 'Event created successfully' };
   });
 
-const updateEvent = authActionClient
+export const updateEvent = authActionClient
   .metadata({
     roleGate: 'ADMIN',
   })
   .schema(updateEventSchema)
   .action(async (data) => {
-    return await eventService.updateEvent(data.parsedInput.id, data.parsedInput);
+    await eventService.updateEvent(data.parsedInput.id, data.parsedInput);
+    revalidatePath('/admin/events');
+    return { success: 'Event updated successfully' };
   });
 
-const deleteEvent = authActionClient
+export const deleteEvent = authActionClient
   .metadata({
     roleGate: 'ADMIN',
   })
@@ -54,13 +52,7 @@ const deleteEvent = authActionClient
     })
   )
   .action(async (data) => {
-    return await eventService.deleteEvent(data.parsedInput.id);
+    await eventService.deleteEvent(data.parsedInput.id);
+    revalidatePath('/admin/events');
+    return { success: 'Event deleted successfully' };
   });
-
-export const eventActions = {
-  getEvents,
-  getEventById,
-  createEvent,
-  updateEvent,
-  deleteEvent,
-};

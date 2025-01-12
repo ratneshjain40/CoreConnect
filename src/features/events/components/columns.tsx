@@ -1,28 +1,20 @@
 'use client';
 
+import { format } from 'date-fns';
+import { EventDataType } from '../types/event';
 import { ColumnDef } from '@tanstack/react-table';
 import { SortColumnButton } from '@/components/custom/table';
 import { SlugLink } from '@/components/custom/table/slug-link';
 import { SingleBadge } from '@/components/custom/table/cell-badge';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 
-export type AdminEventsColumns = {
-  id: string;
-  title: string;
-  slug: string;
-  location: string;
-  date: string;
-  price: string;
-  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
-};
-
-export const AdminEventsColumns: ColumnDef<AdminEventsColumns>[] = [
+export const AdminEventsColumns: ColumnDef<EventDataType>[] = [
   {
     accessorKey: 'title',
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Title" />,
-    cell: ({ row }) => <SlugLink route="events" value={row.getValue('title')} slug={row.original.slug} />,
+    cell: ({ row }) => <SlugLink route="events" value={row.getValue('title')} slug={row.original.id} />,
   },
   {
     accessorKey: 'location',
@@ -31,11 +23,18 @@ export const AdminEventsColumns: ColumnDef<AdminEventsColumns>[] = [
     header: ({ column }) => <SortColumnButton column={column} label="Location" />,
   },
   {
-    accessorKey: 'date',
+    accessorKey: 'startDate',
     enableHiding: true,
     enableSorting: true,
-    header: ({ column }) => <SortColumnButton column={column} label="Date" />,
-    cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+    header: ({ column }) => <SortColumnButton column={column} label="Start Date" />,
+    cell: ({ row }) => format(row.original.startDate, 'PPP'),
+  },
+  {
+    accessorKey: 'endDate',
+    enableHiding: true,
+    enableSorting: true,
+    header: ({ column }) => <SortColumnButton column={column} label="End Date" />,
+    cell: ({ row }) => format(row.original.endDate, 'PPP'),
   },
   {
     accessorKey: 'status',
@@ -51,10 +50,11 @@ export const AdminEventsColumns: ColumnDef<AdminEventsColumns>[] = [
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Price" />,
+    cell: ({ row }) => `₹${row.original.price}`,
   },
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell route="events" row={row} actions={['edit', 'delete']} />,
+    cell: ({ row }) => <ActionsCell row={row} actions={['editEvent', 'deleteEvent']} />,
   },
 ];
