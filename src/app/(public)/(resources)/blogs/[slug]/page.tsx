@@ -9,7 +9,6 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const slugs = await blogRepo.getAllBlogSlugs();
-  console.log(slugs);
   return slugs.map((slug) => ({ slug }));
 }
 

@@ -1,10 +1,7 @@
 import 'server-only';
 
-import { Resend } from 'resend';
+import { resend, domain_email, domain } from '@/lib/mail';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const domain = process.env.NEXT_PUBLIC_APP_URL;
-const domain_email = process.env.EMAIL_ADDRESS;
 
 export async function sendTwoFactorEmail(email: string, token: string) {
   await resend.emails.send({

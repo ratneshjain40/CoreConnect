@@ -98,7 +98,7 @@ export const EditEvent = ({ data }: { data: UpdateEvent }) => {
       editor={editor}
       isEditing={true}
       onSubmit={onSubmit}
-      isPending={false}
+      isPending={isPending}
       fileInputRef={fileInputRef}
       success={result?.data?.success}
       handleResetEvent={handleResetEvent}

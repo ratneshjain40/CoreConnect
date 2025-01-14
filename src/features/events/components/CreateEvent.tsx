@@ -107,7 +107,7 @@ export const CreateEvent = () => {
       editor={editor}
       isEditing={false}
       onSubmit={onSubmit}
-      isPending={false}
+      isPending={isPending}
       fileInputRef={fileInputRef}
       success={result?.data?.success}
       handleResetEvent={handleResetEvent}

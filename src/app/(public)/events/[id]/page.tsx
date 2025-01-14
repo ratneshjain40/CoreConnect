@@ -11,7 +11,6 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const eventIDs = await eventRepo.getAllEventIDs();
-  console.log(eventIDs);
   return eventIDs.map((id) => ({ id }));
 }
 
