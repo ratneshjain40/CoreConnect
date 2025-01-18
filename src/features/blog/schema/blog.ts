@@ -2,23 +2,19 @@ import { z } from 'zod';
 
 const blogSchema = z.object({
   title: z.string().min(1, { message: 'Title is required.' }),
-  slug: z.string().min(1, { message: 'Slug is required.' }),
   coverImage: z.string().min(1, { message: 'Cover image is required.' }),
   categories: z.array(z.string().min(1, { message: 'Category must not be empty.' })),
   isPaid: z.boolean(),
   content: z.string().min(10, { message: 'Content is required.' }),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
 });
 
 const updateBlogSchema = z.object({
   id: z.string().min(1),
-  slug: z.string().min(1, { message: 'Slug is required.' }),
-  title: z.string().min(1, { message: 'Title is required.' }),
-  coverImage: z.string().min(1, { message: 'Cover image is required.' }),
-  categories: z.array(z.string().min(1, { message: 'Category must not be empty.' })),
-  isPaid: z.boolean(),
-  content: z.string().min(1),
+  title: z.string().min(1, { message: 'Title is required.' }).optional(),
+  coverImage: z.string().min(1, { message: 'Cover image is required.' }).optional(),
+  categories: z.array(z.string().min(1, { message: 'Category must not be empty.' })).optional(),
+  isPaid: z.boolean().optional(),
+  content: z.string().min(1).optional(),
 });
 
 const createCommentSchema = z.object({

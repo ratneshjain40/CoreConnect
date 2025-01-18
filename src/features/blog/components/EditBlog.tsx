@@ -23,10 +23,11 @@ import { updateBlog } from '../server/actions';
 import { useAction } from 'next-safe-action/hooks';
 import { convertFileToBase64 } from '@/lib/base64';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UpdateBlogType, blogSchema } from '../schema/blog';
+import { blogSchema } from '../schema/blog';
+import { BlogDataWithContentType } from '../types/blog';
 
 type EditBlogProps = {
-  data: UpdateBlogType;
+  data: BlogDataWithContentType;
 };
 
 export const EditBlog = ({ data }: EditBlogProps) => {

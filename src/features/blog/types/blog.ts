@@ -29,6 +29,7 @@ export type BlogDataType = {
 };
 
 export type BlogDataWithContentType = {
+  id: string;
   title: string;
   slug: string;
   coverImage: string;

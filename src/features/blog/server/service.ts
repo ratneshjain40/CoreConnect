@@ -6,6 +6,7 @@ import { Blog, BlogComment } from '@prisma/client';
 import { userService } from '@/features/users/server/service';
 import { blogRepo, BlogsWithoutContent, CommentsWithAuthor } from './repo';
 import { BlogFormType, createCommentSchema, UpdateBlogType } from '../schema/blog';
+import { generateSlug } from '@/lib/slugify';
 
 // returns all blogs without content field
 async function getBlogsWithoutContent(): Promise<BlogsWithoutContent[]> {
@@ -28,8 +29,10 @@ async function getBlogBySlug(slug: string): Promise<Blog | null> {
 // user can create a blog
 async function createBlog(userId: string, data: BlogFormType): Promise<Blog> {
   let user = await userService.getUserById(userId);
+  let slug = generateSlug(data.title);
   return await blogRepo.createBlog({
     ...data,
+    slug,
     userId,
     author: user.name,
   });
@@ -37,13 +40,14 @@ async function createBlog(userId: string, data: BlogFormType): Promise<Blog> {
 
 // user can update only their own blog
 async function updateBlog(userId: string, data: UpdateBlogType): Promise<Blog> {
-  let blog = await blogRepo.getBlogById(data.id);
+  let blog = await blogRepo.getBlogByIdWithoutContent(data.id);
   if (!blog) throw new ErrorResponse('Blog not found');
   if (blog.userId !== userId) throw new ErrorResponse('You are not authorized to update this blog');
 
+  let slug = data.title ? generateSlug(data.title) : blog.slug;
   return blogRepo.updateBlog(data.id, {
     title: data.title,
-    slug: data.slug,
+    slug: slug,
     coverImage: data.coverImage,
     categories: data.categories,
     isPaid: data.isPaid,

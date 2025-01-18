@@ -1,16 +1,15 @@
-import { MultiSelect } from '@/components/ui/multi-select';
 import { FormError, FormSuccess } from '@/components/custom';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { MultiSelect } from '@/components/ui/multi-select';
 
-import NextImage from 'next/image';
-import { generateSlug } from '@/lib/slugify';
-import { Controller } from 'react-hook-form';
-import { BlogFormProps } from '../types/blog';
-import { Input } from '@/components/ui/input';
-import { BlogFormType } from '../schema/blog';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
 import { TextEditor } from '@/components/custom/editor';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import NextImage from 'next/image';
+import { Controller } from 'react-hook-form';
+import { BlogFormType } from '../schema/blog';
+import { BlogFormProps } from '../types/blog';
 
 const blogCategories = [
   { label: 'Technology', value: 'Technology', checked: false },
@@ -41,7 +40,6 @@ export const BlogForm = ({
           onSubmit={(e) => {
             e.preventDefault();
             form.setValue('content', editor?.getHTML() || '');
-            form.setValue('slug', generateSlug(form.getValues('title')));
             form.handleSubmit(onSubmit)();
           }}
           className="flex h-screen w-full flex-col items-center gap-3 overflow-hidden"

@@ -36,7 +36,6 @@ export const CreateBlog = () => {
     resolver: zodResolver(blogSchema),
     defaultValues: {
       title: '',
-      slug: '',
       coverImage: '',
       categories: [],
       isPaid: false,

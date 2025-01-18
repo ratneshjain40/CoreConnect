@@ -24,10 +24,19 @@ async function getBlogBySlug(slug: string): Promise<Blog | null> {
 }
 
 // returns a single blog object based on id
-async function getBlogById(id: string): Promise<Blog | null> {
+async function getBlogByIdWithoutContent(id: string) {
   return await prisma.blog.findUnique({
     where: {
       id,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      categories: true,
+      isPaid: true,
+      author: true,
+      userId: true,
     },
   });
 }
@@ -168,7 +177,7 @@ async function deleteBlogComment(blogCommentId: string): Promise<BlogComment> {
 }
 
 export const blogRepo = {
-  getBlogById,
+  getBlogByIdWithoutContent,
   getBlogBySlug,
   getAllBlogSlugs,
   getBlogsWithoutContent,

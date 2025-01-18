@@ -1,17 +1,16 @@
-import { MultiSelect } from '@/components/ui/multi-select';
 import { FormError, FormSuccess } from '@/components/custom';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { MultiSelect } from '@/components/ui/multi-select';
 
+import { TextEditor } from '@/components/custom/editor';
+import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { Input } from '@/components/ui/input';
+import { eventCategories } from '@/constants/event';
 import NextImage from 'next/image';
 import { Controller } from 'react-hook-form';
-import { generateSlug } from '@/lib/slugify';
 import { CreateEvent } from '../schema/event';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { EventFormProps } from '../types/event';
-import { eventCategories } from '@/constants/event';
-import { TextEditor } from '@/components/custom/editor';
-import { DatePicker } from '@/components/ui/DatePicker';
 
 export const EventForm = ({
   form,
@@ -34,7 +33,6 @@ export const EventForm = ({
           onSubmit={(e) => {
             e.preventDefault();
             form.setValue('description', editor?.getHTML() || '');
-            form.setValue('slug', generateSlug(form.getValues('title')));
             form.handleSubmit(onSubmit)();
           }}
           className="flex h-screen w-full flex-col items-center gap-3 overflow-hidden"

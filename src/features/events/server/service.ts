@@ -4,6 +4,7 @@ import { eventRepo } from './repo';
 import { Event } from '@prisma/client';
 import { ErrorResponse } from '@/types/errors';
 import { CreateEvent, UpdateEvent } from '../schema/event';
+import { generateSlug } from '@/lib/slugify';
 
 // returns all events
 async function getEvents(): Promise<Event[]> {
@@ -30,7 +31,12 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
 
 // admin can create an event
 async function createEvent(data: CreateEvent): Promise<Event> {
-  return await eventRepo.createEvent(data);
+  let startDate = new Date(data.startDate).getDate();
+  let endDate = new Date(data.endDate).getDate();
+  if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
+
+  let slug = generateSlug(data.title);
+  return await eventRepo.createEvent({ ...data, slug });
 }
 
 // admin can update an event
@@ -38,11 +44,17 @@ async function updateEvent(data: UpdateEvent): Promise<Event> {
   let event = await eventRepo.getEventById(data.id);
   if (!event) throw new ErrorResponse('Event not found');
 
+  let startDate = data.startDate ? new Date(data.startDate).getDate() : event.startDate;
+  let endDate = data.endDate ? new Date(data.endDate).getDate() : event.endDate;
+  if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
+
+  let slug = data.title ? generateSlug(data.title) : event.slug;
+
   return await eventRepo.updateEvent(data.id, {
     title: data.title,
     coverImage: data.coverImage,
     description: data.description,
-    slug: data.slug,
+    slug: slug,
     price: data.price,
     categories: data.categories,
     location: data.location,

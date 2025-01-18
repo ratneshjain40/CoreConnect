@@ -37,7 +37,6 @@ export const CreateEvent = () => {
     defaultValues: {
       title: '',
       coverImage: '',
-      slug: '',
       categories: [],
       description: '',
       location: '',

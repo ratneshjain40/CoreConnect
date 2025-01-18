@@ -40,10 +40,6 @@ export const createEvent = authActionClient
   })
   .schema(createEventSchema)
   .action(async (data) => {
-    let startDate = new Date(data.parsedInput.startDate).getDate();
-    let endDate = new Date(data.parsedInput.endDate).getDate();
-    if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
-
     await eventService.createEvent(data.parsedInput);
     return { success: 'Event created successfully' };
   });
@@ -55,10 +51,6 @@ export const updateEvent = authActionClient
   })
   .schema(updateEventSchema)
   .action(async (data) => {
-    let startDate = new Date(data.parsedInput.startDate).getDate();
-    let endDate = new Date(data.parsedInput.endDate).getDate();
-    if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
-
     await eventService.updateEvent(data.parsedInput);
     return { success: 'Event updated successfully' };
   });

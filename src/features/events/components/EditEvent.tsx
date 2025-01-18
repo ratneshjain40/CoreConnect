@@ -2,30 +2,31 @@
 
 import { useCallback, useRef, useState } from 'react';
 
+import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import { useEditor } from '@tiptap/react';
 import { useRouter } from 'next/navigation';
-import Image from '@tiptap/extension-image';
 
-import StarterKit from '@tiptap/starter-kit';
+import CharacterCount from '@tiptap/extension-character-count';
 import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
-import Underline from '@tiptap/extension-underline';
+import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
 import TextStyle from '@tiptap/extension-text-style';
-import Placeholder from '@tiptap/extension-placeholder';
-import CharacterCount from '@tiptap/extension-character-count';
+import Underline from '@tiptap/extension-underline';
+import StarterKit from '@tiptap/starter-kit';
 
-import { z } from 'zod';
-import { EventForm } from './EventForm';
-import { useForm } from 'react-hook-form';
-import { updateEvent } from '../server/actions';
 import { convertFileToBase64 } from '@/lib/base64';
-import { useAction } from 'next-safe-action/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createEventSchema, UpdateEvent } from '../schema/event';
+import { useAction } from 'next-safe-action/hooks';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { createEventSchema } from '../schema/event';
+import { updateEvent } from '../server/actions';
+import { EventDataType } from '../types/event';
+import { EventForm } from './EventForm';
 
-export const EditEvent = ({ data }: { data: UpdateEvent }) => {
+export const EditEvent = ({ data }: { data: EventDataType }) => {
   const router = useRouter();
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
