@@ -26,6 +26,8 @@ model User {
   comments       BlogComment[]
   Payment        Payment[]
   StripeCustomer StripeCustomer?
+
+  EventRegistration EventRegistration[]
 }
 
 model Account {
@@ -114,13 +116,18 @@ model Event {
   updatedAt   DateTime    @updatedAt
 
   Payment Payment[]
+
+  EventRegistration EventRegistration[]
 }
 
 model EventRegistration {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  eventId   String   @db.ObjectId
-  userId    String   @db.ObjectId
-  phone     String
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  eventId String @db.ObjectId
+  userId  String @db.ObjectId
+  phone   String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model Payment {
