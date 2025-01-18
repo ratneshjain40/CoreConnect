@@ -1,14 +1,12 @@
 import 'server-only';
 
-import { resend, domain_email, domain } from '@/lib/mail';
+import { resend, domain_email } from '@/lib/mail';
 import { ContactFormType } from '../schema/contact';
-
 
 export async function sendContactEmail(data: ContactFormType) {
   await resend.emails.send({
     from: domain_email as string,
-    // to: process.env.COMPANY_EMAIL_ADDRESS as string,
-    to: "swanandwagh7@gmail.com",
+    to: process.env.COMPANY_EMAIL_ADDRESS as string,
     subject: 'Eamil from: ' + data.email,
     html: `
       <div style="font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; padding: 20px;">

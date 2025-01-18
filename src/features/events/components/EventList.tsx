@@ -32,7 +32,7 @@ export const EventList = ({ events }: EventListProps) => {
 
           <CardContent className="p-4">
             <h2 className="mb-2 text-xl font-semibold">{event.title}</h2>
-            <p className="mb-4 text-sm text-gray-600">{event.description}</p>
+            {/* <p className="mb-4 text-sm text-gray-600">{event.description}</p> */}
             <div className="mb-2 flex items-center text-sm text-gray-500">
               <CalendarIcon className="mr-2 h-4 w-4" />
               {event.startDate === event.endDate
@@ -56,7 +56,7 @@ export const EventList = ({ events }: EventListProps) => {
           </CardContent>
 
           <CardFooter className="bg-gray-50 p-4">
-            <ButtonLink name="View Event" url={`/events/${event.id}`} />
+            <ButtonLink name="View Event" url={`/events/${event.slug}`} />
           </CardFooter>
         </Card>
       ))}

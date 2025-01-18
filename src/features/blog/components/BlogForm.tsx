@@ -3,6 +3,7 @@ import { FormError, FormSuccess } from '@/components/custom';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 
 import NextImage from 'next/image';
+import { generateSlug } from '@/lib/slugify';
 import { Controller } from 'react-hook-form';
 import { BlogFormProps } from '../types/blog';
 import { Input } from '@/components/ui/input';
@@ -40,6 +41,7 @@ export const BlogForm = ({
           onSubmit={(e) => {
             e.preventDefault();
             form.setValue('content', editor?.getHTML() || '');
+            form.setValue('slug', generateSlug(form.getValues('title')));
             form.handleSubmit(onSubmit)();
           }}
           className="flex h-screen w-full flex-col items-center gap-3 overflow-hidden"
@@ -57,30 +59,6 @@ export const BlogForm = ({
                         type="text"
                         disabled={isPending}
                         placeholder="Blog Title"
-                        className={fieldState.invalid ? 'border-red-500' : ''}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                name="slug"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormControl className="rounded-md border-gray-300">
-                      <Input
-                        {...field}
-                        type="text"
-                        disabled={isPending}
-                        placeholder="Slug"
-                        onChange={(e) => {
-                          field.onChange(e.target.value.replace(/\s+/g, '-').toLowerCase());
-                        }}
-                        onBlur={(e) => {
-                          form.setValue('slug', e.target.value.trim().replace(/^-+|-+$/g, ''));
-                        }}
                         className={fieldState.invalid ? 'border-red-500' : ''}
                       />
                     </FormControl>

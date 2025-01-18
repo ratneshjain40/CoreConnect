@@ -5,10 +5,10 @@ import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
 import { columns } from '@/features/blog/components';
-import { getAllBlogsData } from '@/features/blog/server/actions';
+import { getBlogsWithoutContent } from '@/features/blog/server/actions';
 
 const AdminBlogsPage = async () => {
-  const blogs = await getAllBlogsData();
+  const blogs = await getBlogsWithoutContent();
 
   return (
     <>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAction } from 'next-safe-action/hooks';
 
 import { z } from 'zod';
@@ -11,12 +11,14 @@ import { registerSchema } from '../schema/auth';
 import { GoogleButton } from './GoogleButton';
 import { FormError, FormSuccess } from '@/components/custom';
 
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { registerUser } from '../server/action';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 export const RegisterForm = () => {
+  const router = useRouter();
   const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(registerUser);
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -30,8 +32,16 @@ export const RegisterForm = () => {
   });
 
   const onSubmit = (data: z.infer<typeof registerSchema>) => {
+    form.clearErrors();
+    form.reset();
     execute(data);
   };
+
+  if (!isPending && hasSucceeded) {
+    setTimeout(() => {
+      router.push('/auth/login');
+    }, 1200);
+  }
 
   return (
     <Form {...form}>

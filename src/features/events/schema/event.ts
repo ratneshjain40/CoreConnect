@@ -4,6 +4,7 @@ import { emailSchema } from '@/constants/email';
 
 const createEventSchema = z.object({
   title: z.string().min(1, 'Title is required'),
+  slug: z.string().min(1, { message: 'Slug is required.' }),
   coverImage: z.string().min(1, { message: 'Cover image is required.' }),
   description: z.string(),
   price: z
@@ -20,6 +21,7 @@ const createEventSchema = z.object({
 const updateEventSchema = z.object({
   id: z.string(),
   title: z.string().min(1, 'Title is required'),
+  slug: z.string().min(1, { message: 'Slug is required.' }),
   coverImage: z.string().min(1, { message: 'Cover image is required.' }),
   categories: z.array(z.string().min(1, { message: 'Category must not be empty.' })),
   description: z.string(),

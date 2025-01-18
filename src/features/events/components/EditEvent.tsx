@@ -85,9 +85,7 @@ export const EditEvent = ({ data }: { data: UpdateEvent }) => {
   };
 
   if (!isPending && hasSucceeded) {
-    setTimeout(() => {
-      router.push('/admin/events');
-    }, 500);
+    router.push('/admin/events');
   }
 
   const handleContainerClick = () => fileInputRef.current?.click();

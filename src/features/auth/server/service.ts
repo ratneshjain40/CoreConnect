@@ -1,18 +1,19 @@
 import 'server-only';
 
-import { userService } from '@/features/users/server/service';
-import { ErrorResponse } from '@/types/errors';
-import { login2FASchema, loginWithCredsSchema, newPasswordSchema, registerSchema, resetSchema } from '../schema/auth';
 import { z } from 'zod';
-import { comparePasswordAndHash, genSixDigitCode, hashAndSaltPassword } from '@/lib/password';
 import { authRepo } from './repo';
-import { Token, User } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { Token, User } from '@prisma/client';
+import { ErrorResponse } from '@/types/errors';
 import { sendPasswordResetEmail } from './mail';
+import { userService } from '@/features/users/server/service';
+import { comparePasswordAndHash, genSixDigitCode, hashAndSaltPassword } from '@/lib/password';
+import { login2FASchema, loginWithCredsSchema, newPasswordSchema, registerSchema, resetSchema } from '../schema/auth';
 
 // ---------------------------------------------- Auth with Creds ----------------------------------------------
 
 const TOKEN_EXPIRY_TIME = 300 * 1000;
+const _2FA_EXPIRY_TIME = 60 * 1000;
 
 async function register(data: z.infer<typeof registerSchema>): Promise<User> {
   const password = await hashAndSaltPassword(data.password);
@@ -52,7 +53,7 @@ async function generate2FAToken(user: User): Promise<Token> {
   return await authRepo.createToken({
     userId: user.id,
     type: 'TWO_FACTOR',
-    expiresAt: new Date(new Date().getTime() + TOKEN_EXPIRY_TIME),
+    expiresAt: new Date(new Date().getTime() + _2FA_EXPIRY_TIME),
     token: code,
   });
 }

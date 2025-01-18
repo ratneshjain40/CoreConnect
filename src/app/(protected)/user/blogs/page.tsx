@@ -5,10 +5,10 @@ import { Icon } from '@/constants/icons';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/table';
 import { columns } from '@/features/blog/components';
-import { getAllBlogsDataByUser } from '@/features/blog/server/actions';
+import { getBlogsByUserWithoutContent } from '@/features/blog/server/actions';
 
 const UserBlogsPage = async () => {
-  const blogs = await getAllBlogsDataByUser();
+  const blogs = await getBlogsByUserWithoutContent();
 
   return (
     <>

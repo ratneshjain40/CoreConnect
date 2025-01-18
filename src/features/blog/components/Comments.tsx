@@ -1,79 +1,55 @@
 'use client';
-
 import { useState } from 'react';
+
 import { z } from 'zod';
+import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { commentSchema } from '../schema/blog';
+import initials from 'initials';
 import { Button } from '@/components/ui/button';
 import { useAction } from 'next-safe-action/hooks';
 import { Textarea } from '@/components/ui/textarea';
+import { createCommentSchema } from '../schema/blog';
+import { createBlogComment } from '../server/actions';
+import { DeleteCommentButton } from './DeleteCommentButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
-type Comment = {
-  id: number;
+export type Comment = {
+  id: string;
   author: string;
-  image: string;
   content: string;
-  date: string;
+  createdAt: Date;
+  userId: string;
 };
 
-const initialComments: Comment[] = [
-  {
-    id: 1,
-    author: 'Alice Johnson',
-    image: 'https://api.dicebear.com/6.x/initials/svg?seed=Alice Johnson',
-    content: 'Great article! I especially liked the part about PWAs.',
-    date: 'June 2, 2023',
-  },
-  {
-    id: 2,
-    author: 'Bob Smith',
-    image: 'https://api.dicebear.com/6.x/initials/svg?seed=Bob Smith',
-    content: "I'm excited to see how AI will transform web development in the coming years.",
-    date: 'June 3, 2023',
-  },
-  {
-    id: 3,
-    author: 'Bob Smith',
-    image: 'https://api.dicebear.com/6.x/initials/svg?seed=Bob Smith',
-    content: "I'm excited to see how AI will transform web development in the coming years.",
-    date: 'June 3, 2023',
-  },
-  {
-    id: 23,
-    author: 'Bob Smith',
-    image: 'https://api.dicebear.com/6.x/initials/svg?seed=Bob Smith',
-    content: "I'm excited to see how AI will transform web development in the coming years.",
-    date: 'June 3, 2023',
-  },
-  {
-    id: 21,
-    author: 'Bob Smith',
-    image: 'https://api.dicebear.com/6.x/initials/svg?seed=Bob Smith',
-    content: "I'm excited to see how AI will transform web development in the coming years.",
-    date: 'June 3, 2023',
-  },
-];
-
-export const Comments = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
+export const Comments = ({
+  userId,
+  comments,
+  blogSlug,
+  isAuthenticated,
+}: {
+  userId: string | null;
+  blogSlug: string;
+  comments: Comment[];
+  isAuthenticated: boolean;
+}) => {
   const [showMore, setShowMore] = useState(false);
-  //   const { execute, result, isPending, hasSucceeded, hasErrored } = useAction();
+  const { execute } = useAction(createBlogComment);
 
-  const form = useForm<z.infer<typeof commentSchema>>({
-    resolver: zodResolver(commentSchema),
+  const form = useForm<z.infer<typeof createCommentSchema>>({
+    resolver: zodResolver(createCommentSchema),
     defaultValues: {
-      author: '',
-      image: '',
       content: '',
-      date: new Date(),
+      blogSlug,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof commentSchema>) => {
-    //   execute(values);
+  const onSubmit = (values: z.infer<typeof createCommentSchema>) => {
+    form.clearErrors();
+    form.reset();
+    execute(values);
   };
 
   const toggleComments = () => {
@@ -85,17 +61,20 @@ export const Comments = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
       <h2 className="mb-4 text-xl font-bold">Comments</h2>
 
       <div className="space-y-6">
-        {initialComments.slice(0, showMore ? initialComments.length : 3).map((comment) => (
+        {comments.slice(0, showMore ? comments.length : 3).map((comment) => (
           <div key={comment.id} className="flex space-x-4">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={comment.image} />
-              <AvatarFallback>{comment.author[0]}</AvatarFallback>
+              <AvatarFallback>{initials(comment?.author as string)}</AvatarFallback>
             </Avatar>
 
             <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <h3 className="font-semibold">{comment.author}</h3>
-                <span className="text-sm text-gray-500">{comment.date}</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <h3 className="font-semibold">{comment.author}</h3>
+                  <span className="text-sm text-gray-500">{format(comment.createdAt, 'PPP')}</span>
+                </div>
+
+                {comment.userId === userId && <DeleteCommentButton comment={comment} />}
               </div>
 
               <p className="mt-1">{comment.content}</p>
@@ -105,7 +84,7 @@ export const Comments = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
       </div>
 
       <div className="mt-4 text-center">
-        {initialComments.length > 3 && (
+        {comments.length > 3 && (
           <button onClick={toggleComments} className="text-xs text-blue-500 hover:underline">
             {showMore ? 'Show Less' : 'Show More'}
           </button>

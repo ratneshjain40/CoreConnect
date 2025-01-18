@@ -1,22 +1,20 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { contactSchema } from '../schema/contact';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Input } from '@/components/ui/input';
+import { sendContact } from '../server/action';
 import { Button } from '@/components/ui/button';
+import { useAction } from 'next-safe-action/hooks';
 import { Textarea } from '@/components/ui/textarea';
 import { FormError, FormSuccess } from '@/components/custom';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 
 export const ContactForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>('');
-  const [success, setSuccess] = useState<string | undefined>('');
+  const { execute, result, isPending } = useAction(sendContact);
 
   const form = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
@@ -28,11 +26,10 @@ export const ContactForm = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof contactSchema>) => {
-    setError('');
-    setSuccess('');
-
-    startTransition(() => {});
+  const onSubmit = (values: z.infer<typeof contactSchema>) => {
+    form.clearErrors();
+    form.reset();
+    execute(values);
   };
 
   return (
@@ -105,8 +102,8 @@ export const ContactForm = () => {
           )}
         />
 
-        <FormError message={error} />
-        <FormSuccess message={success} />
+        <FormError message={result.serverError?.toString()} />
+        <FormSuccess message={result?.data?.success} />
         <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800" disabled={isPending}>
           Send Message
         </Button>

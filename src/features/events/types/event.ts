@@ -3,6 +3,7 @@ import { UseFormReturn, FieldValues } from 'react-hook-form';
 
 export type EventDataType = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   startDate: Date;
@@ -12,8 +13,8 @@ export type EventDataType = {
   price: string;
   categories: string[];
   status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type EventFormProps<TFormValues extends FieldValues> = {

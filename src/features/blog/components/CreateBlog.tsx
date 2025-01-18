@@ -91,9 +91,7 @@ export const CreateBlog = () => {
   };
 
   if (!isPending && hasSucceeded) {
-    setTimeout(() => {
-      router.push('/admin/blogs');
-    }, 500);
+    router.push('/admin/blogs');
   }
 
   const handleContainerClick = () => fileInputRef.current?.click();

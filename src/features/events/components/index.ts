@@ -1,3 +1,3 @@
-import { AdminEventsColumns } from './columns';
+import { EventTableColumns } from './columns';
 
-export { AdminEventsColumns as columns };
+export { EventTableColumns as columns };

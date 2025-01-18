@@ -6,7 +6,7 @@ import { SlugLink } from '@/components/custom/table/slug-link';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 import { MultipleBadges } from '@/components/custom/table/cell-badge';
 
-export type AdminBlogsColumns = {
+export type BlogTableColumnsType = {
   title: string;
   slug: string;
   categories: string[];
@@ -15,20 +15,13 @@ export type AdminBlogsColumns = {
   author: string;
 };
 
-export const AdminBlogsColumns: ColumnDef<AdminBlogsColumns>[] = [
+export const BlogTableColumns: ColumnDef<BlogTableColumnsType>[] = [
   {
     accessorKey: 'title',
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Title" />,
     cell: ({ row }) => <SlugLink route="blogs" value={row.getValue('title')} slug={row.original.slug} />,
-  },
-  {
-    accessorKey: 'slug',
-    enableHiding: true,
-    enableSorting: true,
-    header: ({ column }) => <SortColumnButton column={column} label="Slug" />,
-    cell: ({ row }) => <SlugLink route="blogs" value={row.getValue('slug')} slug={row.original.slug} />,
   },
   {
     accessorKey: 'categories',

@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import { isAuthenicated } from '@/lib/auth';
 import DOMPurify from 'isomorphic-dompurify';
 import { Badge } from '@/components/ui/badge';
 import { EventDataType } from '../types/event';
@@ -10,10 +11,12 @@ import { RegistrationForm } from './RegistrationForm';
 import { CalendarIcon, MapPinIcon, TagIcon } from 'lucide-react';
 
 type SingleEventProps = {
-  data: EventDataType | null;
+  data: EventDataType;
 };
 
 export const SingleEvent = async ({ data }: SingleEventProps) => {
+  const isAuthenticated = await isAuthenicated();
+
   if (!data) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8 text-center">
@@ -67,8 +70,7 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
               </Link>
             </div>
             <div className="mb-8 flex items-center text-sm text-gray-500">
-              <TagIcon className="mr-2 h-4 w-4" />
-              ₹{data.price}
+              <TagIcon className="mr-2 h-4 w-4" />₹{data.price}
             </div>
 
             <div className="my-4 flex gap-2">

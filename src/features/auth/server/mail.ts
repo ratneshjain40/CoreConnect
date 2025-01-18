@@ -1,7 +1,5 @@
 import 'server-only';
-
 import { resend, domain_email, domain } from '@/lib/mail';
-
 
 export async function sendTwoFactorEmail(email: string, token: string) {
   await resend.emails.send({

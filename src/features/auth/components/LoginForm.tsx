@@ -7,8 +7,8 @@ import Link from 'next/link';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { loginUser } from '../server/action';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../schema/auth';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import { GoogleButton } from './GoogleButton';
 import { FormError, FormSuccess } from '@/components/custom';
@@ -22,7 +22,7 @@ export const LoginForm = () => {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || undefined;
   const [showTwoFactor, setShowTwoFactor] = useState<boolean>(false);
-  const { execute, result, isPending, hasSucceeded, hasErrored } = useAction(loginUser);
+  const { execute, result, isPending } = useAction(loginUser);
 
   const urlError =
     searchParams.get('error') === 'OAuthAccountNotLinked' ? 'Email already in use with a different provider' : '';
@@ -36,6 +36,8 @@ export const LoginForm = () => {
   });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
+    form.clearErrors();
+    form.reset();
     execute({ ...values, callbackUrl });
   };
 
@@ -110,8 +112,8 @@ export const LoginForm = () => {
           </>
         )}
 
-        {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
-        {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
+        <FormError message={result.serverError?.toString()} />
+        <FormSuccess message={result?.data?.success} />
         <Button type="submit" disabled={isPending} className="w-full">
           {showTwoFactor ? 'Confirm' : 'Login'}
         </Button>

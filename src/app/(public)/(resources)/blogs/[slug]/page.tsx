@@ -1,4 +1,5 @@
 import React, { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import { Loading } from '@/components/custom';
 import { blogRepo } from '@/features/blog/server/repo';
 import { SingleBlog } from '@/features/blog/components';
@@ -17,8 +18,7 @@ const ViewBlogPage = async ({ params }: { params: Promise<{ slug: string }> }) =
   const blog = await getBlogBySlug({ slug });
 
   if (!blog?.data) {
-    // redirect to 404 page
-    return;
+    return notFound();
   }
 
   return (

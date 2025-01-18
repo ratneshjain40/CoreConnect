@@ -8,13 +8,13 @@ import { Icon } from '@/constants/icons';
 import { Row } from '@tanstack/react-table';
 import { CustomModal } from '../CustomModal';
 import { useAction } from 'next-safe-action/hooks';
-import { EventDataType } from '@/features/events/types/event';
-import { deleteEvent } from '@/features/events/server/actions';
 import { deleteBlogAdmin } from '@/features/blog/server/actions';
-import { AdminBlogsColumns } from '@/features/blog/components/columns';
+import { BlogTableColumnsType } from '@/features/blog/components/columns';
 import { AdminCoursesColumns } from '@/features/courses/components/columns';
+import { EventTableColumnsType } from '@/features/events/components/columns';
+import { deleteEvent, markEventAsCompleted } from '@/features/events/server/actions';
 
-const BlogDeleteAction = ({ row }: { row: Row<AdminBlogsColumns> }) => {
+const BlogDeleteAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { execute } = useAction(deleteBlogAdmin);
 
@@ -42,13 +42,13 @@ const BlogDeleteAction = ({ row }: { row: Row<AdminBlogsColumns> }) => {
   );
 };
 
-const EventDeleteAction = ({ row }: { row: Row<EventDataType> }) => {
+const EventDeleteAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { execute } = useAction(deleteEvent);
 
   const handleDelete = () => {
     setDialogOpen(false);
-    execute({ id: row.original.id });
+    execute({ slug: row.original.slug });
   };
 
   return (
@@ -70,7 +70,7 @@ const EventDeleteAction = ({ row }: { row: Row<EventDataType> }) => {
   );
 };
 
-const BlogEditAction = ({ row }: { row: Row<AdminBlogsColumns> }) => {
+const BlogEditAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
   const session = useSession();
   if (row.original.userId === session.data?.user.id)
     return (
@@ -81,11 +81,51 @@ const BlogEditAction = ({ row }: { row: Row<AdminBlogsColumns> }) => {
   return null;
 };
 
-const EventEditAction = ({ row }: { row: Row<EventDataType> }) => {
+const EventEditAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
   return (
-    <Link href={`/admin/events/edit/${encodeURIComponent(row.original.id)}`}>
+    <Link href={`/admin/events/edit/${encodeURIComponent(row.original.slug)}`}>
       <Icon name="edit" className="h-5 w-5 cursor-pointer" />
     </Link>
+  );
+};
+
+const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const { execute } = useAction(markEventAsCompleted);
+
+  const handleStatusChange = () => {
+    if (row.original.status === 'UPCOMING') {
+      setDialogOpen(false);
+      execute({ slug: row.original.slug });
+    }
+    return;
+  };
+
+  return (
+    <>
+      <span
+        onClick={() => {
+          if (row.original.status === 'UPCOMING') setDialogOpen(true);
+        }}
+      >
+        <Icon
+          name="check"
+          className={`h-5 w-5 cursor-pointer ${
+            row.original.status === 'COMPLETED' ? 'cursor-not-allowed text-green-500' : 'text-yellow-500'
+          }`}
+        />
+      </span>
+      <CustomModal
+        open={isDialogOpen}
+        onConfirm={handleStatusChange}
+        onOpenChange={setDialogOpen}
+        confirmButtonVariant="default"
+        title="Mark Completed?"
+        confirmButtonLabel="Sure"
+        cancelButtonLabel="Cancel"
+        description="Are you sure you want to mark event as completed? This action cannot be undone!"
+      />
+    </>
   );
 };
 
@@ -94,11 +134,12 @@ const ACTION_COMPONENTS = {
   editBlog: BlogEditAction,
   deleteEvent: EventDeleteAction,
   editEvent: EventEditAction,
+  changeEventStatus: EventStatusChangeAction,
 };
 
 type ActionsCellProps = {
-  actions: ('deleteBlog' | 'editBlog' | 'deleteEvent' | 'editEvent')[];
-  row: Row<AdminBlogsColumns> | Row<AdminCoursesColumns> | Row<EventDataType>;
+  actions: ('deleteBlog' | 'editBlog' | 'deleteEvent' | 'editEvent' | 'changeEventStatus')[];
+  row: Row<BlogTableColumnsType> | Row<AdminCoursesColumns> | Row<EventTableColumnsType>;
 };
 
 export const ActionsCell = ({ actions, row }: ActionsCellProps) => {

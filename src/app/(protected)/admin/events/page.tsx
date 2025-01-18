@@ -8,12 +8,7 @@ import { columns } from '@/features/events/components';
 import { getEvents } from '@/features/events/server/actions';
 
 const AdminEventsPage = async () => {
-  const result = await getEvents();
-  const events = result?.data?.map((event) => ({
-    ...event,
-    createdAt: event.createdAt.toISOString(),
-    updatedAt: event.updatedAt.toISOString(),
-  }));
+  const events = await getEvents();
 
   return (
     <>
@@ -24,7 +19,7 @@ const AdminEventsPage = async () => {
         </Button>
       </Link>
 
-      <DataTable columns={columns} data={events ?? []} showExportButton={false} filterField="title" />
+      <DataTable columns={columns} data={events?.data ?? []} showExportButton={false} filterField="title" />
     </>
   );
 };

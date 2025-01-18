@@ -1,20 +1,29 @@
 'use client';
 
 import { format } from 'date-fns';
-import { EventDataType } from '../types/event';
 import { ColumnDef } from '@tanstack/react-table';
 import { SortColumnButton } from '@/components/custom/table';
 import { SlugLink } from '@/components/custom/table/slug-link';
 import { SingleBadge } from '@/components/custom/table/cell-badge';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 
-export const AdminEventsColumns: ColumnDef<EventDataType>[] = [
+export type EventTableColumnsType = {
+  title: string;
+  location: string;
+  slug: string;
+  startDate: Date;
+  endDate: Date;
+  status: string;
+  price: string;
+};
+
+export const EventTableColumns: ColumnDef<EventTableColumnsType>[] = [
   {
     accessorKey: 'title',
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Title" />,
-    cell: ({ row }) => <SlugLink route="events" value={row.getValue('title')} slug={row.original.id} />,
+    cell: ({ row }) => <SlugLink route="events" value={row.getValue('title')} slug={row.original.slug} />,
   },
   {
     accessorKey: 'location',
@@ -55,6 +64,6 @@ export const AdminEventsColumns: ColumnDef<EventDataType>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell row={row} actions={['editEvent', 'deleteEvent']} />,
+    cell: ({ row }) => <ActionsCell row={row} actions={['changeEventStatus', 'editEvent', 'deleteEvent']} />,
   },
 ];
