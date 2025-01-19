@@ -87,7 +87,7 @@ export const unregisterUserForEvent = authActionClient
 
 export const getEventRegistrationsByEventId = authActionClient
   .metadata({
-    roleGate: 'USER',
+    roleGate: 'ADMIN',
   })
   .schema(
     z.object({
@@ -96,4 +96,17 @@ export const getEventRegistrationsByEventId = authActionClient
   )
   .action(async (data) => {
     return await eventService.getEventRegistrationsByEventId(data.parsedInput.slug);
+  });
+
+export const getEventRegistrationByUserId = authActionClient
+  .metadata({
+    roleGate: 'USER',
+  })
+  .schema(
+    z.object({
+      userId: z.string(),
+    })
+  )
+  .action(async (data) => {
+    return await eventService.getEventRegistrationByUserId(data.parsedInput.userId);
   });
