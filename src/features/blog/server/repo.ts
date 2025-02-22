@@ -56,8 +56,11 @@ async function getBlogWithoutContentBySlug(slug: string) {
   });
 }
 
-async function getBlogsWithoutContent(): Promise<BlogDataType[]> {
+async function getBlogsWithoutContent(page: number, limit: number): Promise<BlogDataType[]> {
+  const skip = (page - 1) * limit;
   return await prisma.blog.findMany({
+    skip,
+    take: limit,
     select: {
       id: true,
       userId: true,
@@ -73,11 +76,14 @@ async function getBlogsWithoutContent(): Promise<BlogDataType[]> {
   });
 }
 
-async function getBlogsByUserWithoutContent(userId: string): Promise<BlogDataType[]> {
+async function getBlogsByUserWithoutContent(userId: string, page: number, limit: number): Promise<BlogDataType[]> {
+  const skip = (page - 1) * limit;
   return await prisma.blog.findMany({
     where: {
       userId,
     },
+    skip,
+    take: limit,
     select: {
       id: true,
       userId: true,
@@ -123,11 +129,14 @@ async function getBlogCommentById(blogCommentId: string): Promise<BlogComment | 
 }
 
 export type CommentsWithAuthor = { id: string; content: string; createdAt: Date; author: string; userId: string };
-async function getAllBlogComments(blogId: string): Promise<CommentsWithAuthor[]> {
+async function getAllBlogComments(blogId: string, page: number, limit: number): Promise<CommentsWithAuthor[]> {
+  const skip = (page - 1) * limit;
   const comments = await prisma.blogComment.findMany({
     where: {
       blogId,
     },
+    skip,
+    take: limit,
     include: {
       author: {
         select: {
