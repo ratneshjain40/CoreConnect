@@ -9,61 +9,60 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAction } from 'next-safe-action/hooks';
 import { eventRegistrationSchema } from '../schema/event';
+import { registerUserForEvent, unregisterUserForEvent } from '../server/actions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
-export const RegistrationForm = () => {
-  //   const { execute, result, isPending, hasSucceeded, hasErrored } = useAction();
+export const RegistrationForm = ({
+  slug,
+  isRegistered,
+  isAuthenticated,
+}: {
+  slug: string;
+  isRegistered: boolean;
+  isAuthenticated: boolean;
+}) => {
+  const { execute: register, result: registerResult, isPending: isRegistering } = useAction(registerUserForEvent);
+
+  const {
+    execute: unregister,
+    result: unregisterResult,
+    isPending: isUnregistering,
+  } = useAction(unregisterUserForEvent);
 
   const form = useForm<z.infer<typeof eventRegistrationSchema>>({
     resolver: zodResolver(eventRegistrationSchema),
     defaultValues: {
-      email: '',
-      name: '',
+      eventSlug: slug,
       phone: '',
     },
   });
 
-  const onSubmit = (values: z.infer<typeof eventRegistrationSchema>) => {
-    // execute(values);
+  const onRegisterSubmit = (values: z.infer<typeof eventRegistrationSchema>) => {
+    form.clearErrors();
+    form.reset();
+    register(values);
   };
+
+  const onUnregisterSubmit = () => {
+    unregister({ slug });
+  };
+
+  if (isRegistered) {
+    return (
+      <>
+        <FormError message={unregisterResult.serverError?.toString()} />
+        <FormSuccess message={unregisterResult?.data?.success} />
+        <Button onClick={onUnregisterSubmit} className="w-full" disabled={isUnregistering}>
+          Unregister from Event
+        </Button>
+      </>
+    );
+  }
 
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-          <FormField
-            name="name"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Robinson" {...field} className={fieldState.invalid ? 'border-red-500' : ''} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="email"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="email"
-                    placeholder="m@example.com"
-                    className={fieldState.invalid ? 'border-red-500' : ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+        <form onSubmit={form.handleSubmit(onRegisterSubmit)} className="grid gap-4">
           <FormField
             name="phone"
             control={form.control}
@@ -74,6 +73,7 @@ export const RegistrationForm = () => {
                   <Input
                     {...field}
                     type="tel"
+                    disabled={isRegistered}
                     placeholder="+91 1234567890"
                     className={fieldState.invalid ? 'border-red-500' : ''}
                   />
@@ -83,9 +83,9 @@ export const RegistrationForm = () => {
             )}
           />
 
-          {/* <FormError message={result.serverError?.toString()} />
-          <FormSuccess message={result?.data?.success} /> */}
-          <Button type="submit" className="w-full">
+          <FormError message={registerResult.serverError?.toString()} />
+          <FormSuccess message={registerResult?.data?.success} />
+          <Button type="submit" className="w-full" disabled={!isAuthenticated || isRegistering}>
             Attend Event
           </Button>
         </form>

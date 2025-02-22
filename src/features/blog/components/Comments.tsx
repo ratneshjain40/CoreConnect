@@ -25,6 +25,7 @@ export type Comment = {
 };
 
 export const Comments = ({
+  role,
   userId,
   comments,
   blogSlug,
@@ -32,6 +33,7 @@ export const Comments = ({
 }: {
   userId: string | null;
   blogSlug: string;
+  role: 'USER' | 'ADMIN';
   comments: Comment[];
   isAuthenticated: boolean;
 }) => {
@@ -71,10 +73,12 @@ export const Comments = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <h3 className="font-semibold">{comment.author}</h3>
-                  <span className="text-sm text-gray-500">{format(comment.createdAt, 'PPP')}</span>
+                  <span className="text-sm text-gray-500">{format(comment.createdAt, 'dd MMM yyyy')}</span>
                 </div>
 
-                {comment.userId === userId && <DeleteCommentButton comment={comment} />}
+                {(comment.userId === userId || role === 'ADMIN') && (
+                  <DeleteCommentButton comment={comment} role={role} />
+                )}
               </div>
 
               <p className="mt-1">{comment.content}</p>

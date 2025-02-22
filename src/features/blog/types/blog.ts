@@ -5,7 +5,7 @@ export type BlogFormProps<TFormValues extends FieldValues> = {
   form: UseFormReturn<TFormValues>;
   onSubmit: (values: TFormValues) => void;
   handleResetBlog: () => void;
-  handleCoverImageChange: (file: File) => void;
+  setCoverImagePreview: (base64: string | null) => void;
   coverImagePreview: string | null;
   handleContainerClick: () => void;
   isPending: boolean;
@@ -18,12 +18,14 @@ export type BlogFormProps<TFormValues extends FieldValues> = {
 };
 
 export type BlogDataType = {
-  slug: string;
+  id: string;
+  userId: string;
   title: string;
+  slug: string;
   coverImage: string;
   categories: string[];
-  isPaid: boolean;
   author: string;
+  isPaid: boolean;
   createdAt: Date;
   updatedAt: Date;
 };

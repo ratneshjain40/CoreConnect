@@ -1,8 +1,8 @@
+import { useCallback } from 'react';
 import { FormError, FormSuccess } from '@/components/custom';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 
-import { TextEditor } from '@/components/custom/editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -10,6 +10,8 @@ import NextImage from 'next/image';
 import { Controller } from 'react-hook-form';
 import { BlogFormType } from '../schema/blog';
 import { BlogFormProps } from '../types/blog';
+import { convertFileToBase64 } from '@/lib/base64';
+import { RichTextEditor } from '@/components/custom/editor';
 
 const blogCategories = [
   { label: 'Technology', value: 'Technology', checked: false },
@@ -23,7 +25,6 @@ export const BlogForm = ({
   form,
   onSubmit,
   handleResetBlog,
-  handleCoverImageChange,
   coverImagePreview,
   handleContainerClick,
   fileInputRef,
@@ -32,7 +33,21 @@ export const BlogForm = ({
   success,
   editor,
   isEditing,
+  setCoverImagePreview,
 }: BlogFormProps<BlogFormType>) => {
+  const handleCoverImageChange = useCallback(
+    async (file: File) => {
+      try {
+        const base64CoverImage = await convertFileToBase64(file);
+        form.setValue('coverImage', base64CoverImage);
+        setCoverImagePreview(base64CoverImage);
+      } catch (error) {
+        console.error('Error converting file to Base64:', error);
+      }
+    },
+    [form]
+  );
+
   return (
     <>
       <Form {...form}>
@@ -160,7 +175,7 @@ export const BlogForm = ({
 
             {/* Text Editor */}
             <div className="w-3/4">
-              <TextEditor editor={editor} />
+              <RichTextEditor editor={editor} error={form.formState.errors.content?.message || null} />
             </div>
           </div>
         </form>

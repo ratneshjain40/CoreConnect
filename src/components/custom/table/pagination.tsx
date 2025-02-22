@@ -1,3 +1,5 @@
+'use client';
+
 import { Table } from '@tanstack/react-table';
 import { Icon } from '@/constants/icons';
 

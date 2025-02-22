@@ -4,10 +4,10 @@ import React from 'react';
 import { Icon } from '@/constants/icons';
 import { Comment } from './Comments';
 import { useAction } from 'next-safe-action/hooks';
-import { deleteBlogComment } from '../server/actions';
+import { deleteBlogComment, deleteBlogCommentAdmin } from '../server/actions';
 
-export const DeleteCommentButton = ({ comment }: { comment: Comment }) => {
-  const { execute } = useAction(deleteBlogComment);
+export const DeleteCommentButton = ({ comment, role }: { comment: Comment; role: 'ADMIN' | 'USER' }) => {
+  const { execute } = useAction(role === 'ADMIN' ? deleteBlogCommentAdmin : deleteBlogComment);
 
   const handleDelete = (id: string): void => {
     execute({ blogCommentId: id });

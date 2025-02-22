@@ -8,6 +8,7 @@ import { SingleBadge } from '@/components/custom/table/cell-badge';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 
 export type EventTableColumnsType = {
+  id: string;
   title: string;
   location: string;
   slug: string;
@@ -36,14 +37,14 @@ export const EventTableColumns: ColumnDef<EventTableColumnsType>[] = [
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="Start Date" />,
-    cell: ({ row }) => format(row.original.startDate, 'PPP'),
+    cell: ({ row }) => format(row.original.startDate, 'dd MMM yyyy'),
   },
   {
     accessorKey: 'endDate',
     enableHiding: true,
     enableSorting: true,
     header: ({ column }) => <SortColumnButton column={column} label="End Date" />,
-    cell: ({ row }) => format(row.original.endDate, 'PPP'),
+    cell: ({ row }) => format(row.original.endDate, 'dd MMM yyyy'),
   },
   {
     accessorKey: 'status',

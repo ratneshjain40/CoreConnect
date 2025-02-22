@@ -2,8 +2,8 @@ import 'server-only';
 
 import { prisma } from '@/db/prisma';
 import { Blog, BlogComment, Prisma } from '@prisma/client';
+import { BlogDataType } from '../types/blog';
 
-// returns all blog slugs only (ISR)
 async function getAllBlogSlugs(): Promise<string[]> {
   const slugs = await prisma.blog.findMany({
     select: {
@@ -14,7 +14,6 @@ async function getAllBlogSlugs(): Promise<string[]> {
   return slugs.map((slug) => slug.slug);
 }
 
-// returns a single blog object based on slug
 async function getBlogBySlug(slug: string): Promise<Blog | null> {
   return await prisma.blog.findUnique({
     where: {
@@ -23,7 +22,6 @@ async function getBlogBySlug(slug: string): Promise<Blog | null> {
   });
 }
 
-// returns a single blog object based on id
 async function getBlogByIdWithoutContent(id: string) {
   return await prisma.blog.findUnique({
     where: {
@@ -41,7 +39,6 @@ async function getBlogByIdWithoutContent(id: string) {
   });
 }
 
-// returns a single blog object based on slug without content & coverImage field
 async function getBlogWithoutContentBySlug(slug: string) {
   return await prisma.blog.findUnique({
     where: {
@@ -59,14 +56,10 @@ async function getBlogWithoutContentBySlug(slug: string) {
   });
 }
 
-// returns all blogs without content field created by the user
-export type BlogsWithoutContent = Pick<
-  Blog,
-  'userId' | 'title' | 'slug' | 'categories' | 'isPaid' | 'author' | 'createdAt' | 'updatedAt' | 'coverImage'
->;
-async function getBlogsWithoutContent(): Promise<BlogsWithoutContent[]> {
+async function getBlogsWithoutContent(): Promise<BlogDataType[]> {
   return await prisma.blog.findMany({
     select: {
+      id: true,
       userId: true,
       title: true,
       slug: true,
@@ -80,13 +73,13 @@ async function getBlogsWithoutContent(): Promise<BlogsWithoutContent[]> {
   });
 }
 
-// returns all blogs without content field created by the user
-async function getBlogsByUserWithoutContent(userId: string): Promise<BlogsWithoutContent[]> {
+async function getBlogsByUserWithoutContent(userId: string): Promise<BlogDataType[]> {
   return await prisma.blog.findMany({
     where: {
       userId,
     },
     select: {
+      id: true,
       userId: true,
       title: true,
       slug: true,
@@ -100,14 +93,12 @@ async function getBlogsByUserWithoutContent(userId: string): Promise<BlogsWithou
   });
 }
 
-// create blog operation
 async function createBlog(data: Prisma.BlogCreateInput): Promise<Blog> {
   return await prisma.blog.create({
     data,
   });
 }
 
-// update blog operation
 async function updateBlog(blogId: string, data: Prisma.BlogUpdateInput): Promise<Blog> {
   return await prisma.blog.update({
     where: { id: blogId },
@@ -115,7 +106,6 @@ async function updateBlog(blogId: string, data: Prisma.BlogUpdateInput): Promise
   });
 }
 
-// delete blog operation
 async function deleteBlog(blogId: string): Promise<Blog> {
   return await prisma.blog.delete({
     where: { id: blogId },
@@ -124,7 +114,6 @@ async function deleteBlog(blogId: string): Promise<Blog> {
 
 /* -------------------------- Comments -------------------------- */
 
-// returns a single blog comment object based on id
 async function getBlogCommentById(blogCommentId: string): Promise<BlogComment | null> {
   return await prisma.blogComment.findUnique({
     where: {
@@ -133,7 +122,6 @@ async function getBlogCommentById(blogCommentId: string): Promise<BlogComment | 
   });
 }
 
-// returns all blog comments along with author name (query from another collection)
 export type CommentsWithAuthor = { id: string; content: string; createdAt: Date; author: string; userId: string };
 async function getAllBlogComments(blogId: string): Promise<CommentsWithAuthor[]> {
   const comments = await prisma.blogComment.findMany({
@@ -158,7 +146,6 @@ async function getAllBlogComments(blogId: string): Promise<CommentsWithAuthor[]>
   }));
 }
 
-// create comment operation
 async function createBlogComment(data: { content: string; blogId: string; userId: string }): Promise<BlogComment> {
   return await prisma.blogComment.create({
     data: {
@@ -169,7 +156,6 @@ async function createBlogComment(data: { content: string; blogId: string; userId
   });
 }
 
-// delete comment operation
 async function deleteBlogComment(blogCommentId: string): Promise<BlogComment> {
   return await prisma.blogComment.delete({
     where: { id: blogCommentId },

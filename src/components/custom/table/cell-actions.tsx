@@ -11,8 +11,9 @@ import { useAction } from 'next-safe-action/hooks';
 import { deleteBlogAdmin } from '@/features/blog/server/actions';
 import { BlogTableColumnsType } from '@/features/blog/components/columns';
 import { AdminCoursesColumns } from '@/features/courses/components/columns';
+import { deleteEvent, updateEvent } from '@/features/events/server/actions';
 import { EventTableColumnsType } from '@/features/events/components/columns';
-import { deleteEvent, markEventAsCompleted } from '@/features/events/server/actions';
+import { useRouter } from 'next/navigation';
 
 const BlogDeleteAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -74,7 +75,7 @@ const BlogEditAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
   const session = useSession();
   if (row.original.userId === session.data?.user.id)
     return (
-      <Link href={`/admin/blogs/edit/${encodeURIComponent(row.original.slug)}`}>
+      <Link href={`/${session.data.user.role.toLocaleLowerCase()}/blogs/edit/${encodeURIComponent(row.original.slug)}`}>
         <Icon name="edit" className="h-5 w-5 cursor-pointer" />
       </Link>
     );
@@ -90,16 +91,22 @@ const EventEditAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
 };
 
 const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
+  const router = useRouter();
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const { execute } = useAction(markEventAsCompleted);
+  const { execute, hasSucceeded } = useAction(updateEvent);
 
   const handleStatusChange = () => {
     if (row.original.status === 'UPCOMING') {
       setDialogOpen(false);
-      execute({ slug: row.original.slug });
+      execute({ id: row.original.id, status: 'COMPLETED' });
+      router.refresh();
     }
     return;
   };
+
+  if (hasSucceeded) {
+    console.log('Event status changed successfully');
+  }
 
   return (
     <>

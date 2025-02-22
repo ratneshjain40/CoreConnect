@@ -3,13 +3,13 @@ import Image from 'next/image';
 
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { EventDataType } from '../types/event';
+import { EventWithoutDescriptionType } from '../types/event';
 import { ButtonLink } from '@/components/custom/ButtonLink';
 import { CalendarIcon, MapPinIcon, TagIcon } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 type EventListProps = {
-  events: EventDataType[];
+  events: EventWithoutDescriptionType[];
 };
 
 export const EventList = ({ events }: EventListProps) => {
@@ -32,12 +32,11 @@ export const EventList = ({ events }: EventListProps) => {
 
           <CardContent className="p-4">
             <h2 className="mb-2 text-xl font-semibold">{event.title}</h2>
-            {/* <p className="mb-4 text-sm text-gray-600">{event.description}</p> */}
             <div className="mb-2 flex items-center text-sm text-gray-500">
               <CalendarIcon className="mr-2 h-4 w-4" />
               {event.startDate === event.endDate
-                ? format(event.startDate, 'PPP')
-                : `${format(event.startDate, 'PPP')} - ${format(event.endDate, 'PPP')}`}
+                ? format(event.startDate, 'dd MMM yyyy')
+                : `${format(event.startDate, 'dd MMM yyyy')} - ${format(event.endDate, 'dd MMM yyyy')}`}
             </div>
             <div className="mb-2 flex items-center text-sm text-gray-500">
               <MapPinIcon className="mr-2 h-4 w-4" />

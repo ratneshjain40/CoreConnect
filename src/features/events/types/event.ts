@@ -17,11 +17,26 @@ export type EventDataType = {
   updatedAt: Date;
 };
 
+export type EventWithoutDescriptionType = {
+  id: string;
+  slug: string;
+  title: string;
+  startDate: Date;
+  endDate: Date;
+  location: string;
+  coverImage: string;
+  price: string;
+  categories: string[];
+  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type EventFormProps<TFormValues extends FieldValues> = {
   form: UseFormReturn<TFormValues>;
   onSubmit: (values: TFormValues) => void;
   handleResetEvent: () => void;
-  handleCoverImageChange: (file: File) => void;
+  setCoverImagePreview: (base64CoverImage: string) => void;
   coverImagePreview: string | null;
   handleContainerClick: () => void;
   isPending: boolean;

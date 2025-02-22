@@ -22,11 +22,9 @@ model User {
   isTwoFactorEnabled Boolean   @default(false)
   role               UserRole  @default(USER)
 
-  accounts       Account[]
-  comments       BlogComment[]
-  Payment        Payment[]
-  StripeCustomer StripeCustomer?
-
+  accounts          Account[]
+  comments          BlogComment[]
+  Payment           Payment[]
   EventRegistration EventRegistration[]
 }
 
@@ -115,8 +113,7 @@ model Event {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  Payment Payment[]
-
+  Payment           Payment[]
   EventRegistration EventRegistration[]
 }
 
@@ -128,31 +125,23 @@ model EventRegistration {
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
 }
 
 model Payment {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId          String   @db.ObjectId
-  eventId         String   @db.ObjectId
-  stripePaymentId String   @unique
-  amount          Float
-  status          String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String   @db.ObjectId
+  eventId           String   @db.ObjectId
+  razorpayOrderId   String   @unique
+  razorpayPaymentId String   @unique
+  amount            Float
+  status            String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([userId, eventId])
-}
-
-model StripeCustomer {
-  id               String @id @default(auto()) @map("_id") @db.ObjectId
-  userId           String @unique @db.ObjectId
-  stripeCustomerId String @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

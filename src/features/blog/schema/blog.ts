@@ -14,7 +14,7 @@ const updateBlogSchema = z.object({
   coverImage: z.string().min(1, { message: 'Cover image is required.' }).optional(),
   categories: z.array(z.string().min(1, { message: 'Category must not be empty.' })).optional(),
   isPaid: z.boolean().optional(),
-  content: z.string().min(1).optional(),
+  content: z.string().min(10, { message: 'Content is required.' }),
 });
 
 const createCommentSchema = z.object({

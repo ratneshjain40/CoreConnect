@@ -1,3 +1,3 @@
-import { TextEditor } from './RichTextEditor';
+import { RichTextEditor } from './TextEditor';
 
-export { TextEditor };
+export { RichTextEditor };

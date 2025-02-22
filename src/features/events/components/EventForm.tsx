@@ -1,22 +1,23 @@
-import { FormError, FormSuccess } from '@/components/custom';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
-import { MultiSelect } from '@/components/ui/multi-select';
-
-import { TextEditor } from '@/components/custom/editor';
-import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/DatePicker';
-import { Input } from '@/components/ui/input';
-import { eventCategories } from '@/constants/event';
+import { useCallback } from 'react';
 import NextImage from 'next/image';
+
 import { Controller } from 'react-hook-form';
+import { Input } from '@/components/ui/input';
 import { CreateEvent } from '../schema/event';
+import { Button } from '@/components/ui/button';
 import { EventFormProps } from '../types/event';
+import { convertFileToBase64 } from '@/lib/base64';
+import { eventCategories } from '@/constants/event';
+import { DatePicker } from '@/components/ui/DatePicker';
+import { MultiSelect } from '@/components/ui/multi-select';
+import { FormError, FormSuccess } from '@/components/custom';
+import { RichTextEditor } from '@/components/custom/editor';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 export const EventForm = ({
   form,
   onSubmit,
   handleResetEvent,
-  handleCoverImageChange,
   coverImagePreview,
   handleContainerClick,
   fileInputRef,
@@ -25,7 +26,21 @@ export const EventForm = ({
   success,
   editor,
   isEditing,
+  setCoverImagePreview,
 }: EventFormProps<CreateEvent>) => {
+  const handleCoverImageChange = useCallback(
+    async (file: File) => {
+      try {
+        const base64CoverImage = await convertFileToBase64(file);
+        form.setValue('coverImage', base64CoverImage);
+        setCoverImagePreview(base64CoverImage);
+      } catch (error) {
+        console.error('Error converting file to Base64:', error);
+      }
+    },
+    [form]
+  );
+
   return (
     <>
       <Form {...form}>
@@ -207,7 +222,7 @@ export const EventForm = ({
 
             {/* Text Editor */}
             <div className="w-3/4">
-              <TextEditor editor={editor} />
+              <RichTextEditor editor={editor} error={form.formState.errors.description?.message || null} />
             </div>
           </div>
         </form>

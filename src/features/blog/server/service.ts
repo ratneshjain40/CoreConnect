@@ -2,23 +2,20 @@ import 'server-only';
 
 import { z } from 'zod';
 import { ErrorResponse } from '@/types/errors';
-import { Blog, BlogComment } from '@prisma/client';
-import { userService } from '@/features/users/server/service';
-import { blogRepo, BlogsWithoutContent, CommentsWithAuthor } from './repo';
-import { BlogFormType, createCommentSchema, UpdateBlogType } from '../schema/blog';
 import { generateSlug } from '@/lib/slugify';
+import { BlogDataType } from '../types/blog';
+import { Blog, BlogComment } from '@prisma/client';
+import { blogRepo, CommentsWithAuthor } from './repo';
+import { BlogFormType, createCommentSchema, UpdateBlogType } from '../schema/blog';
 
-// returns all blogs without content field
-async function getBlogsWithoutContent(): Promise<BlogsWithoutContent[]> {
+async function getBlogsWithoutContent(): Promise<BlogDataType[]> {
   return blogRepo.getBlogsWithoutContent();
 }
 
-// returns all blogs without content field created by the user
-async function getBlogsByUserWithoutContent(userId: string): Promise<BlogsWithoutContent[]> {
+async function getBlogsByUserWithoutContent(userId: string): Promise<BlogDataType[]> {
   return blogRepo.getBlogsByUserWithoutContent(userId);
 }
 
-// returns a single blog object based on slug
 async function getBlogBySlug(slug: string): Promise<Blog | null> {
   let blog = await blogRepo.getBlogBySlug(slug);
   if (!blog) throw new ErrorResponse('Blog not found');
@@ -26,19 +23,16 @@ async function getBlogBySlug(slug: string): Promise<Blog | null> {
   return blog;
 }
 
-// user can create a blog
-async function createBlog(userId: string, data: BlogFormType): Promise<Blog> {
-  let user = await userService.getUserById(userId);
+async function createBlog(userId: string, username: string, data: BlogFormType): Promise<Blog> {
   let slug = generateSlug(data.title);
   return await blogRepo.createBlog({
     ...data,
     slug,
     userId,
-    author: user.name,
+    author: username,
   });
 }
 
-// user can update only their own blog
 async function updateBlog(userId: string, data: UpdateBlogType): Promise<Blog> {
   let blog = await blogRepo.getBlogByIdWithoutContent(data.id);
   if (!blog) throw new ErrorResponse('Blog not found');
@@ -55,7 +49,6 @@ async function updateBlog(userId: string, data: UpdateBlogType): Promise<Blog> {
   });
 }
 
-// user can delete only their own blog
 async function deleteBlog(userId: string, slug: string): Promise<Blog> {
   let blog = await blogRepo.getBlogWithoutContentBySlug(slug);
   if (!blog) throw new ErrorResponse('Blog not found');
@@ -64,7 +57,6 @@ async function deleteBlog(userId: string, slug: string): Promise<Blog> {
   return blogRepo.deleteBlog(blog.id);
 }
 
-// admin can delete any blog
 async function deleteBlogAdmin(slug: string): Promise<Blog> {
   let blog = await blogRepo.getBlogWithoutContentBySlug(slug);
   if (!blog) throw new ErrorResponse('Blog not found');
@@ -74,7 +66,6 @@ async function deleteBlogAdmin(slug: string): Promise<Blog> {
 
 /* -------------------------- Comments -------------------------- */
 
-// returns all comments for a blog
 async function getAllBlogComments(blogSlug: string): Promise<CommentsWithAuthor[]> {
   let blog = await blogRepo.getBlogWithoutContentBySlug(blogSlug);
   if (!blog) throw new ErrorResponse('Blog not found');
@@ -82,7 +73,6 @@ async function getAllBlogComments(blogSlug: string): Promise<CommentsWithAuthor[
   return blogRepo.getAllBlogComments(blog.id);
 }
 
-// user can create a comment on a blog
 async function createBlogComment(userId: string, data: z.infer<typeof createCommentSchema>): Promise<BlogComment> {
   let blog = await blogRepo.getBlogWithoutContentBySlug(data.blogSlug);
   if (!blog) throw new ErrorResponse('Blog not found');
@@ -94,11 +84,17 @@ async function createBlogComment(userId: string, data: z.infer<typeof createComm
   });
 }
 
-// user can delete only their own blog comment
 async function deleteBlogComment(userId: string, blogCommentId: string): Promise<BlogComment> {
   let blogComment = await blogRepo.getBlogCommentById(blogCommentId);
   if (!blogComment) throw new ErrorResponse('Blog comment not found');
   if (blogComment.userId !== userId) throw new ErrorResponse('You are not authorized to delete this blog comment');
+
+  return blogRepo.deleteBlogComment(blogCommentId);
+}
+
+async function deleteBlogCommentAdmin(blogCommentId: string): Promise<BlogComment> {
+  let blogComment = await blogRepo.getBlogCommentById(blogCommentId);
+  if (!blogComment) throw new ErrorResponse('Blog comment not found');
 
   return blogRepo.deleteBlogComment(blogCommentId);
 }
@@ -114,4 +110,5 @@ export const blogService = {
   getAllBlogComments,
   createBlogComment,
   deleteBlogComment,
+  deleteBlogCommentAdmin,
 };

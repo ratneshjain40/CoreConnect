@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Icon } from '@/constants/icons';
-import { RichTextEditor } from '@mantine/tiptap';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -29,14 +28,15 @@ export const ImageUploadPopover: React.FC<ImageUploadPopoverProps> = ({
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
-        <RichTextEditor.Control
-          title="Insert Image"
-          aria-label="Insert Image"
+        <Button
+          size="icon"
+          type="button"
+          variant="ghost"
+          className="h-8 w-8"
           onClick={() => setIsPopoverOpen(!isPopoverOpen)}
-          className="focus:outline-none"
         >
           <Icon name="image" className="mx-auto h-4 w-4" />
-        </RichTextEditor.Control>
+        </Button>
       </PopoverTrigger>
 
       <PopoverContent className="w-56 space-y-3 rounded-md border border-gray-200 bg-white p-2 shadow-md">

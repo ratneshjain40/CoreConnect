@@ -2,11 +2,11 @@ import React from 'react';
 
 import Image from 'next/image';
 import { Comments } from './Comments';
-import { currentUser, isAuthenicated } from '@/lib/auth';
+import { currentUser } from '@/lib/auth';
 import DOMPurify from 'isomorphic-dompurify';
 import { Badge } from '@/components/ui/badge';
-import { BlogDataWithContentType } from '../types/blog';
 import { getAllBlogComments } from '../server/actions';
+import { BlogDataWithContentType } from '../types/blog';
 
 type SingleBlogProps = {
   data: BlogDataWithContentType;
@@ -15,7 +15,6 @@ type SingleBlogProps = {
 export const SingleBlog = async ({ data }: SingleBlogProps) => {
   const user = await currentUser();
   const comments = await getAllBlogComments({ slug: data.slug });
-  const isAuthenticated = await isAuthenicated();
 
   if (!data) {
     return (
@@ -76,10 +75,11 @@ export const SingleBlog = async ({ data }: SingleBlogProps) => {
       <div className="prose mb-12 max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} />
 
       <Comments
-        userId={user?.id ?? null}
         blogSlug={data.slug}
+        isAuthenticated={!!user}
+        userId={user?.id ?? null}
+        role={user?.role ?? 'USER'}
         comments={comments?.data ?? []}
-        isAuthenticated={isAuthenticated}
       />
     </article>
   );

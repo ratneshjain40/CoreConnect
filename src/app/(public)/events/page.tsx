@@ -1,9 +1,9 @@
 import React from 'react';
-import { getUpcomingEvents } from '@/features/events/server/actions';
 import { EventList } from '@/features/events/components/EventList';
+import { getEventsByStatus } from '@/features/events/server/actions';
 
 const EventsPage = async () => {
-  const events = await getUpcomingEvents();
+  const events = await getEventsByStatus({ status: 'UPCOMING' });
 
   return (
     <>

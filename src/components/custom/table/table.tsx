@@ -104,6 +104,7 @@ export const DataTable = <TData, TValue>({
           </TableBody>
         </Table>
       </div>
+
       <Pagination table={table} />
     </>
   );

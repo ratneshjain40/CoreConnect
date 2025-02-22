@@ -57,11 +57,6 @@ export const adminSidebarItemsList: SidebarItems = [
         icon: 'user',
       },
       {
-        title: 'Analytics',
-        url: '/admin/analytics',
-        icon: 'analytics',
-      },
-      {
         title: 'Settings',
         url: '/admin/settings',
         icon: 'settings',

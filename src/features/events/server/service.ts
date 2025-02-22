@@ -1,17 +1,18 @@
 import 'server-only';
 
-import { eventRepo } from './repo';
-import { Event, EventRegistration } from '@prisma/client';
-import { ErrorResponse } from '@/types/errors';
-import { CreateEvent, eventRegistrationSchema, getEventByStatusSchema, UpdateEvent } from '../schema/event';
-import { generateSlug } from '@/lib/slugify';
 import { z } from 'zod';
+import { EventDetails, eventRepo } from './repo';
+import { generateSlug } from '@/lib/slugify';
+import { ErrorResponse } from '@/types/errors';
+import { Event, EventRegistration } from '@prisma/client';
+import { EventWithoutDescriptionType } from '../types/event';
+import { CreateEvent, eventRegistrationSchema, getEventByStatusSchema, UpdateEvent } from '../schema/event';
 
-async function getEvents(): Promise<Event[]> {
+async function getEvents(): Promise<EventWithoutDescriptionType[]> {
   return await eventRepo.getAllEvents();
 }
 
-async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<Event[]> {
+async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
   return await eventRepo.getEventsByStatus(data.status);
 }
 
@@ -40,12 +41,12 @@ async function updateEvent(data: UpdateEvent): Promise<Event> {
   if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
 
   let slug = data.title ? generateSlug(data.title) : event.slug;
-
   return await eventRepo.updateEvent(data.id, {
     title: data.title,
     coverImage: data.coverImage,
     description: data.description,
     slug: slug,
+    status: data.status,
     price: data.price,
     categories: data.categories,
     location: data.location,
@@ -63,7 +64,10 @@ async function deleteEvent(slug: string): Promise<Event> {
 
 // -------------------------- Registration --------------------------
 
-async function registerUserForEvent(userId: string, data: z.infer<typeof eventRegistrationSchema>): Promise<EventRegistration> {
+async function registerUserForEvent(
+  userId: string,
+  data: z.infer<typeof eventRegistrationSchema>
+): Promise<EventRegistration> {
   let event = await eventRepo.getEventBySlug(data.eventSlug);
   if (!event) throw new ErrorResponse('Event not found');
   return await eventRepo.registerUserForEvent({
@@ -85,6 +89,10 @@ async function getEventRegistrationByUserId(userId: string): Promise<EventRegist
   return await eventRepo.getEventRegistrationByUserId(userId);
 }
 
+async function getEntireEventRegistrationByUserId(userId: string): Promise<EventDetails[]> {
+  return await eventRepo.getEntireEventRegistrationByUserId(userId);
+}
+
 async function deleteEventRegistration(slug: string, userId: string): Promise<EventRegistration> {
   let event = await eventRepo.getEventBySlug(slug);
   if (!event) {
@@ -101,7 +109,8 @@ export const eventService = {
   getEventBySlug,
   getEventsByStatus,
   registerUserForEvent,
+  deleteEventRegistration,
   getEventRegistrationsByEventId,
   getEventRegistrationByUserId,
-  deleteEventRegistration,
+  getEntireEventRegistrationByUserId,
 };

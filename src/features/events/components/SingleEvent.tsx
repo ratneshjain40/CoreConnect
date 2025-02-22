@@ -3,19 +3,22 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { isAuthenicated } from '@/lib/auth';
+import { currentUser } from '@/lib/auth';
 import DOMPurify from 'isomorphic-dompurify';
 import { Badge } from '@/components/ui/badge';
 import { EventDataType } from '../types/event';
 import { RegistrationForm } from './RegistrationForm';
 import { CalendarIcon, MapPinIcon, TagIcon } from 'lucide-react';
+import { getEventRegistrationByUserId } from '../server/actions';
 
 type SingleEventProps = {
   data: EventDataType;
 };
 
 export const SingleEvent = async ({ data }: SingleEventProps) => {
-  const isAuthenticated = await isAuthenicated();
+  const user = await currentUser();
+  const userRegistrations = user ? await getEventRegistrationByUserId({ userId: user.id }) : null;
+  const isRegistered = userRegistrations?.data?.some((registration) => registration.eventId === data.id);
 
   if (!data) {
     return (
@@ -60,8 +63,8 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
             <div className="mb-2 mt-4 flex items-center text-sm text-gray-500">
               <CalendarIcon className="mr-2 h-4 w-4" />
               {data.startDate === data.endDate
-                ? format(data.startDate, 'PPP')
-                : `${format(data.startDate, 'PPP')} - ${format(data.endDate, 'PPP')}`}
+                ? format(data.startDate, 'dd MMM yyyy')
+                : `${format(data.startDate, 'dd MMM yyyy')} - ${format(data.endDate, 'dd MMM yyyy')}`}
             </div>
             <div className="mb-2 flex items-center text-sm text-gray-500">
               <MapPinIcon className="mr-2 h-4 w-4" />
@@ -81,7 +84,7 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
               ))}
             </div>
 
-            <RegistrationForm />
+            <RegistrationForm slug={data.slug} isAuthenticated={!!user} isRegistered={!!isRegistered} />
           </div>
         </div>
       </div>
