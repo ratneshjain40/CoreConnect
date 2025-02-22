@@ -14,8 +14,11 @@ async function getAllEventSlugs(): Promise<string[]> {
   return eventIDs.map((event) => event.slug);
 }
 
-async function getAllEvents(): Promise<EventWithoutDescriptionType[]> {
+async function getAllEvents(page: number, limit: number): Promise<EventWithoutDescriptionType[]> {
+  const skip = (page - 1) * limit;
   return await prisma.event.findMany({
+    skip,
+    take: limit,
     select: {
       id: true,
       title: true,
@@ -33,11 +36,14 @@ async function getAllEvents(): Promise<EventWithoutDescriptionType[]> {
   });
 }
 
-async function getEventsByStatus(status: EventStatus): Promise<EventWithoutDescriptionType[]> {
+async function getEventsByStatus(status: EventStatus, page: number, limit: number): Promise<EventWithoutDescriptionType[]> {
+  const skip = (page - 1) * limit;
   return await prisma.event.findMany({
     where: {
       status,
     },
+    skip,
+    take: limit,
     select: {
       id: true,
       title: true,
@@ -102,19 +108,25 @@ async function registerUserForEvent(data: Prisma.EventRegistrationUncheckedCreat
   });
 }
 
-async function getEventRegistrationsByEventId(eventId: string): Promise<EventRegistration[]> {
+async function getEventRegistrationsByEventId(eventId: string, page: number, limit: number): Promise<EventRegistration[]> {
+  const skip = (page - 1) * limit;
   return await prisma.eventRegistration.findMany({
     where: {
       eventId,
     },
+    skip,
+    take: limit,
   });
 }
 
-async function getEventRegistrationByUserId(userId: string): Promise<EventRegistration[]> {
+async function getEventRegistrationByUserId(userId: string, page: number, limit: number): Promise<EventRegistration[]> {
+  const skip = (page - 1) * limit;
   return await prisma.eventRegistration.findMany({
     where: {
       userId,
     },
+    skip,
+    take: limit,
   });
 }
 
@@ -128,11 +140,14 @@ export type EventDetails = {
   price: string;
   status: EventStatus;
 };
-async function getEntireEventRegistrationByUserId(userId: string): Promise<EventDetails[]> {
+async function getEntireEventRegistrationByUserId(userId: string, page: number, limit: number): Promise<EventDetails[]> {
+  const skip = (page - 1) * limit;
   const registrations = await prisma.eventRegistration.findMany({
     where: {
       userId,
     },
+    skip,
+    take: limit,
     include: {
       event: {
         select: {

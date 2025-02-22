@@ -5,14 +5,21 @@ import { eventService } from './service';
 import { revalidatePath } from 'next/cache';
 import { actionClient, authActionClient } from '@/lib/action-clients';
 import { createEventSchema, eventRegistrationSchema, getEventByStatusSchema, updateEventSchema } from '../schema/event';
+import { paginationSchema } from '@/schema/pagination';
 
-export const getEvents = actionClient.action(async () => {
-  return await eventService.getEvents();
-});
+export const getEvents = actionClient
+  .schema(paginationSchema)
+  .action(async (data) => {
+    const { page = 1, limit = 10 } = data.parsedInput;
+    return await eventService.getEvents(page, limit);
+  });
 
-export const getEventsByStatus = actionClient.schema(getEventByStatusSchema).action(async (data) => {
-  return await eventService.getEventsByStatus(data.parsedInput);
-});
+export const getEventsByStatus = actionClient
+  .schema(getEventByStatusSchema.merge(paginationSchema))
+  .action(async (data) => {
+    const { status, page = 1, limit = 10 } = data.parsedInput;
+    return await eventService.getEventsByStatus(status, page, limit);
+  });
 
 export const getEventBySlug = actionClient
   .schema(
@@ -92,10 +99,11 @@ export const getEventRegistrationsByEventId = authActionClient
   .schema(
     z.object({
       slug: z.string(),
-    })
+    }).merge(paginationSchema)
   )
   .action(async (data) => {
-    return await eventService.getEventRegistrationsByEventId(data.parsedInput.slug);
+    const { slug, page = 1, limit = 10 } = data.parsedInput;
+    return await eventService.getEventRegistrationsByEventId(slug, page, limit);
   });
 
 export const getEventRegistrationByUserId = authActionClient
@@ -105,10 +113,11 @@ export const getEventRegistrationByUserId = authActionClient
   .schema(
     z.object({
       userId: z.string(),
-    })
+    }).merge(paginationSchema)
   )
   .action(async (data) => {
-    return await eventService.getEventRegistrationByUserId(data.parsedInput.userId);
+    const { userId, page = 1, limit = 10 } = data.parsedInput;
+    return await eventService.getEventRegistrationByUserId(userId, page, limit);
   });
 
 export const getEntireEventRegistrationByUserId = authActionClient
@@ -118,8 +127,9 @@ export const getEntireEventRegistrationByUserId = authActionClient
   .schema(
     z.object({
       userId: z.string(),
-    })
+    }).merge(paginationSchema)
   )
   .action(async (data) => {
-    return await eventService.getEntireEventRegistrationByUserId(data.parsedInput.userId);
+    const { userId, page = 1, limit = 10 } = data.parsedInput;
+    return await eventService.getEntireEventRegistrationByUserId(userId, page, limit);
   });

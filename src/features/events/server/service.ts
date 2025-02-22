@@ -4,16 +4,16 @@ import { z } from 'zod';
 import { EventDetails, eventRepo } from './repo';
 import { generateSlug } from '@/lib/slugify';
 import { ErrorResponse } from '@/types/errors';
-import { Event, EventRegistration } from '@prisma/client';
+import { Event, EventRegistration, EventStatus } from '@prisma/client';
 import { EventWithoutDescriptionType } from '../types/event';
-import { CreateEvent, eventRegistrationSchema, getEventByStatusSchema, UpdateEvent } from '../schema/event';
+import { CreateEvent, eventRegistrationSchema, UpdateEvent } from '../schema/event';
 
-async function getEvents(): Promise<EventWithoutDescriptionType[]> {
-  return await eventRepo.getAllEvents();
+async function getEvents(page: number, limit: number): Promise<EventWithoutDescriptionType[]> {
+  return await eventRepo.getAllEvents(page, limit);
 }
 
-async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
-  return await eventRepo.getEventsByStatus(data.status);
+async function getEventsByStatus(status: EventStatus, page: number, limit: number): Promise<EventWithoutDescriptionType[]> {
+  return await eventRepo.getEventsByStatus(status, page, limit);
 }
 
 async function getEventBySlug(slug: string): Promise<Event | null> {
@@ -77,20 +77,20 @@ async function registerUserForEvent(
   });
 }
 
-async function getEventRegistrationsByEventId(slug: string): Promise<EventRegistration[]> {
+async function getEventRegistrationsByEventId(slug: string, page: number, limit: number): Promise<EventRegistration[]> {
   let event = await eventRepo.getEventBySlug(slug);
   if (!event) {
     throw new ErrorResponse('Event not found');
   }
-  return await eventRepo.getEventRegistrationsByEventId(event.id);
+  return await eventRepo.getEventRegistrationsByEventId(event.id, page, limit);
 }
 
-async function getEventRegistrationByUserId(userId: string): Promise<EventRegistration[]> {
-  return await eventRepo.getEventRegistrationByUserId(userId);
+async function getEventRegistrationByUserId(userId: string, page: number, limit: number): Promise<EventRegistration[]> {
+  return await eventRepo.getEventRegistrationByUserId(userId, page, limit);
 }
 
-async function getEntireEventRegistrationByUserId(userId: string): Promise<EventDetails[]> {
-  return await eventRepo.getEntireEventRegistrationByUserId(userId);
+async function getEntireEventRegistrationByUserId(userId: string, page: number, limit: number): Promise<EventDetails[]> {
+  return await eventRepo.getEntireEventRegistrationByUserId(userId, page, limit);
 }
 
 async function deleteEventRegistration(slug: string, userId: string): Promise<EventRegistration> {
