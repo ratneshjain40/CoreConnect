@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useEditor } from '@tiptap/react';
 import { useRouter } from 'next/navigation';
 
@@ -23,7 +23,10 @@ export const EditEvent = ({ data }: { data: EventDataType }) => {
 
   const form = useForm<z.infer<typeof createEventSchema>>({
     resolver: zodResolver(createEventSchema),
-    defaultValues: data,
+    defaultValues: {
+      ...data,
+      status: data.status || 'UPCOMING',
+    },
   });
 
   const editor = useEditor({
@@ -44,9 +47,11 @@ export const EditEvent = ({ data }: { data: EventDataType }) => {
     execute({ ...values, id: data.id });
   };
 
-  if (!isPending && hasSucceeded) {
-    router.push('/admin/events');
-  }
+  useEffect(() => {
+    if (!isPending && hasSucceeded) {
+      router.push('/admin/events');
+    }
+  }, [isPending, hasSucceeded, router]);
 
   const handleContainerClick = () => fileInputRef.current?.click();
 

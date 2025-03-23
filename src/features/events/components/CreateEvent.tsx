@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useEditor } from '@tiptap/react';
 import { useRouter } from 'next/navigation';
 
@@ -52,9 +52,11 @@ export const CreateEvent = () => {
     execute(values);
   };
 
-  if (!isPending && hasSucceeded) {
-    router.push('/admin/events');
-  }
+  useEffect(() => {
+    if (!isPending && hasSucceeded) {
+      router.push('/admin/events');
+    }
+  }, [isPending, hasSucceeded, router]);
 
   const handleContainerClick = () => fileInputRef.current?.click();
 

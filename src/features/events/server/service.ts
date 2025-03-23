@@ -138,8 +138,7 @@ async function deleteEventRegistration(slug: string, userId: string): Promise<Ev
     throw new ErrorResponse('Cannot unregister from an event that has already started');
   }
 
-  // Cannot unregister from an event before 1 day of the event
-  if (currentDate < new Date(event.startDate.getDate() - 1)) {
+  if (currentDate < new Date(event.startDate.getTime() - 24 * 60 * 60 * 1000)) {
     throw new ErrorResponse('Cannot unregister from an event before 24 hours of the event');
   }
 

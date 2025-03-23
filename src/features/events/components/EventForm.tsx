@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import NextImage from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useCurrentRole } from '@/hooks/use-current-role';
 
 import { Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,8 @@ import { RichTextEditor } from '@/components/custom/editor';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowLeft } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { EventStatus } from '@prisma/client';
 
 export const EventForm = ({
   form,
@@ -33,6 +36,7 @@ export const EventForm = ({
 }: EventFormProps<CreateEvent>) => {
   const router = useRouter();
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const role = useCurrentRole();
 
   const handleCoverImageChange = useCallback(
     async (file: File) => {
@@ -131,6 +135,36 @@ export const EventForm = ({
                     </FormItem>
                   )}
                 />
+
+                {role === 'ADMIN' && (
+                  <FormField
+                    name="status"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-600">Status</FormLabel>
+                        <Select
+                          disabled={isPending}
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className={fieldState.invalid ? 'border-red-500' : ''}>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(EventStatus).map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 {/* Cover Image Section */}
                 <div className="space-y-2">
