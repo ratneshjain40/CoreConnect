@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import NextImage from 'next/image';
+import { useRouter } from 'next/navigation';
 
 import { Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ import { FormError, FormSuccess } from '@/components/custom';
 import { RichTextEditor } from '@/components/custom/editor';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowLeft } from 'lucide-react';
 
 export const EventForm = ({
   form,
@@ -29,6 +31,7 @@ export const EventForm = ({
   isEditing,
   setCoverImagePreview,
 }: EventFormProps<CreateEvent>) => {
+  const router = useRouter();
   const [showImagePreview, setShowImagePreview] = useState(false);
 
   const handleCoverImageChange = useCallback(
@@ -44,16 +47,27 @@ export const EventForm = ({
     [form]
   );
 
+  const handleBack = useCallback(() => {
+    router.push('/admin/events');
+  }, [router]);
+
   return (
     <>
+      {/* Form Status Messages */}
+      <div className="fixed top-4 right-4 z-50">
+        <FormError message={error} />
+        <FormSuccess message={success} />
+      </div>
+
       <Form {...form}>
         <form
+          id="eventForm"
           onSubmit={(e) => {
             e.preventDefault();
             form.setValue('description', editor?.getHTML() || '');
             form.handleSubmit(onSubmit)();
           }}
-          className="flex w-full flex-col gap-6 min-w-0"
+          className="flex w-full flex-col gap-6 min-w-0 pb-24"
         >
           {/* Basic Event Information */}
           <div className="flex w-full flex-col gap-6">
@@ -235,25 +249,30 @@ export const EventForm = ({
                 <RichTextEditor editor={editor} error={form.formState.errors.description?.message || null} />
               </div>
             </div>
-
-            {/* Form Actions */}
-            <div className="flex justify-end gap-4 pt-6 border-t">
-              <FormError message={error} />
-              <FormSuccess message={success} />
-              <Button
-                type="button"
-                onClick={handleResetEvent}
-                variant="outline"
-                className="px-6"
-              >
-                Reset
-              </Button>
-              <Button type="submit" className="px-6">
-                {isEditing ? 'Update Event' : 'Create Event'}
-              </Button>
-            </div>
           </div>
         </form>
+
+        {/* Form Actions */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t py-4 shadow-lg">
+          <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-end gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleBack}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            <Button 
+              type="submit"
+              form="eventForm"
+              className="px-6"
+            >
+              {isEditing ? 'Update Event' : 'Create Event'}
+            </Button>
+          </div>
+        </div>
       </Form>
 
       {/* Image Preview Dialog */}
