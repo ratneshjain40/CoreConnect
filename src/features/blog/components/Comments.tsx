@@ -61,42 +61,8 @@ export const Comments = ({
   return (
     <section className="mt-12 border-t pt-8">
       <h2 className="mb-4 text-xl font-bold">Comments</h2>
-
-      <div className="space-y-6">
-        {comments.slice(0, showMore ? comments.length : 3).map((comment) => (
-          <div key={comment.id} className="flex space-x-4">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>{initials(comment?.author as string)}</AvatarFallback>
-            </Avatar>
-
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <h3 className="font-semibold">{comment.author}</h3>
-                  <span className="text-sm text-gray-500">{format(comment.createdAt, 'dd MMM yyyy')}</span>
-                </div>
-
-                {(comment.userId === userId || role === 'ADMIN') && (
-                  <DeleteCommentButton comment={comment} role={role} />
-                )}
-              </div>
-
-              <p className="mt-1">{comment.content}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-4 text-center">
-        {comments.length > 3 && (
-          <button onClick={toggleComments} className="text-xs text-blue-500 hover:underline">
-            {showMore ? 'Show Less' : 'Show More'}
-          </button>
-        )}
-      </div>
-
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mt-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mb-8 mt-4">
           <FormField
             name="content"
             control={form.control}
@@ -119,6 +85,39 @@ export const Comments = ({
           </Button>
         </form>
       </Form>
+      <div className="space-y-6">
+        {comments.slice(0, showMore ? comments.length : 3).map((comment) => (
+          <div key={comment.id} className="flex w-full space-x-4">
+            <div className="flex flex-1 space-x-2">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>{initials(comment.author)}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1">
+                    <h3 className="text-sm font-semibold">{comment.author}</h3>
+                    <span className="text-xs text-gray-500">{format(comment.createdAt, 'dd MMM yyyy')}</span>
+                  </div>
+                </div>
+                <p className="mt-1 text-sm">{comment.content}</p>
+              </div>
+            </div>
+            <div>
+              {(comment.userId === userId || role === 'ADMIN') && <DeleteCommentButton comment={comment} role={role} />}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 text-center">
+        {comments.length > 3 && (
+          <button
+            onClick={toggleComments}
+            className="mt-6 text-sm text-gray-500 transition-colors hover:text-primary hover:underline"
+          >
+            {showMore ? 'Show Less' : 'Show More'}
+          </button>
+        )}
+      </div>
     </section>
   );
 };

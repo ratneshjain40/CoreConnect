@@ -13,6 +13,9 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        xs: '480px',
+      },
       fontFamily: {
         sans: ['var(--jakartaSans-font)'],
         sora: ['var(--soraSans-font)'],

@@ -93,7 +93,7 @@ const EventEditAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
 const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
   const router = useRouter();
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const { execute, hasSucceeded } = useAction(updateEvent);
+  const { execute } = useAction(updateEvent);
 
   const handleStatusChange = () => {
     if (row.original.status === 'UPCOMING') {
@@ -103,10 +103,6 @@ const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) =
     }
     return;
   };
-
-  if (hasSucceeded) {
-    console.log('Event status changed successfully');
-  }
 
   return (
     <>

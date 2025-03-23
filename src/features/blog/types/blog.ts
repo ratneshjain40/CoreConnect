@@ -1,3 +1,5 @@
+import { FilterListItem } from '@/types/filterList';
+import { Prettify } from '@/types/utility';
 import { Editor } from '@tiptap/react';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
 
@@ -48,3 +50,15 @@ export type CommentDataType = {
   content: string;
   createdAt: Date;
 };
+
+export type CategoriesFilterList = Prettify<
+  FilterListItem & {
+    checked: boolean;
+  }
+>;
+
+export type PriceFilterList = Prettify<
+  FilterListItem & {
+    checked: boolean;
+  }
+>;

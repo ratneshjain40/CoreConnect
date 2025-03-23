@@ -8,12 +8,12 @@ import { Blog, BlogComment } from '@prisma/client';
 import { blogRepo, CommentsWithAuthor } from './repo';
 import { BlogFormType, createCommentSchema, UpdateBlogType } from '../schema/blog';
 
-async function getBlogsWithoutContent(page: number, limit: number): Promise<BlogDataType[]> {
-  return blogRepo.getBlogsWithoutContent(page, limit);
+async function getBlogsWithoutContent(): Promise<BlogDataType[]> {
+  return blogRepo.getBlogsWithoutContent();
 }
 
-async function getBlogsByUserWithoutContent(userId: string, page: number, limit: number): Promise<BlogDataType[]> {
-  return blogRepo.getBlogsByUserWithoutContent(userId, page, limit);
+async function getBlogsByUserWithoutContent(userId: string): Promise<BlogDataType[]> {
+  return blogRepo.getBlogsByUserWithoutContent(userId);
 }
 
 async function getBlogBySlug(slug: string): Promise<Blog | null> {
@@ -66,11 +66,11 @@ async function deleteBlogAdmin(slug: string): Promise<Blog> {
 
 /* -------------------------- Comments -------------------------- */
 
-async function getAllBlogComments(blogSlug: string, page: number, limit: number): Promise<CommentsWithAuthor[]> {
+async function getAllBlogComments(blogSlug: string): Promise<CommentsWithAuthor[]> {
   let blog = await blogRepo.getBlogWithoutContentBySlug(blogSlug);
   if (!blog) throw new ErrorResponse('Blog not found');
 
-  return blogRepo.getAllBlogComments(blog.id, page, limit);
+  return blogRepo.getAllBlogComments(blog.id);
 }
 
 async function createBlogComment(userId: string, data: z.infer<typeof createCommentSchema>): Promise<BlogComment> {

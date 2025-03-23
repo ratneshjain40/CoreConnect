@@ -5,24 +5,18 @@ import { blogService } from './service';
 import { revalidatePath } from 'next/cache';
 import { actionClient, authActionClient } from '@/lib/action-clients';
 import { blogSchema, updateBlogSchema, createCommentSchema } from '../schema/blog';
-import { paginationSchema } from '@/schema/pagination';
 
-export const getBlogsWithoutContent = actionClient
-  .schema(paginationSchema)
-  .action(async (data) => {
-    const { page = 1, limit = 10 } = data.parsedInput;
-    return await blogService.getBlogsWithoutContent(page, limit);
-  });
+export const getBlogsWithoutContent = actionClient.action(async () => {
+  return await blogService.getBlogsWithoutContent();
+});
 
 export const getBlogsByUserWithoutContent = authActionClient
   .metadata({
     roleGate: 'USER',
   })
-  .schema(paginationSchema)
   .action(async (data) => {
     let sessionUser = data.ctx.session.user;
-    const { page = 1, limit = 10 } = data.parsedInput;
-    return await blogService.getBlogsByUserWithoutContent(sessionUser.id, page, limit);
+    return await blogService.getBlogsByUserWithoutContent(sessionUser.id);
   });
 
 export const getBlogBySlug = actionClient
@@ -94,11 +88,10 @@ export const getAllBlogComments = actionClient
   .schema(
     z.object({
       slug: z.string(),
-    }).merge(paginationSchema)
+    })
   )
   .action(async (data) => {
-    const { slug, page = 1, limit = 10 } = data.parsedInput;
-    return await blogService.getAllBlogComments(slug, page, limit);
+    return await blogService.getAllBlogComments(data.parsedInput.slug);
   });
 
 export const createBlogComment = authActionClient

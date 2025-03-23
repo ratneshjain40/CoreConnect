@@ -22,11 +22,9 @@ const ViewBlogPage = async ({ params }: { params: Promise<{ slug: string }> }) =
   }
 
   return (
-    <>
-      <Suspense fallback={<Loading />}>
-        <SingleBlog data={blog?.data} />
-      </Suspense>
-    </>
+    <Suspense fallback={<Loading />}>
+      <SingleBlog data={blog?.data} />
+    </Suspense>
   );
 };
 

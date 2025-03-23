@@ -111,7 +111,7 @@ const TooltippedButton = ({ icon: Icon, label, onClick }: { icon: any; label: st
   </Tooltip>
 );
 
-export const Toolbar = ({ editor }: { editor: Editor | null }) => {
+export const Toolbar = ({ editor }: { editor: Editor }) => {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);

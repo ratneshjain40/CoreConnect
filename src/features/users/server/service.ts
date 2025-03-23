@@ -46,5 +46,5 @@ export const userService = {
   createUser,
   updateEmailVerifiedDate,
   updatePassword,
-  getAllUsersData
+  getAllUsersData,
 };

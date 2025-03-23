@@ -1,10 +1,17 @@
+import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({ children }: { readonly children: React.ReactNode }) {
   return (
-    <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
+    <div className="relative grid min-h-dvh w-full lg:grid-cols-2">
+      <Link className="group absolute left-4 top-4 flex items-center gap-2" href="/">
+        <span className="flex items-center justify-center rounded-md bg-primary p-[0.4rem] text-white shadow transition-colors group-hover:bg-primary/90 group-focus-visible:outline-none group-focus-visible:ring-1 group-focus-visible:ring-ring">
+          <ChevronLeft className="h-4 w-4" />
+        </span>
+        <span>Home</span>
+      </Link>
       {children}
-
       <div className="hidden bg-muted lg:block">
         <Image
           alt="Image"

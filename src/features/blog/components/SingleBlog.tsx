@@ -7,6 +7,8 @@ import DOMPurify from 'isomorphic-dompurify';
 import { Badge } from '@/components/ui/badge';
 import { getAllBlogComments } from '../server/actions';
 import { BlogDataWithContentType } from '../types/blog';
+import { CalendarIcon, LockIcon, UserIcon } from 'lucide-react';
+import { format } from 'date-fns';
 
 type SingleBlogProps = {
   data: BlogDataWithContentType;
@@ -31,36 +33,38 @@ export const SingleBlog = async ({ data }: SingleBlogProps) => {
   return (
     <article className="mx-auto max-w-4xl px-4 py-8">
       <header className="mb-8">
-        <div className="flex items-center justify-between">
-          <h1 className="mb-4 text-4xl font-bold">{data.title}</h1>
-          {data.isPaid ? (
-            <Badge variant="destructive" className="mb-4">
+        <div className="flex flex-col items-start gap-4">
+          {data.isPaid && (
+            <Badge className="bg-yellow-500" variant="secondary">
+              <LockIcon className="mr-1 h-3 w-3" />
               Premium Content
             </Badge>
-          ) : (
-            <Badge variant="default" className="mb-4">
-              Free Content
-            </Badge>
           )}
+          <h1 className="mb-4 text-4xl font-bold">{data.title}</h1>
         </div>
-
-        <div className="mb-4 flex items-center justify-between text-sm text-gray-500">
-          <span>By {data.author}</span>
-          <span>
-            {data.updatedAt
-              ? `Updated ${new Date(data.updatedAt).toLocaleDateString()}`
-              : `Published ${new Date(data.createdAt).toLocaleDateString()}`}
-          </span>
-        </div>
-
         <div className="mb-4 flex gap-2">
-          {data.categories.map((category, index) => (
-            <Badge key={index} variant="secondary">
+          {data.categories.map((category) => (
+            <Badge key={crypto.randomUUID()} variant="secondary">
               {category}
             </Badge>
           ))}
         </div>
-
+        <div className="mb-4 flex items-center justify-between text-sm text-gray-500">
+          <div className="flex items-center gap-1 text-sm text-gray-500">
+            <span className="flex items-center justify-center rounded-full bg-secondary p-2">
+              <UserIcon className="h-4 w-4" />
+            </span>
+            {data.author}
+          </div>
+          <div className="flex items-center gap-1 text-sm text-gray-500">
+            <span className="flex items-center justify-center rounded-md bg-secondary p-2">
+              <CalendarIcon className="h-4 w-4" />
+            </span>
+            {data.updatedAt
+              ? `Updated ${format(data.updatedAt, 'dd MMM yyyy')}`
+              : `Published ${format(data.createdAt, 'dd MMM yyyy')}`}
+          </div>
+        </div>
         {data.coverImage && (
           <Image
             width={1200}
@@ -73,7 +77,6 @@ export const SingleBlog = async ({ data }: SingleBlogProps) => {
       </header>
 
       <div className="prose mb-12 max-w-none" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} />
-
       <Comments
         blogSlug={data.slug}
         isAuthenticated={!!user}

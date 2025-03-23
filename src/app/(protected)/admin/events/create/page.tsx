@@ -1,4 +1,4 @@
-import { CreateEvent } from "@/features/events/components/CreateEvent";
+import { CreateEvent } from '@/features/events/components/CreateEvent';
 
 const CreateEventPage = () => {
   return (

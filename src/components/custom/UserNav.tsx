@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const userNavItems = [
-  { href: '/admin/dashboard', label: 'Profile', shortcut: '⌘P' },
+  { href: '/admin/dashboard', label: 'Dashboard', shortcut: '⌘P' },
   { href: '/admin/settings', label: 'Settings', shortcut: '⌘S' },
 ];
 

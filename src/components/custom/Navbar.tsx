@@ -9,20 +9,25 @@ import { User } from '@prisma/client';
 import { ButtonLink } from './ButtonLink';
 import { SearchInput } from './SearchInput';
 import { Icon } from '@/constants/icons';
-import { NAVBAR } from '@/constants/navbar';
+import { NAVBAR } from '@/constants/navbar'; // Import the navbar options
 import { NavbarOption } from '@/types/navbar';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { currentUser } from '@/lib/auth';
+import { DropdownNavItem } from './DropdownNavItem';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '../ui/navigation-menu';
+import { ListItem } from './NavigationMenuListItem';
 
 const DropdownLink = ({ url, name, description }: NavbarOption) => (
   <Link
@@ -46,41 +51,36 @@ export const Navbar = async () => {
           <span className="text-lg font-semibold">Entomon Institute</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
-          {NAVBAR.map((item) =>
-            item.type === 'Link' ? (
-              <Link
-                key={item.name}
-                prefetch={false}
-                href={item.url ?? ''}
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                {item.name}
-              </Link>
-            ) : item.type === 'Dropdown' ? (
-              <DropdownMenu key={item.name}>
-                <DropdownMenuTrigger asChild>
-                  <div className="flex cursor-pointer items-center gap-1 text-sm font-medium transition-colors hover:text-primary">
-                    {item.name}
-                    <Icon name="chevronDown" className="h-4 w-4 transition-all" />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {item.options?.map((option) => (
-                    <DropdownMenuItem key={option.name} asChild>
-                      <DropdownLink url={option.url ?? '#'} name={option.name} description={option.description} />
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : item.type === 'Button' ? (
-              <ButtonLink key={item.name} name={item.name} url={item.url ?? ''} />
-            ) : null
-          )}
+        <NavigationMenu className="hidden items-center gap-6 lg:flex">
+          <NavigationMenuList className="flex items-center gap-6">
+            {NAVBAR.map((item) => {
+              if (item.type === 'Link')
+                return (
+                  <NavigationMenuItem key={crypto.randomUUID()}>
+                    <Link
+                      prefetch={false}
+                      href={item.url ?? ''}
+                      className="text-sm font-medium transition-colors hover:text-primary"
+                    >
+                      {item.name}
+                    </Link>
+                  </NavigationMenuItem>
+                );
+              if (item.type === 'Dropdown') return <DropdownNavItem key={crypto.randomUUID()} item={item} />;
+              if (item.type === 'Button')
+                return (
+                  <NavigationMenuItem key={crypto.randomUUID()}>
+                    <ButtonLink name={item.name} url={item.url ?? ''} />
+                  </NavigationMenuItem>
+                );
+
+              return null;
+            })}
+          </NavigationMenuList>
 
           <SearchInput />
           {user ? <UserNav user={user as User} /> : <ButtonLink url="/auth/login" name="Login/Register" />}
-        </nav>
+        </NavigationMenu>
 
         <Sheet>
           <SheetTrigger asChild>
