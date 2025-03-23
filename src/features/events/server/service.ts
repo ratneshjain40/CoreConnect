@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { EventDetails, eventRepo } from './repo';
 import { generateSlug } from '@/lib/slugify';
 import { ErrorResponse } from '@/types/errors';
-import { Event, EventRegistration } from '@prisma/client';
+import { Event, EventRegistration, EventStatus } from '@prisma/client';
 import { EventWithoutDescriptionType } from '../types/event';
 import { CreateEvent, eventRegistrationSchema, getEventByStatusSchema, UpdateEvent } from '../schema/event';
 
@@ -12,8 +12,24 @@ async function getEvents(): Promise<EventWithoutDescriptionType[]> {
   return await eventRepo.getAllEvents();
 }
 
+async function updateEventStatusBasedOnDates(event: Event): Promise<EventStatus> {
+  const currentDate = new Date();
+  if (currentDate > event.endDate) return 'COMPLETED';
+  if (currentDate >= event.startDate) return 'STARTED';
+  return 'UPCOMING';
+}
+
 async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
-  return await eventRepo.getEventsByStatus(data.status);
+  const events = await eventRepo.getEventsByStatus(data.status);
+  if (data.status === 'UPCOMING' || data.status === 'STARTED') {
+    for (const event of events) {
+      const correctStatus = await updateEventStatusBasedOnDates(event as Event);
+      if (correctStatus !== event.status) {
+        await eventRepo.updateEvent(event.id, { status: correctStatus });
+      }
+    }
+  }
+  return events;
 }
 
 async function getEventBySlug(slug: string): Promise<Event | null> {
@@ -70,7 +86,7 @@ async function registerUserForEvent(
 ): Promise<EventRegistration> {
   let event = await eventRepo.getEventBySlug(data.eventSlug);
   if (!event) throw new ErrorResponse('Event not found');
-  
+
   // Check if event has started
   const currentDate = new Date();
   if (currentDate >= event.startDate) {
@@ -80,6 +96,11 @@ async function registerUserForEvent(
   // Check if event has ended
   if (currentDate > event.endDate) {
     throw new ErrorResponse('Cannot register for an event that has ended');
+  }
+
+  // Check if event is paused
+  if (event.status === 'PAUSED') {
+    throw new ErrorResponse('Cannot register for an event that is paused');
   }
 
   return await eventRepo.registerUserForEvent({
@@ -115,6 +136,11 @@ async function deleteEventRegistration(slug: string, userId: string): Promise<Ev
   const currentDate = new Date();
   if (currentDate >= event.startDate) {
     throw new ErrorResponse('Cannot unregister from an event that has already started');
+  }
+
+  // Cannot unregister from an event before 1 day of the event
+  if (currentDate < new Date(event.startDate.getDate() - 1)) {
+    throw new ErrorResponse('Cannot unregister from an event before 24 hours of the event');
   }
 
   return await eventRepo.deleteEventRegistration(event.id, userId);

@@ -14,8 +14,9 @@ type EventListProps = {
 
 const statusColor = {
   UPCOMING: 'bg-green-500',
+  STARTED: 'bg-blue-500',
+  PAUSED: 'bg-yellow-500',
   COMPLETED: 'bg-gray-500',
-  CANCELLED: 'bg-red-500',
 } as const;
 
 const getPriceTagColor = (price: string) => {

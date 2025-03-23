@@ -94,8 +94,9 @@ model BlogComment {
 
 enum EventStatus {
   UPCOMING
+  STARTED
+  PAUSED
   COMPLETED
-  CANCELLED
 }
 
 model Event {

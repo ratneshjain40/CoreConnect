@@ -1,3 +1,4 @@
+import { EventStatus } from '@prisma/client';
 import { Editor } from '@tiptap/react';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
 
@@ -12,7 +13,7 @@ export type EventDataType = {
   coverImage: string;
   price: string;
   categories: string[];
-  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+  status: EventStatus;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -27,7 +28,7 @@ export type EventWithoutDescriptionType = {
   coverImage: string;
   price: string;
   categories: string[];
-  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+  status: EventStatus;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -46,4 +47,5 @@ export type EventFormProps<TFormValues extends FieldValues> = {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   isEditing: boolean;
   isSubmitDisabled?: boolean;
+  onDiscard?: () => void;
 };

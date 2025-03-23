@@ -50,10 +50,10 @@ export const EventForm = ({
             form.setValue('description', editor?.getHTML() || '');
             form.handleSubmit(onSubmit)();
           }}
-          className="flex h-screen w-full flex-col items-center gap-3 overflow-hidden"
+          className="flex w-full flex-col gap-3 min-w-0"
         >
-          <div className="flex w-full gap-8">
-            <div className="flex w-1/4 flex-col gap-4">
+          <div className="flex w-full flex-col lg:flex-row gap-8 min-w-0">
+            <div className="flex w-full lg:w-1/3 min-w-0 flex-col gap-4">
               <FormField
                 name="title"
                 control={form.control}
@@ -221,8 +221,10 @@ export const EventForm = ({
             </div>
 
             {/* Text Editor */}
-            <div className="w-3/4">
-              <RichTextEditor editor={editor} error={form.formState.errors.description?.message || null} />
+            <div className="w-full lg:w-2/3 min-w-0 overflow-hidden">
+              <div className="max-w-full overflow-hidden">
+                <RichTextEditor editor={editor} error={form.formState.errors.description?.message || null} />
+              </div>
             </div>
           </div>
         </form>

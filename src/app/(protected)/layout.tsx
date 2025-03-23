@@ -54,7 +54,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b pl-4 pr-8">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
@@ -66,7 +66,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
 
         <Suspense fallback={<Loading />}>
-          <main className="container mx-auto flex-1 overflow-auto py-10">{children}</main>
+          <main className="w-full flex-1 py-6 px-4 overflow-x-hidden max-w-full">
+            {children}
+          </main>
         </Suspense>
       </SidebarInset>
     </SidebarProvider>
