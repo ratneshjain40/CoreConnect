@@ -66,6 +66,7 @@ export const BlogForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-600">Title</FormLabel>
                     <FormControl className="rounded-md border-gray-300">
                       <Input
                         {...field}
@@ -84,6 +85,7 @@ export const BlogForm = ({
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-600">Categories</FormLabel>
                     <FormControl className="rounded-md border-gray-300">
                       <MultiSelect
                         {...field}
@@ -104,39 +106,42 @@ export const BlogForm = ({
                 control={form.control}
                 rules={{ required: 'Cover image is required.' }}
                 render={({ field, fieldState }) => (
-                  <div
-                    onClick={handleContainerClick}
-                    className={`relative flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
-                      fieldState.error ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      ref={fileInputRef}
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleCoverImageChange(file);
-                          form.setValue('coverImage', file.name);
-                        }
-                      }}
-                    />
-                    {coverImagePreview ? (
-                      <NextImage
-                        width={160}
-                        height={160}
-                        alt="Cover Preview"
-                        src={coverImagePreview}
-                        className="absolute inset-0 h-full w-full rounded-lg object-cover"
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-600">Cover Image</FormLabel>
+                    <div
+                      onClick={handleContainerClick}
+                      className={`relative flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                        fieldState.error ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleCoverImageChange(file);
+                            form.setValue('coverImage', file.name);
+                          }
+                        }}
                       />
-                    ) : (
-                      <span className={`text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}>
-                        {fieldState.error?.message || 'Click to upload cover image'}
-                      </span>
-                    )}
-                  </div>
+                      {coverImagePreview ? (
+                        <NextImage
+                          width={160}
+                          height={160}
+                          alt="Cover Preview"
+                          src={coverImagePreview}
+                          className="absolute inset-0 h-full w-full rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className={`text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}>
+                          {fieldState.error?.message || 'Click to upload cover image'}
+                        </span>
+                      )}
+                    </div>
+                  </FormItem>
                 )}
               />
 
