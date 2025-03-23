@@ -70,6 +70,18 @@ async function registerUserForEvent(
 ): Promise<EventRegistration> {
   let event = await eventRepo.getEventBySlug(data.eventSlug);
   if (!event) throw new ErrorResponse('Event not found');
+  
+  // Check if event has started
+  const currentDate = new Date();
+  if (currentDate >= event.startDate) {
+    throw new ErrorResponse('Cannot register for an event that has already started');
+  }
+
+  // Check if event has ended
+  if (currentDate > event.endDate) {
+    throw new ErrorResponse('Cannot register for an event that has ended');
+  }
+
   return await eventRepo.registerUserForEvent({
     eventId: event.id,
     userId: userId,
@@ -98,6 +110,13 @@ async function deleteEventRegistration(slug: string, userId: string): Promise<Ev
   if (!event) {
     throw new ErrorResponse('Event not found');
   }
+
+  // Check if event has started
+  const currentDate = new Date();
+  if (currentDate >= event.startDate) {
+    throw new ErrorResponse('Cannot unregister from an event that has already started');
+  }
+
   return await eventRepo.deleteEventRegistration(event.id, userId);
 }
 
