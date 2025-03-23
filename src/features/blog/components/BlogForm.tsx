@@ -79,29 +79,63 @@ export const BlogForm = ({
           {/* Basic Blog Information */}
           <div className="flex w-full flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-700">Basic Information</h2>
-                <FormField
-                  name="title"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Title</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="text"
-                          disabled={isPending}
-                          placeholder="Blog Title"
-                          className={fieldState.invalid ? 'border-red-500' : ''}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-700 mb-4">Basic Information</h2>
+                  
+                  <div className="space-y-4">
+                    <FormField
+                      name="title"
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-gray-600">Blog Title</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="text"
+                              disabled={isPending}
+                              placeholder="Enter a descriptive title..."
+                              className={fieldState.invalid ? 'border-red-500' : ''}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-                {/* Cover Image Section */}
-                <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="isPaid"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex flex-col space-y-2">
+                            <FormLabel className="text-sm font-medium text-gray-600">Access Type</FormLabel>
+                            <div className="flex items-center gap-3">
+                              <FormControl>
+                                <CustomSwitch
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              </FormControl>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {field.value ? 'Premium Content' : 'Free Content'}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {field.value 
+                                    ? 'This blog will only be accessible to paid subscribers'
+                                    : 'This blog will be accessible to all users'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
                   <FormLabel className="text-sm font-medium text-gray-600">Cover Image</FormLabel>
                   <Controller
                     name="coverImage"
@@ -150,44 +184,27 @@ export const BlogForm = ({
                     )}
                   />
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name="isPaid"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center gap-3 space-y-0">
-                      <FormControl>
-                        <CustomSwitch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel htmlFor="Is Paid" className="text-sm font-medium text-gray-600 cursor-pointer">
-                        Is Paid
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-700">Categories</h2>
+                <h2 className="text-lg font-semibold text-gray-700 mb-4">Categories</h2>
                 <Controller
                   name="categories"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Categories</FormLabel>
+                      <FormLabel className="text-sm font-medium text-gray-600">Blog Categories</FormLabel>
                       <FormControl>
                         <MultiSelect
                           {...field}
                           maxSelect={3}
                           disabled={isPending}
                           options={blogCategories}
-                          placeholder="Select categories..."
+                          placeholder="Select up to 3 categories..."
                           className={`rounded-md border-gray-300 text-gray-500 ${fieldState.invalid ? 'border-red-500' : ''}`}
                         />
                       </FormControl>
+                      <p className="text-xs text-gray-500 mt-1">Choose up to 3 categories that best describe your blog content</p>
                     </FormItem>
                   )}
                 />
