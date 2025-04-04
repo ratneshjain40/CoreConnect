@@ -98,7 +98,7 @@ const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) =
   const handleStatusChange = () => {
     if (row.original.status === 'UPCOMING') {
       setDialogOpen(false);
-      execute({ id: row.original.id, status: 'COMPLETED' });
+      execute({ id: row.original.id, status: 'PAUSED' });
       router.refresh();
     }
     return;
