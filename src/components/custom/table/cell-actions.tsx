@@ -14,6 +14,7 @@ import { AdminCoursesColumns } from '@/features/courses/components/columns';
 import { deleteEvent, updateEvent } from '@/features/events/server/actions';
 import { EventTableColumnsType } from '@/features/events/components/columns';
 import { useRouter } from 'next/navigation';
+import { root } from 'postcss';
 
 const BlogDeleteAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -101,6 +102,11 @@ const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) =
       execute({ id: row.original.id, status: 'PAUSED' });
       router.refresh();
     }
+    else if (row.original.status === 'PAUSED') {
+      setDialogOpen(false);
+      execute({ id: row.original.id, status: 'UPCOMING' });
+      router.refresh();
+    }
     return;
   };
 
@@ -108,25 +114,26 @@ const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) =
     <>
       <span
         onClick={() => {
-          if (row.original.status === 'UPCOMING') setDialogOpen(true);
+          if (row.original.status === 'UPCOMING' || row.original.status === 'PAUSED') setDialogOpen(true);
         }}
       >
-        <Icon
-          name="check"
-          className={`h-5 w-5 cursor-pointer ${
-            row.original.status === 'COMPLETED' ? 'cursor-not-allowed text-green-500' : 'text-yellow-500'
-          }`}
-        />
+        {row.original.status === 'UPCOMING' ? (
+          <Icon name="pause" className="h-4 w-4 cursor-pointer text-yellow-500" />
+        ) : row.original.status === 'PAUSED' ? (
+          <Icon name="unpause" className="h-5 w-5 cursor-pointer text-blue-500" />
+        ) : (
+          <Icon name="completed" className="h-6 w-6 cursor-pointer text-green-500" />
+        )}
       </span>
       <CustomModal
         open={isDialogOpen}
         onConfirm={handleStatusChange}
         onOpenChange={setDialogOpen}
         confirmButtonVariant="default"
-        title="Mark Completed?"
+        title={`Mark as ${row.original.status === 'UPCOMING' ? 'Paused' : 'Upcoming'}?`}
         confirmButtonLabel="Sure"
         cancelButtonLabel="Cancel"
-        description="Are you sure you want to mark event as completed? This action cannot be undone!"
+        description="Are you sure?"
       />
     </>
   );

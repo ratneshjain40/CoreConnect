@@ -14,14 +14,13 @@ async function getEvents(): Promise<EventWithoutDescriptionType[]> {
 
 async function updateEventStatusBasedOnDates(event: Event): Promise<EventStatus> {
   const currentDate = new Date();
-  if (currentDate > event.endDate) return 'COMPLETED';
-  if (currentDate >= event.startDate) return 'STARTED';
+  if (currentDate >= event.startDate) return 'COMPLETED';
   return 'UPCOMING';
 }
 
 async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
   const events = await eventRepo.getEventsByStatus(data.status);
-  if (data.status === 'UPCOMING' || data.status === 'STARTED') {
+  if (data.status === 'UPCOMING' || data.status === 'PAUSED') {
     for (const event of events) {
       const correctStatus = await updateEventStatusBasedOnDates(event as Event);
       if (correctStatus !== event.status) {
@@ -52,9 +51,10 @@ async function updateEvent(data: UpdateEvent): Promise<Event> {
   let event = await eventRepo.getEventById(data.id);
   if (!event) throw new ErrorResponse('Event not found');
 
-  let startDate = data.startDate ? new Date(data.startDate).getDate() : event.startDate;
-  let endDate = data.endDate ? new Date(data.endDate).getDate() : event.endDate;
-  if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
+  let startDate = data.startDate ? new Date(data.startDate) : event.startDate;
+  let endDate = data.endDate ? new Date(data.endDate) : event.endDate;
+  console.log(startDate, endDate);
+  if (endDate < startDate) throw new ErrorResponse('End date must be after or same as start date');
 
   let slug = data.title ? generateSlug(data.title) : event.slug;
   return await eventRepo.updateEvent(data.id, {
@@ -88,14 +88,8 @@ async function registerUserForEvent(
   if (!event) throw new ErrorResponse('Event not found');
 
   // Check if event has started
-  const currentDate = new Date();
-  if (currentDate >= event.startDate) {
-    throw new ErrorResponse('Cannot register for an event that has already started');
-  }
-
-  // Check if event has ended
-  if (currentDate > event.endDate) {
-    throw new ErrorResponse('Cannot register for an event that has ended');
+  if (event.status === 'COMPLETED') {
+    throw new ErrorResponse('Cannot register for an event that is completed');
   }
 
   // Check if event is paused
