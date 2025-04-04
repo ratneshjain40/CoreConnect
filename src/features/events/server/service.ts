@@ -22,10 +22,10 @@ async function updateEventStatusBasedOnDates(event: Event): Promise<EventStatus>
 async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
   const events = await eventRepo.getEventsByStatus(data.status);
   // Only check status updates for UPCOMING and PAUSED events
-  const eventsToCheck = events.filter(event => 
+  const eventsToCheck = events.filter(event =>
     event.status === 'UPCOMING' || event.status === 'PAUSED'
   );
-  
+
   for (const event of eventsToCheck) {
     const correctStatus = await updateEventStatusBasedOnDates(event as Event);
     if (correctStatus !== event.status) {
@@ -45,6 +45,9 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
 async function createEvent(data: CreateEvent): Promise<Event> {
   let startDate = startOfDay(new Date(data.startDate));
   let endDate = endOfDay(new Date(data.endDate));
+
+  let currentDate = startOfDay(new Date());
+  if (startDate < currentDate) throw new ErrorResponse('Start date cannot be in the past');
   if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
 
   let slug = generateSlug(data.title);
@@ -55,13 +58,19 @@ async function updateEvent(data: UpdateEvent): Promise<Event> {
   let event = await eventRepo.getEventById(data.id);
   if (!event) throw new ErrorResponse('Event not found');
 
-  let startDate = data.startDate ? new Date(data.startDate) : event.startDate;
-  startDate = startOfDay(startDate);
-  let endDate = data.endDate ? new Date(data.endDate) : event.endDate;
-  endDate = endOfDay(endDate);
-  if (endDate < startDate) throw new ErrorResponse('End date must be after or same as start date');
+  if (event.status === 'COMPLETED' && data.startDate && data.endDate) {
+    if (startOfDay(data.startDate) !== event.startDate || endOfDay(data.endDate) !== event.endDate) {
+      throw new ErrorResponse('Cannot change start or end date of a completed/ongoing event');
+    }
+  }
 
-  let slug = data.title ? generateSlug(data.title) : event.slug;
+  if (data.startDate && data.endDate) {
+    let currentDate = startOfDay(new Date());
+    if (data.startDate < currentDate) throw new ErrorResponse('Start date cannot be in the past');
+    if (data.startDate > data.endDate) throw new ErrorResponse('Start date must be before or same as end date');
+  }
+
+  let slug = data.title ? (data.title === event.title ? event.slug : generateSlug(data.title)) : event.slug;
   return await eventRepo.updateEvent(data.id, {
     title: data.title,
     coverImage: data.coverImage,

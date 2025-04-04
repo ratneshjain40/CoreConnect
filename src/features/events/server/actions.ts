@@ -2,9 +2,10 @@
 
 import { z } from 'zod';
 import { eventService } from './service';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { actionClient, authActionClient } from '@/lib/action-clients';
 import { createEventSchema, eventRegistrationSchema, getEventByStatusSchema, updateEventSchema } from '../schema/event';
+import { redirect } from 'next/navigation';
 
 export const getEvents = actionClient.action(async () => {
   return await eventService.getEvents();
@@ -66,7 +67,7 @@ export const registerUserForEvent = authActionClient
   .schema(eventRegistrationSchema)
   .action(async (data) => {
     await eventService.registerUserForEvent(data.ctx.session.user.id, data.parsedInput);
-    revalidatePath(`/events/${data.parsedInput.eventSlug}`);
+    revalidatePath
     return { success: 'User registered successfully' };
   });
 
@@ -80,7 +81,6 @@ export const unregisterUserForEvent = authActionClient
     })
   )
   .action(async (data) => {
-    console.log("Unregistering user");
     await eventService.deleteEventRegistration(data.parsedInput.slug, data.ctx.session.user.id);
     revalidatePath(`/events/${data.parsedInput.slug}`);
     return { success: 'User unregistered successfully' };

@@ -11,6 +11,7 @@ import { useAction } from 'next-safe-action/hooks';
 import { eventRegistrationSchema } from '../schema/event';
 import { registerUserForEvent, unregisterUserForEvent } from '../server/actions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useRouter } from 'next/navigation';
 
 export const RegistrationForm = ({
   slug,
@@ -23,6 +24,7 @@ export const RegistrationForm = ({
   isAuthenticated: boolean;
   status: string;
 }) => {
+  const router = useRouter();
   const { execute: register, result: registerResult, isPending: isRegistering } = useAction(registerUserForEvent);
 
   const {
@@ -43,17 +45,19 @@ export const RegistrationForm = ({
     form.clearErrors();
     form.reset();
     register(values);
+    router.refresh();
   };
 
   const onUnregisterSubmit = () => {
     unregister({ slug });
+    router.refresh();
   };
 
   if (isRegistered) {
     return (
       <>
         <FormError message={unregisterResult.serverError?.toString()} />
-        <FormSuccess message={unregisterResult?.data?.success} />
+        {/* <FormSuccess message={unregisterResult?.data?.success} /> */}
         <Button onClick={onUnregisterSubmit} className="w-full" disabled={isUnregistering}>
           Unregister from Event
         </Button>
