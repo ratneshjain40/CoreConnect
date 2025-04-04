@@ -18,7 +18,7 @@ type SingleEventProps = {
 const statusColor = {
   UPCOMING: 'bg-green-500',
   COMPLETED: 'bg-gray-500',
-  CANCELLED: 'bg-red-500',
+  PAUSED: 'bg-yellow-500',
 } as const;
 
 const getPriceTagBgColor = (price: string) => {
@@ -132,7 +132,7 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
                 Attend This Event
               </div>
               <div className="my-4 h-[1px] w-full bg-gray-100"></div>
-              <RegistrationForm slug={data.slug} isAuthenticated={!!user} isRegistered={!!isRegistered} />
+              <RegistrationForm slug={data.slug} isAuthenticated={!!user} isRegistered={!!isRegistered} status={data.status} />
             </div>
           </div>
         </div>

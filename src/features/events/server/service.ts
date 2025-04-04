@@ -7,6 +7,7 @@ import { ErrorResponse } from '@/types/errors';
 import { Event, EventRegistration, EventStatus } from '@prisma/client';
 import { EventWithoutDescriptionType } from '../types/event';
 import { CreateEvent, eventRegistrationSchema, getEventByStatusSchema, UpdateEvent } from '../schema/event';
+import { endOfDay, startOfDay } from '@/lib/dates';
 
 async function getEvents(): Promise<EventWithoutDescriptionType[]> {
   return await eventRepo.getAllEvents();
@@ -14,18 +15,21 @@ async function getEvents(): Promise<EventWithoutDescriptionType[]> {
 
 async function updateEventStatusBasedOnDates(event: Event): Promise<EventStatus> {
   const currentDate = new Date();
-  if (currentDate >= event.startDate) return 'COMPLETED';
-  return 'UPCOMING';
+  if (event.startDate <= startOfDay(currentDate)) return 'COMPLETED';
+  return event.status;
 }
 
 async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
   const events = await eventRepo.getEventsByStatus(data.status);
-  if (data.status === 'UPCOMING' || data.status === 'PAUSED') {
-    for (const event of events) {
-      const correctStatus = await updateEventStatusBasedOnDates(event as Event);
-      if (correctStatus !== event.status) {
-        await eventRepo.updateEvent(event.id, { status: correctStatus });
-      }
+  // Only check status updates for UPCOMING and PAUSED events
+  const eventsToCheck = events.filter(event => 
+    event.status === 'UPCOMING' || event.status === 'PAUSED'
+  );
+  
+  for (const event of eventsToCheck) {
+    const correctStatus = await updateEventStatusBasedOnDates(event as Event);
+    if (correctStatus !== event.status) {
+      await eventRepo.updateEvent(event.id, { status: correctStatus });
     }
   }
   return events;
@@ -39,8 +43,8 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
 }
 
 async function createEvent(data: CreateEvent): Promise<Event> {
-  let startDate = new Date(data.startDate).getDate();
-  let endDate = new Date(data.endDate).getDate();
+  let startDate = startOfDay(new Date(data.startDate));
+  let endDate = endOfDay(new Date(data.endDate));
   if (startDate > endDate) throw new ErrorResponse('Start date must be before or same as end date');
 
   let slug = generateSlug(data.title);
@@ -52,8 +56,9 @@ async function updateEvent(data: UpdateEvent): Promise<Event> {
   if (!event) throw new ErrorResponse('Event not found');
 
   let startDate = data.startDate ? new Date(data.startDate) : event.startDate;
+  startDate = startOfDay(startDate);
   let endDate = data.endDate ? new Date(data.endDate) : event.endDate;
-  console.log(startDate, endDate);
+  endDate = endOfDay(endDate);
   if (endDate < startDate) throw new ErrorResponse('End date must be after or same as start date');
 
   let slug = data.title ? generateSlug(data.title) : event.slug;
@@ -87,12 +92,10 @@ async function registerUserForEvent(
   let event = await eventRepo.getEventBySlug(data.eventSlug);
   if (!event) throw new ErrorResponse('Event not found');
 
-  // Check if event has started
   if (event.status === 'COMPLETED') {
     throw new ErrorResponse('Cannot register for an event that is completed');
   }
 
-  // Check if event is paused
   if (event.status === 'PAUSED') {
     throw new ErrorResponse('Cannot register for an event that is paused');
   }
@@ -126,14 +129,9 @@ async function deleteEventRegistration(slug: string, userId: string): Promise<Ev
     throw new ErrorResponse('Event not found');
   }
 
-  // Check if event has started
   const currentDate = new Date();
   if (currentDate >= event.startDate) {
     throw new ErrorResponse('Cannot unregister from an event that has already started');
-  }
-
-  if (currentDate < new Date(event.startDate.getTime() - 24 * 60 * 60 * 1000)) {
-    throw new ErrorResponse('Cannot unregister from an event before 24 hours of the event');
   }
 
   return await eventRepo.deleteEventRegistration(event.id, userId);

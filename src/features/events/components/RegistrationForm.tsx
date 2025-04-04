@@ -16,10 +16,12 @@ export const RegistrationForm = ({
   slug,
   isRegistered,
   isAuthenticated,
+  status,
 }: {
   slug: string;
   isRegistered: boolean;
   isAuthenticated: boolean;
+  status: string;
 }) => {
   const { execute: register, result: registerResult, isPending: isRegistering } = useAction(registerUserForEvent);
 
@@ -58,7 +60,6 @@ export const RegistrationForm = ({
       </>
     );
   }
-
   return (
     <>
       <Form {...form}>
@@ -85,7 +86,7 @@ export const RegistrationForm = ({
 
           <FormError message={registerResult.serverError?.toString()} />
           <FormSuccess message={registerResult?.data?.success} />
-          <Button type="submit" className="w-full" disabled={!isAuthenticated || isRegistering}>
+          <Button type="submit" className="w-full" disabled={!isAuthenticated || isRegistering || status === 'PAUSED'}>
             Attend Event
           </Button>
         </form>

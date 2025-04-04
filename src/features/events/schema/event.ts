@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { EventStatus } from '@prisma/client';
+import { phoneSchema } from '@/schema/phone';
 
 const getEventByStatusSchema = z.object({
-  status: z.nativeEnum(EventStatus),
+  status: z.array(z.nativeEnum(EventStatus)).min(1, 'At least one status is required'),
 });
 
 const createEventSchema = z.object({

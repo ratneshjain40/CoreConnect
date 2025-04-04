@@ -33,10 +33,12 @@ async function getAllEvents(): Promise<EventWithoutDescriptionType[]> {
   });
 }
 
-async function getEventsByStatus(status: EventStatus): Promise<EventWithoutDescriptionType[]> {
+async function getEventsByStatus(statuses: EventStatus[]): Promise<EventWithoutDescriptionType[]> {
   return await prisma.event.findMany({
     where: {
-      status,
+      status: {
+        in: statuses
+      }
     },
     select: {
       id: true,

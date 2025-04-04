@@ -3,7 +3,7 @@ import { EventListLayout } from '@/features/events/components/EventListLayout';
 import { getEventsByStatus } from '@/features/events/server/actions';
 
 const EventsPage = async () => {
-  const events = await getEventsByStatus({ status: 'UPCOMING' });
+  const events = await getEventsByStatus({ status: ['UPCOMING', 'PAUSED'] });
 
   return (
     <section className="w-full py-10">

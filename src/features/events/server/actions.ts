@@ -80,6 +80,7 @@ export const unregisterUserForEvent = authActionClient
     })
   )
   .action(async (data) => {
+    console.log("Unregistering user");
     await eventService.deleteEventRegistration(data.parsedInput.slug, data.ctx.session.user.id);
     revalidatePath(`/events/${data.parsedInput.slug}`);
     return { success: 'User unregistered successfully' };
