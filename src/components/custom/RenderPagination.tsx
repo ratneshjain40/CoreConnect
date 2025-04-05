@@ -64,7 +64,6 @@ export const RenderPagination: React.FC<Readonly<RenderPaginationProps>> = ({ to
   };
 
   const paginationRange = getPaginationRange();
-  console.log(paginationRange[0].value === currentPage);
 
   return (
     <div className="mt-5 flex items-center space-x-2 py-4">

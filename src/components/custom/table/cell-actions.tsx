@@ -67,38 +67,26 @@ const BlogDeleteAction = ({ row, onActionClick }: ActionComponentProps<Row<BlogT
 
   return (
     <>
-      <div 
-        onClick={(e) => onActionClick(e, openDialog)} 
-        className="flex items-center gap-2"
-      >
+      <div onClick={(e) => onActionClick(e, openDialog)} className="flex items-center gap-2">
         <Icon name="delete" className="h-4 w-4 text-red-500" />
         <span>Delete</span>
       </div>
-      <DeleteModal 
-        isOpen={isDialogOpen} 
-        onOpenChange={setDialogOpen} 
-        onConfirm={handleDelete} 
-      />
+      <DeleteModal isOpen={isDialogOpen} onOpenChange={setDialogOpen} onConfirm={handleDelete} />
     </>
   );
 };
 
 const BlogEditAction = ({ row }: ActionComponentProps<Row<BlogTableColumnsType>>) => {
   const session = useSession();
-  const userId = session.data?.user.id;
   const userRole = session.data?.user.role;
-  
-  if (row.original.userId === userId) {
-    const editPath = `/${userRole?.toLowerCase()}/blogs/edit/${encodeURIComponent(row.original.slug)}`;
-    return (
-      <Link href={editPath} className="flex items-center gap-2">
-        <Icon name="edit" className="h-4 w-4" />
-        <span>Edit</span>
-      </Link>
-    );
-  }
-  
-  return null;
+
+  const editPath = `/${userRole?.toLowerCase()}/blogs/edit/${encodeURIComponent(row.original.slug)}`;
+  return (
+    <Link href={editPath} className="flex items-center gap-2">
+      <Icon name="edit" className="h-4 w-4" />
+      <span>Edit</span>
+    </Link>
+  );
 };
 
 // Event Actions
@@ -115,25 +103,18 @@ const EventDeleteAction = ({ row, onActionClick }: ActionComponentProps<Row<Even
 
   return (
     <>
-      <div 
-        onClick={(e) => onActionClick(e, openDialog)} 
-        className="flex items-center gap-2"
-      >
+      <div onClick={(e) => onActionClick(e, openDialog)} className="flex items-center gap-2">
         <Icon name="delete" className="h-4 w-4 text-red-500" />
         <span>Delete</span>
       </div>
-      <DeleteModal 
-        isOpen={isDialogOpen} 
-        onOpenChange={setDialogOpen} 
-        onConfirm={handleDelete} 
-      />
+      <DeleteModal isOpen={isDialogOpen} onOpenChange={setDialogOpen} onConfirm={handleDelete} />
     </>
   );
 };
 
 const EventEditAction = ({ row }: ActionComponentProps<Row<EventTableColumnsType>>) => {
   const editPath = `/admin/events/edit/${encodeURIComponent(row.original.slug)}`;
-  
+
   return (
     <Link href={editPath} className="flex items-center gap-2">
       <Icon name="edit" className="h-4 w-4" />
@@ -147,11 +128,11 @@ const EventStatusChangeAction = ({ row, onActionClick }: ActionComponentProps<Ro
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { execute } = useAction(updateEvent);
   const { status, id } = row.original;
-  
+
   const isActionable = status === 'UPCOMING' || status === 'PAUSED';
   const newStatus = status === 'UPCOMING' ? 'PAUSED' : 'UPCOMING';
   const statusLabel = status === 'UPCOMING' ? 'Pause' : 'Resume';
-  
+
   const handleStatusChange = () => {
     if (isActionable) {
       setDialogOpen(false);
@@ -159,7 +140,7 @@ const EventStatusChangeAction = ({ row, onActionClick }: ActionComponentProps<Ro
       router.refresh();
     }
   };
-  
+
   const renderStatusIcon = () => {
     if (status === 'UPCOMING') {
       return <Icon name="pause" className="h-4 w-4 text-yellow-500" />;
@@ -182,14 +163,11 @@ const EventStatusChangeAction = ({ row, onActionClick }: ActionComponentProps<Ro
 
   return (
     <>
-      <div 
-        onClick={(e) => onActionClick(e, openDialog)} 
-        className="flex items-center gap-2"
-      >
+      <div onClick={(e) => onActionClick(e, openDialog)} className="flex items-center gap-2">
         {renderStatusIcon()}
         <span>{statusLabel}</span>
       </div>
-      
+
       <CustomModal
         open={isDialogOpen}
         onConfirm={handleStatusChange}
@@ -221,7 +199,7 @@ interface ActionsCellProps {
 
 export const ActionsCell = ({ actions, row }: ActionsCellProps) => {
   const [open, setOpen] = useState(false);
-  
+
   // This handler prevents event propagation and keeps the dropdown open
   // when an action requiring a modal is clicked
   const handleActionClick = (e: React.MouseEvent, callback: () => void) => {
@@ -229,11 +207,11 @@ export const ActionsCell = ({ actions, row }: ActionsCellProps) => {
     e.stopPropagation();
     callback();
   };
-  
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <button className="p-1 rounded-md hover:bg-accent focus:outline-none">
+        <button className="rounded-md p-1 hover:bg-accent focus:outline-none">
           <HiOutlineDotsVertical className="h-5 w-5" />
         </button>
       </DropdownMenuTrigger>
@@ -242,15 +220,21 @@ export const ActionsCell = ({ actions, row }: ActionsCellProps) => {
         <DropdownMenuSeparator />
         {actions.map((action) => {
           const ActionComponent = ACTION_COMPONENTS[action];
-          
+          if (!ActionComponent) return null;
+
           return (
-            <DropdownMenuItem key={action} className="p-0" asChild onSelect={(e) => {
-              // Prevent dropdown from closing for modal actions
-              if (action === 'deleteBlog' || action === 'deleteEvent' || action === 'changeEventStatus') {
-                e.preventDefault();
-              }
-            }}>
-              <div className="w-full px-2 py-1.5 cursor-pointer">
+            <DropdownMenuItem
+              key={action}
+              className="p-0"
+              asChild
+              onSelect={(e) => {
+                // Prevent dropdown from closing for modal actions
+                if (action === 'deleteBlog' || action === 'deleteEvent' || action === 'changeEventStatus') {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <div className="w-full cursor-pointer px-2 py-1.5">
                 <ActionComponent row={row} onActionClick={handleActionClick} />
               </div>
             </DropdownMenuItem>

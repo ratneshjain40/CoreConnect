@@ -5,6 +5,7 @@ import { SortColumnButton } from '@/components/custom/table';
 import { SlugLink } from '@/components/custom/table/slug-link';
 import { ActionsCell } from '@/components/custom/table/cell-actions';
 import { MultipleBadges } from '@/components/custom/table/cell-badge';
+import { useSession } from 'next-auth/react';
 
 export type BlogTableColumnsType = {
   title: string;
@@ -45,6 +46,14 @@ export const BlogTableColumns: ColumnDef<BlogTableColumnsType>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell row={row} actions={['editBlog', 'deleteBlog']} />,
+    cell: ({ row }) => {
+      const session = useSession();
+      const userId = session.data?.user.id;
+
+      if (row.original.userId === userId) {
+        return <ActionsCell row={row} actions={['editBlog', 'deleteBlog']} />;
+      }
+      return <ActionsCell row={row} actions={['deleteBlog']} />;
+    },
   },
 ];
