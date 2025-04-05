@@ -3,20 +3,58 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Row } from '@tanstack/react-table';
+import { useAction } from 'next-safe-action/hooks';
+import { HiOutlineDotsVertical } from 'react-icons/hi';
 
 import { Icon } from '@/constants/icons';
-import { Row } from '@tanstack/react-table';
 import { CustomModal } from '../CustomModal';
-import { useAction } from 'next-safe-action/hooks';
 import { deleteBlogAdmin } from '@/features/blog/server/actions';
 import { BlogTableColumnsType } from '@/features/blog/components/columns';
 import { AdminCoursesColumns } from '@/features/courses/components/columns';
 import { deleteEvent, updateEvent } from '@/features/events/server/actions';
 import { EventTableColumnsType } from '@/features/events/components/columns';
-import { useRouter } from 'next/navigation';
-import { root } from 'postcss';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-const BlogDeleteAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
+// Types
+type ActionType = 'deleteBlog' | 'editBlog' | 'deleteEvent' | 'editEvent' | 'changeEventStatus';
+type RowType = Row<BlogTableColumnsType> | Row<AdminCoursesColumns> | Row<EventTableColumnsType>;
+
+interface ActionComponentProps<T extends RowType> {
+  row: T;
+  onActionClick: (e: React.MouseEvent, callback: () => void) => void;
+}
+
+interface DeleteModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}
+
+// Reusable Components
+const DeleteModal = ({ isOpen, onOpenChange, onConfirm }: DeleteModalProps) => (
+  <CustomModal
+    open={isOpen}
+    onConfirm={onConfirm}
+    onOpenChange={onOpenChange}
+    confirmButtonVariant="destructive"
+    title="Confirm Deletion"
+    confirmButtonLabel="Delete"
+    cancelButtonLabel="Cancel"
+    description="Are you sure you want to delete this item? This action cannot be undone!"
+  />
+);
+
+// Blog Actions
+const BlogDeleteAction = ({ row, onActionClick }: ActionComponentProps<Row<BlogTableColumnsType>>) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { execute } = useAction(deleteBlogAdmin);
 
@@ -25,26 +63,46 @@ const BlogDeleteAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
     execute({ slug: row.original.slug });
   };
 
+  const openDialog = () => setDialogOpen(true);
+
   return (
     <>
-      <span onClick={() => setDialogOpen(true)}>
-        <Icon name="delete" className="h-5 w-5 cursor-pointer text-red-500" />
-      </span>
-      <CustomModal
-        open={isDialogOpen}
-        onConfirm={handleDelete}
-        onOpenChange={setDialogOpen}
-        confirmButtonVariant="destructive"
-        title="Confirm Deletion"
-        confirmButtonLabel="Delete"
-        cancelButtonLabel="Cancel"
-        description="Are you sure you want to delete this item? This action cannot be undone!"
+      <div 
+        onClick={(e) => onActionClick(e, openDialog)} 
+        className="flex items-center gap-2"
+      >
+        <Icon name="delete" className="h-4 w-4 text-red-500" />
+        <span>Delete</span>
+      </div>
+      <DeleteModal 
+        isOpen={isDialogOpen} 
+        onOpenChange={setDialogOpen} 
+        onConfirm={handleDelete} 
       />
     </>
   );
 };
 
-const EventDeleteAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
+const BlogEditAction = ({ row }: ActionComponentProps<Row<BlogTableColumnsType>>) => {
+  const session = useSession();
+  const userId = session.data?.user.id;
+  const userRole = session.data?.user.role;
+  
+  if (row.original.userId === userId) {
+    const editPath = `/${userRole?.toLowerCase()}/blogs/edit/${encodeURIComponent(row.original.slug)}`;
+    return (
+      <Link href={editPath} className="flex items-center gap-2">
+        <Icon name="edit" className="h-4 w-4" />
+        <span>Edit</span>
+      </Link>
+    );
+  }
+  
+  return null;
+};
+
+// Event Actions
+const EventDeleteAction = ({ row, onActionClick }: ActionComponentProps<Row<EventTableColumnsType>>) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { execute } = useAction(deleteEvent);
 
@@ -53,84 +111,91 @@ const EventDeleteAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
     execute({ slug: row.original.slug });
   };
 
+  const openDialog = () => setDialogOpen(true);
+
   return (
     <>
-      <span onClick={() => setDialogOpen(true)}>
-        <Icon name="delete" className="h-5 w-5 cursor-pointer text-red-500" />
-      </span>
-      <CustomModal
-        open={isDialogOpen}
-        onConfirm={handleDelete}
-        onOpenChange={setDialogOpen}
-        confirmButtonVariant="destructive"
-        title="Confirm Deletion"
-        confirmButtonLabel="Delete"
-        cancelButtonLabel="Cancel"
-        description="Are you sure you want to delete this item? This action cannot be undone!"
+      <div 
+        onClick={(e) => onActionClick(e, openDialog)} 
+        className="flex items-center gap-2"
+      >
+        <Icon name="delete" className="h-4 w-4 text-red-500" />
+        <span>Delete</span>
+      </div>
+      <DeleteModal 
+        isOpen={isDialogOpen} 
+        onOpenChange={setDialogOpen} 
+        onConfirm={handleDelete} 
       />
     </>
   );
 };
 
-const BlogEditAction = ({ row }: { row: Row<BlogTableColumnsType> }) => {
-  const session = useSession();
-  if (row.original.userId === session.data?.user.id)
-    return (
-      <Link href={`/${session.data.user.role.toLocaleLowerCase()}/blogs/edit/${encodeURIComponent(row.original.slug)}`}>
-        <Icon name="edit" className="h-5 w-5 cursor-pointer" />
-      </Link>
-    );
-  return null;
-};
-
-const EventEditAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
+const EventEditAction = ({ row }: ActionComponentProps<Row<EventTableColumnsType>>) => {
+  const editPath = `/admin/events/edit/${encodeURIComponent(row.original.slug)}`;
+  
   return (
-    <Link href={`/admin/events/edit/${encodeURIComponent(row.original.slug)}`}>
-      <Icon name="edit" className="h-5 w-5 cursor-pointer" />
+    <Link href={editPath} className="flex items-center gap-2">
+      <Icon name="edit" className="h-4 w-4" />
+      <span>Edit</span>
     </Link>
   );
 };
 
-const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) => {
+const EventStatusChangeAction = ({ row, onActionClick }: ActionComponentProps<Row<EventTableColumnsType>>) => {
   const router = useRouter();
   const [isDialogOpen, setDialogOpen] = useState(false);
   const { execute } = useAction(updateEvent);
-
+  const { status, id } = row.original;
+  
+  const isActionable = status === 'UPCOMING' || status === 'PAUSED';
+  const newStatus = status === 'UPCOMING' ? 'PAUSED' : 'UPCOMING';
+  const statusLabel = status === 'UPCOMING' ? 'Pause' : 'Resume';
+  
   const handleStatusChange = () => {
-    if (row.original.status === 'UPCOMING') {
+    if (isActionable) {
       setDialogOpen(false);
-      execute({ id: row.original.id, status: 'PAUSED' });
+      execute({ id, status: newStatus });
       router.refresh();
     }
-    else if (row.original.status === 'PAUSED') {
-      setDialogOpen(false);
-      execute({ id: row.original.id, status: 'UPCOMING' });
-      router.refresh();
-    }
-    return;
   };
+  
+  const renderStatusIcon = () => {
+    if (status === 'UPCOMING') {
+      return <Icon name="pause" className="h-4 w-4 text-yellow-500" />;
+    } else if (status === 'PAUSED') {
+      return <Icon name="unpause" className="h-4 w-4 text-blue-500" />;
+    }
+    return <Icon name="completed" className="h-4 w-4 text-green-500" />;
+  };
+
+  if (!isActionable) {
+    return (
+      <div className="flex items-center gap-2">
+        <Icon name="completed" className="h-4 w-4 text-green-500" />
+        <span>Completed</span>
+      </div>
+    );
+  }
+
+  const openDialog = () => setDialogOpen(true);
 
   return (
     <>
-      <span
-        onClick={() => {
-          if (row.original.status === 'UPCOMING' || row.original.status === 'PAUSED') setDialogOpen(true);
-        }}
+      <div 
+        onClick={(e) => onActionClick(e, openDialog)} 
+        className="flex items-center gap-2"
       >
-        {row.original.status === 'UPCOMING' ? (
-          <Icon name="pause" className="h-4 w-4 cursor-pointer text-yellow-500" />
-        ) : row.original.status === 'PAUSED' ? (
-          <Icon name="unpause" className="h-5 w-5 cursor-pointer text-blue-500" />
-        ) : (
-          <Icon name="completed" className="h-6 w-6 cursor-pointer text-green-500" />
-        )}
-      </span>
+        {renderStatusIcon()}
+        <span>{statusLabel}</span>
+      </div>
+      
       <CustomModal
         open={isDialogOpen}
         onConfirm={handleStatusChange}
         onOpenChange={setDialogOpen}
         confirmButtonVariant="default"
-        title={`Mark as ${row.original.status === 'UPCOMING' ? 'Paused' : 'Upcoming'}?`}
+        title={`Mark as ${status === 'UPCOMING' ? 'Paused' : 'Upcoming'}?`}
         confirmButtonLabel="Sure"
         cancelButtonLabel="Cancel"
         description="Are you sure?"
@@ -139,7 +204,8 @@ const EventStatusChangeAction = ({ row }: { row: Row<EventTableColumnsType> }) =
   );
 };
 
-const ACTION_COMPONENTS = {
+// Action Component Mapping
+const ACTION_COMPONENTS: Record<ActionType, React.ComponentType<any>> = {
   deleteBlog: BlogDeleteAction,
   editBlog: BlogEditAction,
   deleteEvent: EventDeleteAction,
@@ -147,18 +213,50 @@ const ACTION_COMPONENTS = {
   changeEventStatus: EventStatusChangeAction,
 };
 
-type ActionsCellProps = {
-  actions: ('deleteBlog' | 'editBlog' | 'deleteEvent' | 'editEvent' | 'changeEventStatus')[];
-  row: Row<BlogTableColumnsType> | Row<AdminCoursesColumns> | Row<EventTableColumnsType>;
-};
+// Main Export
+interface ActionsCellProps {
+  actions: ActionType[];
+  row: RowType;
+}
 
 export const ActionsCell = ({ actions, row }: ActionsCellProps) => {
+  const [open, setOpen] = useState(false);
+  
+  // This handler prevents event propagation and keeps the dropdown open
+  // when an action requiring a modal is clicked
+  const handleActionClick = (e: React.MouseEvent, callback: () => void) => {
+    e.preventDefault();
+    e.stopPropagation();
+    callback();
+  };
+  
   return (
-    <div className="flex items-center space-x-4">
-      {actions.map((action) => {
-        const ActionComponent = ACTION_COMPONENTS[action];
-        return <ActionComponent key={action} row={row as any} />;
-      })}
-    </div>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <button className="p-1 rounded-md hover:bg-accent focus:outline-none">
+          <HiOutlineDotsVertical className="h-5 w-5" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {actions.map((action) => {
+          const ActionComponent = ACTION_COMPONENTS[action];
+          
+          return (
+            <DropdownMenuItem key={action} className="p-0" asChild onSelect={(e) => {
+              // Prevent dropdown from closing for modal actions
+              if (action === 'deleteBlog' || action === 'deleteEvent' || action === 'changeEventStatus') {
+                e.preventDefault();
+              }
+            }}>
+              <div className="w-full px-2 py-1.5 cursor-pointer">
+                <ActionComponent row={row} onActionClick={handleActionClick} />
+              </div>
+            </DropdownMenuItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
