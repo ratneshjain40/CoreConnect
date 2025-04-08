@@ -58,7 +58,7 @@ export const EventForm = ({
   return (
     <>
       {/* Form Status Messages */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed right-4 top-4 z-50">
         <FormError message={error} />
         <FormSuccess message={success} />
       </div>
@@ -71,11 +71,11 @@ export const EventForm = ({
             form.setValue('description', editor?.getHTML() || '');
             form.handleSubmit(onSubmit)();
           }}
-          className="flex w-full flex-col gap-6 min-w-0 pb-24"
+          className="flex w-full min-w-0 flex-col gap-6 pb-24"
         >
           {/* Basic Event Information */}
           <div className="flex w-full flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-gray-700">Basic Information</h2>
                 <FormField
@@ -143,11 +143,7 @@ export const EventForm = ({
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormLabel className="text-sm font-medium text-gray-600">Status</FormLabel>
-                        <Select
-                          disabled={isPending}
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+                        <Select disabled={isPending} onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger className={fieldState.invalid ? 'border-red-500' : ''}>
                               <SelectValue placeholder="Select status" />
@@ -205,12 +201,8 @@ export const EventForm = ({
                           >
                             Preview
                           </Button>
-                          {fieldState.error && (
-                            <span className="text-sm text-red-500">{fieldState.error.message}</span>
-                          )}
-                          {coverImagePreview && (
-                            <span className="text-sm text-gray-600">✓ Image selected</span>
-                          )}
+                          {fieldState.error && <span className="text-sm text-red-500">{fieldState.error.message}</span>}
+                          {coverImagePreview && <span className="text-sm text-gray-600">✓ Image selected</span>}
                         </div>
                       </FormItem>
                     )}
@@ -287,22 +279,13 @@ export const EventForm = ({
         </form>
 
         {/* Form Actions */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t py-4 shadow-lg">
-          <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-end gap-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBack}
-              className="flex items-center gap-2"
-            >
+        <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
+          <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
+            <Button type="button" variant="ghost" onClick={handleBack} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
-            <Button 
-              type="submit"
-              form="eventForm"
-              className="px-6"
-            >
+            <Button type="submit" form="eventForm" className="px-6">
               {isEditing ? 'Update Event' : 'Create Event'}
             </Button>
           </div>
@@ -311,7 +294,7 @@ export const EventForm = ({
 
       {/* Image Preview Dialog */}
       <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
-        <DialogContent className="sm:max-w-[900px] p-0">
+        <DialogContent className="p-0 sm:max-w-[900px]">
           <DialogHeader className="sr-only">
             <DialogTitle>Event Cover Image Preview</DialogTitle>
           </DialogHeader>

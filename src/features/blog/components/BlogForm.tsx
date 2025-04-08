@@ -61,7 +61,7 @@ export const BlogForm = ({
   return (
     <>
       {/* Form Status Messages */}
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed right-4 top-4 z-50">
         <FormError message={error} />
         <FormSuccess message={success} />
       </div>
@@ -74,15 +74,15 @@ export const BlogForm = ({
             form.setValue('content', editor?.getHTML() || '');
             form.handleSubmit(onSubmit)();
           }}
-          className="flex w-full flex-col gap-6 min-w-0 pb-24"
+          className="flex w-full min-w-0 flex-col gap-6 pb-24"
         >
           {/* Basic Blog Information */}
           <div className="flex w-full flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-700 mb-4">Basic Information</h2>
-                  
+                  <h2 className="mb-4 text-lg font-semibold text-gray-700">Basic Information</h2>
+
                   <div className="space-y-4">
                     <FormField
                       name="title"
@@ -112,17 +112,14 @@ export const BlogForm = ({
                             <FormLabel className="text-sm font-medium text-gray-600">Access Type</FormLabel>
                             <div className="flex items-center gap-3">
                               <FormControl>
-                                <CustomSwitch
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
+                                <CustomSwitch checked={field.value} onCheckedChange={field.onChange} />
                               </FormControl>
                               <div className="flex flex-col">
                                 <span className="text-sm font-medium text-gray-700">
                                   {field.value ? 'Premium Content' : 'Free Content'}
                                 </span>
                                 <span className="text-xs text-gray-500">
-                                  {field.value 
+                                  {field.value
                                     ? 'This blog will only be accessible to paid subscribers'
                                     : 'This blog will be accessible to all users'}
                                 </span>
@@ -173,12 +170,8 @@ export const BlogForm = ({
                           >
                             Preview
                           </Button>
-                          {fieldState.error && (
-                            <span className="text-sm text-red-500">{fieldState.error.message}</span>
-                          )}
-                          {coverImagePreview && (
-                            <span className="text-sm text-gray-600">✓ Image selected</span>
-                          )}
+                          {fieldState.error && <span className="text-sm text-red-500">{fieldState.error.message}</span>}
+                          {coverImagePreview && <span className="text-sm text-gray-600">✓ Image selected</span>}
                         </div>
                       </FormItem>
                     )}
@@ -187,7 +180,7 @@ export const BlogForm = ({
               </div>
 
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-700 mb-4">Categories</h2>
+                <h2 className="mb-4 text-lg font-semibold text-gray-700">Categories</h2>
                 <Controller
                   name="categories"
                   control={form.control}
@@ -204,7 +197,9 @@ export const BlogForm = ({
                           className={`rounded-md border-gray-300 text-gray-500 ${fieldState.invalid ? 'border-red-500' : ''}`}
                         />
                       </FormControl>
-                      <p className="text-xs text-gray-500 mt-1">Choose up to 3 categories that best describe your blog content</p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        Choose up to 3 categories that best describe your blog content
+                      </p>
                     </FormItem>
                   )}
                 />
@@ -222,22 +217,13 @@ export const BlogForm = ({
         </form>
 
         {/* Form Actions */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t py-4 shadow-lg">
-          <div className="max-w-[1400px] mx-auto px-6 flex items-center justify-end gap-4">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBack}
-              className="flex items-center gap-2"
-            >
+        <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
+          <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
+            <Button type="button" variant="ghost" onClick={handleBack} className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
-            <Button 
-              type="submit"
-              form="blogForm"
-              className="px-6"
-            >
+            <Button type="submit" form="blogForm" className="px-6">
               {isEditing ? 'Update Blog' : 'Create Blog'}
             </Button>
           </div>
@@ -246,7 +232,7 @@ export const BlogForm = ({
 
       {/* Image Preview Dialog */}
       <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
-        <DialogContent className="sm:max-w-[900px] p-0">
+        <DialogContent className="p-0 sm:max-w-[900px]">
           <DialogHeader className="sr-only">
             <DialogTitle>Blog Cover Image Preview</DialogTitle>
           </DialogHeader>

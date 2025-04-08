@@ -66,9 +66,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </header>
 
         <Suspense fallback={<Loading />}>
-          <main className="w-full flex-1 py-6 px-4 overflow-x-hidden max-w-full">
-            {children}
-          </main>
+          <main className="w-full max-w-full flex-1 overflow-x-hidden px-4 py-6">{children}</main>
         </Suspense>
       </SidebarInset>
     </SidebarProvider>

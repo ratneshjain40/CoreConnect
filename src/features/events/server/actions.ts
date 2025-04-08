@@ -5,7 +5,6 @@ import { eventService } from './service';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { actionClient, authActionClient } from '@/lib/action-clients';
 import { createEventSchema, eventRegistrationSchema, getEventByStatusSchema, updateEventSchema } from '../schema/event';
-import { redirect } from 'next/navigation';
 
 export const getEvents = actionClient.action(async () => {
   return await eventService.getEvents();
@@ -67,7 +66,7 @@ export const registerUserForEvent = authActionClient
   .schema(eventRegistrationSchema)
   .action(async (data) => {
     await eventService.registerUserForEvent(data.ctx.session.user.id, data.parsedInput);
-    revalidatePath
+    revalidatePath;
     return { success: 'User registered successfully' };
   });
 
@@ -86,6 +85,7 @@ export const unregisterUserForEvent = authActionClient
     return { success: 'User unregistered successfully' };
   });
 
+// Event Participant CSV Export
 export const getEventRegistrationsByEventId = authActionClient
   .metadata({
     roleGate: 'ADMIN',
@@ -96,7 +96,29 @@ export const getEventRegistrationsByEventId = authActionClient
     })
   )
   .action(async (data) => {
-    return await eventService.getEventRegistrationsByEventId(data.parsedInput.slug);
+    const participants = await eventService.getEventRegistrationsByEventId(data.parsedInput.slug);
+    console.log('participants', participants);
+    if (!participants || participants.length === 0) return '';
+
+    const headers = ['name', 'email', 'phone'];
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+
+    participants.forEach((participant) => {
+      const row = headers.map((header) => {
+        if (header === 'name') {
+          return JSON.stringify(participant.user?.name ?? '');
+        } else if (header === 'email') {
+          return JSON.stringify(participant.user?.email ?? '');
+        } else if (header === 'phone') {
+          return JSON.stringify(participant.phone ?? '');
+        }
+        return '""';
+      });
+      csvRows.push(row.join(','));
+    });
+
+    return csvRows.join('\n');
   });
 
 export const getEventRegistrationByUserId = authActionClient

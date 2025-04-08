@@ -132,7 +132,12 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
                 Attend This Event
               </div>
               <div className="my-4 h-[1px] w-full bg-gray-100"></div>
-              <RegistrationForm slug={data.slug} isAuthenticated={!!user} isRegistered={!!isRegistered} status={data.status} />
+              <RegistrationForm
+                slug={data.slug}
+                isAuthenticated={!!user}
+                isRegistered={!!isRegistered}
+                status={data.status}
+              />
             </div>
           </div>
         </div>

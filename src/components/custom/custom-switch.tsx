@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 interface CustomSwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   checked: boolean;
@@ -32,4 +32,4 @@ export const CustomSwitch = React.forwardRef<HTMLInputElement, CustomSwitchProps
   }
 );
 
-CustomSwitch.displayName = "CustomSwitch"; 
+CustomSwitch.displayName = 'CustomSwitch';

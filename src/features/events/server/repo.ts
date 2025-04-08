@@ -37,8 +37,8 @@ async function getEventsByStatus(statuses: EventStatus[]): Promise<EventWithoutD
   return await prisma.event.findMany({
     where: {
       status: {
-        in: statuses
-      }
+        in: statuses,
+      },
     },
     select: {
       id: true,
@@ -104,10 +104,27 @@ async function registerUserForEvent(data: Prisma.EventRegistrationUncheckedCreat
   });
 }
 
-async function getEventRegistrationsByEventId(eventId: string): Promise<EventRegistration[]> {
+export type EventRegistrationWithUser = EventRegistration & {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+};
+
+async function getEventRegistrationsByEventId(eventId: string): Promise<EventRegistrationWithUser[]> {
   return await prisma.eventRegistration.findMany({
     where: {
       eventId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
     },
   });
 }

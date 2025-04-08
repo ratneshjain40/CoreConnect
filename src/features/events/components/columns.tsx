@@ -65,6 +65,8 @@ export const EventTableColumns: ColumnDef<EventTableColumnsType>[] = [
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => <ActionsCell row={row} actions={['changeEventStatus', 'editEvent', 'deleteEvent']} />,
+    cell: ({ row }) => (
+      <ActionsCell row={row} actions={['downloadParticipants', 'changeEventStatus', 'editEvent', 'deleteEvent']} />
+    ),
   },
 ];

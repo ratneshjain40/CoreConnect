@@ -73,7 +73,7 @@ export default function AboutPage() {
                 At the Entomon Institute, we are dedicated to advancing the understanding of invertebrate life through
                 cutting-edge research, education, and conservation efforts. Our mission is to:
               </p>
-              <ul className="xs:grid-cols-2 grid gap-3 text-gray-700">
+              <ul className="grid gap-3 text-gray-700 xs:grid-cols-2">
                 <li className="flex flex-col gap-1 rounded-md bg-gray-200/35 px-4 py-3 text-sm">
                   <BugIcon className="h-6 w-6" />
                   Conduct groundbreaking research in invertebrate zoology

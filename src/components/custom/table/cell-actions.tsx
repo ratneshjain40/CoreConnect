@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Row } from '@tanstack/react-table';
+import { exportTableToCSV } from '@/lib/export';
 import { useAction } from 'next-safe-action/hooks';
-import { HiOutlineDotsVertical } from 'react-icons/hi';
+import { MdSettingsSuggest } from 'react-icons/md';
 
 import { Icon } from '@/constants/icons';
 import { CustomModal } from '../CustomModal';
 import { deleteBlogAdmin } from '@/features/blog/server/actions';
 import { BlogTableColumnsType } from '@/features/blog/components/columns';
 import { AdminCoursesColumns } from '@/features/courses/components/columns';
-import { deleteEvent, updateEvent } from '@/features/events/server/actions';
+import { deleteEvent, getEventRegistrationsByEventId, updateEvent } from '@/features/events/server/actions';
 import { EventTableColumnsType } from '@/features/events/components/columns';
 import {
   DropdownMenu,
@@ -25,7 +26,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 // Types
-type ActionType = 'deleteBlog' | 'editBlog' | 'deleteEvent' | 'editEvent' | 'changeEventStatus';
+type ActionType =
+  | 'deleteBlog'
+  | 'editBlog'
+  | 'deleteEvent'
+  | 'editEvent'
+  | 'changeEventStatus'
+  | 'downloadParticipants';
 type RowType = Row<BlogTableColumnsType> | Row<AdminCoursesColumns> | Row<EventTableColumnsType>;
 
 interface ActionComponentProps<T extends RowType> {
@@ -182,6 +189,39 @@ const EventStatusChangeAction = ({ row, onActionClick }: ActionComponentProps<Ro
   );
 };
 
+const DownloadParticipants = ({ row }: ActionComponentProps<Row<EventTableColumnsType>>) => {
+  const handleDownload = async () => {
+    try {
+      const csvString = await getEventRegistrationsByEventId({ slug: row.original.slug });
+
+      if (!csvString?.data) {
+        alert('No participants data available for this event.');
+        return;
+      }
+
+      const blob = new Blob([csvString.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.setAttribute('download', 'participants.csv');
+
+      // Append the link to the document, trigger the download, and then remove the link
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } catch (error) {
+      console.error('Error downloading participants:', error);
+    }
+  };
+
+  return (
+    <button onClick={handleDownload} className="flex items-center gap-2">
+      <Icon name="download" className="h-4 w-4" />
+      <span>Export</span>
+    </button>
+  );
+};
+
 // Action Component Mapping
 const ACTION_COMPONENTS: Record<ActionType, React.ComponentType<any>> = {
   deleteBlog: BlogDeleteAction,
@@ -189,9 +229,9 @@ const ACTION_COMPONENTS: Record<ActionType, React.ComponentType<any>> = {
   deleteEvent: EventDeleteAction,
   editEvent: EventEditAction,
   changeEventStatus: EventStatusChangeAction,
+  downloadParticipants: DownloadParticipants,
 };
 
-// Main Export
 interface ActionsCellProps {
   actions: ActionType[];
   row: RowType;
@@ -212,7 +252,7 @@ export const ActionsCell = ({ actions, row }: ActionsCellProps) => {
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button className="rounded-md p-1 hover:bg-accent focus:outline-none">
-          <HiOutlineDotsVertical className="h-5 w-5" />
+          <MdSettingsSuggest className="h-5 w-5" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

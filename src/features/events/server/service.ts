@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { z } from 'zod';
-import { EventDetails, eventRepo } from './repo';
+import { EventDetails, EventRegistrationWithUser, eventRepo } from './repo';
 import { generateSlug } from '@/lib/slugify';
 import { ErrorResponse } from '@/types/errors';
 import { Event, EventRegistration, EventStatus } from '@prisma/client';
@@ -22,9 +22,7 @@ async function updateEventStatusBasedOnDates(event: Event): Promise<EventStatus>
 async function getEventsByStatus(data: z.infer<typeof getEventByStatusSchema>): Promise<EventWithoutDescriptionType[]> {
   const events = await eventRepo.getEventsByStatus(data.status);
   // Only check status updates for UPCOMING and PAUSED events
-  const eventsToCheck = events.filter(event =>
-    event.status === 'UPCOMING' || event.status === 'PAUSED'
-  );
+  const eventsToCheck = events.filter((event) => event.status === 'UPCOMING' || event.status === 'PAUSED');
 
   for (const event of eventsToCheck) {
     const correctStatus = await updateEventStatusBasedOnDates(event as Event);
@@ -116,7 +114,7 @@ async function registerUserForEvent(
   });
 }
 
-async function getEventRegistrationsByEventId(slug: string): Promise<EventRegistration[]> {
+async function getEventRegistrationsByEventId(slug: string): Promise<EventRegistrationWithUser[]> {
   let event = await eventRepo.getEventBySlug(slug);
   if (!event) {
     throw new ErrorResponse('Event not found');

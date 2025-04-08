@@ -165,7 +165,7 @@ export const Toolbar = ({ editor }: { editor: Editor }) => {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="flex items-center gap-1 rounded-lg border bg-background p-1 min-w-0 flex-wrap">
+      <div className="flex min-w-0 flex-wrap items-center gap-1 rounded-lg border bg-background p-1">
         {/* Headings Dropdown */}
         <DropdownMenu>
           <Tooltip>
