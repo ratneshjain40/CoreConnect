@@ -27,6 +27,7 @@ import {
   MdOutlineAddCircle,
   MdOutlineFileDownload,
 } from 'react-icons/md';
+import { FaSquareInstagram } from 'react-icons/fa6';
 
 type IconProps = {
   name: keyof typeof ICONS;
@@ -35,6 +36,7 @@ type IconProps = {
 
 export const ICONS = {
   blog: FaBlog,
+  instagram: FaSquareInstagram,
   gmail: SiGmail,
   edit: FaRegEdit,
   pause: FaPause,

@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
-import { BugIcon } from './BugIcon';
 import { UserNav } from './UserNav';
 import { User } from '@prisma/client';
 import { ButtonLink } from './ButtonLink';
@@ -18,16 +18,8 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { currentUser } from '@/lib/auth';
 import { DropdownNavItem } from './DropdownNavItem';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from '../ui/navigation-menu';
-import { ListItem } from './NavigationMenuListItem';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '../ui/navigation-menu';
+import logo from '@/assets/entomon-logo.png';
 
 const DropdownLink = ({ url, name, description }: NavbarOption) => (
   <Link
@@ -47,7 +39,7 @@ export const Navbar = async () => {
     <header className="sticky top-0 z-50 w-full bg-background">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2" prefetch={false}>
-          <BugIcon className="h-6 w-6" />
+          <Image src={logo} height={47} width={47} alt="Entomon Logo" />
           <span className="text-lg font-semibold">Entomon Institute</span>
         </Link>
 

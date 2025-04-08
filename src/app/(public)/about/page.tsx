@@ -1,36 +1,11 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Leaf, Fish, Bug, Brain, Mail } from 'lucide-react';
+import { Leaf, Fish, Bug, Brain } from 'lucide-react';
 import { BugIcon } from '@/components/custom';
+import bugImage from '@/assets/hero-img.jpg';
 
 export default function AboutPage() {
-  const researchAreas = [
-    {
-      icon: <Bug className="h-6 w-6" />,
-      title: 'Arthropod Biodiversity',
-      description: 'Exploring the vast diversity of insects, arachnids, and crustaceans.',
-    },
-    {
-      icon: <Fish className="h-6 w-6" />,
-      title: 'Marine Invertebrates',
-      description: "Studying the complex ecosystems of our oceans' smallest inhabitants.",
-    },
-    {
-      icon: <Leaf className="h-6 w-6" />,
-      title: 'Ecological Interactions',
-      description: 'Investigating the crucial roles invertebrates play in global ecosystems.',
-    },
-    {
-      icon: <Brain className="h-6 w-6" />,
-      title: 'Invertebrate Neurobiology',
-      description: 'Unraveling the mysteries of simple yet fascinating nervous systems.',
-    },
-  ];
-
   const teamMembers = [
     {
       name: 'Dr. Eshaan Pahade',
@@ -94,7 +69,7 @@ export default function AboutPage() {
             </div>
             <div className="relative h-64 md:h-full">
               <Image
-                src="https://wallpapercat.com/w/full/2/d/7/1044282-1920x1080-desktop-1080p-beetle-background-image.jpg"
+                src={bugImage}
                 alt="Entomon Institute building"
                 layout="fill"
                 objectFit="cover"

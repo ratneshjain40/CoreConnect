@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import butterfly from '@/assets/butterfly.jpg';
 
 export const About = () => {
   return (
@@ -7,8 +8,8 @@ export const About = () => {
         <Image
           width="550"
           height="310"
+          src={butterfly}
           alt="Invertebrates"
-          src="https://bijlmakers.com/wp-content/uploads/2018/10/potato-beetle-2766872_1920-700x554.jpg"
           className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
         />
 
