@@ -14,7 +14,7 @@ import {
   IoWarningOutline,
   IoCheckmarkCircleOutline,
 } from 'react-icons/io5';
-import { RxMixerHorizontal } from 'react-icons/rx';
+import { RxMixerHorizontal, RxReset } from 'react-icons/rx';
 import { BsArrowDown, BsArrowUp } from 'react-icons/bs';
 import { FiChevronsLeft, FiChevronsRight } from 'react-icons/fi';
 import { SiGmail, SiLinkedin, SiGoogleanalytics } from 'react-icons/si';
@@ -36,6 +36,7 @@ type IconProps = {
 
 export const ICONS = {
   blog: FaBlog,
+  reset: RxReset,
   instagram: FaSquareInstagram,
   gmail: SiGmail,
   edit: FaRegEdit,

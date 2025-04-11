@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ArrowLeft } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EventStatus } from '@prisma/client';
+import { Icon } from '@/constants/icons';
 
 export const EventForm = ({
   form,
@@ -48,15 +49,11 @@ export const EventForm = ({
         console.error('Error converting file to Base64:', error);
       }
     },
-    [form]
+    [form, setCoverImagePreview]
   );
 
-  const handleBack = useCallback(() => {
-    router.push('/admin/events');
-  }, [router]);
-
   return (
-    <>
+    <div className="mb-20 w-full px-6">
       {/* Form Status Messages */}
       <div className="fixed right-4 top-4 z-50">
         <FormError message={error} />
@@ -71,147 +68,85 @@ export const EventForm = ({
             form.setValue('description', editor?.getHTML() || '');
             form.handleSubmit(onSubmit)();
           }}
-          className="flex w-full min-w-0 flex-col gap-6 pb-24"
+          className="flex w-full min-w-0 flex-col gap-6"
         >
-          {/* Basic Event Information */}
-          <div className="flex w-full flex-col gap-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-700">Basic Information</h2>
-                <FormField
-                  name="title"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Title</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="text"
-                          disabled={isPending}
-                          placeholder="Event Title"
-                          className={fieldState.invalid ? 'border-red-500' : ''}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="location"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Location</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          type="text"
-                          disabled={isPending}
-                          placeholder="Location"
-                          className={fieldState.invalid ? 'border-red-500' : ''}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="price"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Price</FormLabel>
-                      <FormControl>
-                        <Input
-                          min="0"
-                          {...field}
-                          type="number"
-                          placeholder="Price"
-                          disabled={isPending}
-                          className={fieldState.invalid ? 'border-red-500' : ''}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                {role === 'ADMIN' && (
-                  <FormField
-                    name="status"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-600">Status</FormLabel>
-                        <Select disabled={isPending} onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className={fieldState.invalid ? 'border-red-500' : ''}>
-                              <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Object.values(EventStatus).map((status) => (
-                              <SelectItem key={status} value={status}>
-                                {status}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
+          {/* Row 1: Title (left), Categories (right) */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Left Column: Title */}
+            <div>
+              <FormField
+                name="title"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-600">Title</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        disabled={isPending}
+                        placeholder="Event Title"
+                        className={fieldState.invalid ? 'border-red-500' : ''}
+                      />
+                    </FormControl>
+                  </FormItem>
                 )}
+              />
+            </div>
 
-                {/* Cover Image Section */}
-                <div className="space-y-2">
-                  <FormLabel className="text-sm font-medium text-gray-600">Cover Image</FormLabel>
-                  <Controller
-                    name="coverImage"
-                    control={form.control}
-                    rules={{ required: 'Cover image is required.' }}
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleContainerClick}
-                            className={`${fieldState.error ? 'border-red-500 hover:border-red-600' : ''}`}
-                          >
-                            Upload Image
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              ref={fileInputRef}
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  handleCoverImageChange(file);
-                                  form.setValue('coverImage', file.name);
-                                }
-                              }}
-                            />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={!coverImagePreview}
-                            onClick={() => setShowImagePreview(true)}
-                          >
-                            Preview
-                          </Button>
-                          {fieldState.error && <span className="text-sm text-red-500">{fieldState.error.message}</span>}
-                          {coverImagePreview && <span className="text-sm text-gray-600">✓ Image selected</span>}
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+            {/* Right Column: Categories */}
+            <div className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-600">Categories</FormLabel>
+              <Controller
+                name="categories"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormControl>
+                      <MultiSelect
+                        {...field}
+                        maxSelect={3}
+                        disabled={isPending}
+                        options={eventCategories}
+                        placeholder="Select categories..."
+                        className={`rounded-md border-gray-300 text-gray-500 ${
+                          fieldState.invalid ? 'border-red-500' : ''
+                        }`}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
 
-              <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-700">Date & Time</h2>
+          {/* Row 2: Location (left), Dates (right) */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Location */}
+            <div className="space-y-4">
+              <FormField
+                name="location"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-600">Location</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        disabled={isPending}
+                        placeholder="Location"
+                        className={fieldState.invalid ? 'border-red-500' : ''}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Right Column: Dates */}
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex-1">
                 <FormField
                   name="startDate"
                   control={form.control}
@@ -228,7 +163,8 @@ export const EventForm = ({
                     </FormItem>
                   )}
                 />
-
+              </div>
+              <div className="flex-1">
                 <FormField
                   name="endDate"
                   control={form.control}
@@ -245,45 +181,98 @@ export const EventForm = ({
                     </FormItem>
                   )}
                 />
-
-                <Controller
-                  name="categories"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Categories</FormLabel>
-                      <FormControl>
-                        <MultiSelect
-                          {...field}
-                          maxSelect={3}
-                          disabled={isPending}
-                          options={eventCategories}
-                          placeholder="Select categories..."
-                          className={`rounded-md border-gray-300 text-gray-500 ${fieldState.invalid ? 'border-red-500' : ''}`}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
               </div>
             </div>
+          </div>
 
-            {/* Description Editor */}
+          {/* Row 3: Price (left), Cover Image (right) */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Price */}
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-700">Event Description</h2>
-              <div className="min-w-0 overflow-hidden">
-                <RichTextEditor editor={editor} error={form.formState.errors.description?.message || null} />
-              </div>
+              <FormField
+                name="price"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-600">Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        min="0"
+                        {...field}
+                        type="number"
+                        placeholder="Price"
+                        disabled={isPending}
+                        className={fieldState.invalid ? 'border-red-500' : ''}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Cover Image */}
+            <div className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-600">Cover Image</FormLabel>
+              <Controller
+                name="coverImage"
+                control={form.control}
+                rules={{ required: 'Cover image is required.' }}
+                render={({ field, fieldState }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleContainerClick}
+                        className={fieldState.error ? 'border-red-500 hover:border-red-600' : ''}
+                      >
+                        Upload Image
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          ref={fileInputRef}
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleCoverImageChange(file);
+                              form.setValue('coverImage', file.name);
+                            }
+                          }}
+                        />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={!coverImagePreview}
+                        onClick={() => setShowImagePreview(true)}
+                      >
+                        Preview
+                      </Button>
+                      {fieldState.error && <span className="text-sm text-red-500">{fieldState.error.message}</span>}
+                      {coverImagePreview && <span className="text-sm text-gray-600">✓ Image selected</span>}
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* Row 4: Description Editor */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-gray-700">Event Description</h2>
+            <div className="min-w-0 overflow-hidden">
+              <RichTextEditor editor={editor} error={form.formState.errors.description?.message || null} />
             </div>
           </div>
         </form>
 
-        {/* Form Actions */}
+        {/* Sticky Form Actions */}
         <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
           <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
-            <Button type="button" variant="ghost" onClick={handleBack} className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back
+            <Button type="button" variant="ghost" onClick={handleResetEvent} className="flex items-center gap-2">
+              <Icon name="reset" className="h-4 w-4" />
+              Reset
             </Button>
             <Button type="submit" form="eventForm" className="px-6">
               {isEditing ? 'Update Event' : 'Create Event'}
@@ -311,6 +300,6 @@ export const EventForm = ({
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };

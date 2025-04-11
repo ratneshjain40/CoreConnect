@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import NextImage from 'next/image';
-import { ArrowLeft } from 'lucide-react';
+import { Controller } from 'react-hook-form';
 
 import { FormError, FormSuccess } from '@/components/custom';
 import { MultiSelect } from '@/components/ui/multi-select';
@@ -9,12 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CustomSwitch } from '@/components/custom/custom-switch';
-import { Controller } from 'react-hook-form';
-import { BlogFormType } from '../schema/blog';
-import { BlogFormProps } from '../types/blog';
 import { convertFileToBase64 } from '@/lib/base64';
 import { RichTextEditor } from '@/components/custom/editor';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+import { BlogFormType } from '../schema/blog';
+import { BlogFormProps } from '../types/blog';
+import { Icon } from '@/constants/icons';
 
 const blogCategories = [
   { label: 'Technology', value: 'Technology', checked: false },
@@ -41,152 +42,124 @@ export const BlogForm = ({
   const router = useRouter();
   const [showImagePreview, setShowImagePreview] = useState(false);
 
+  // Convert image file to base64
   const handleCoverImageChange = useCallback(
     async (file: File) => {
       try {
         const base64CoverImage = await convertFileToBase64(file);
         form.setValue('coverImage', base64CoverImage);
         setCoverImagePreview(base64CoverImage);
-      } catch (error) {
-        console.error('Error converting file to Base64:', error);
+      } catch (err) {
+        console.error('Error converting file to Base64:', err);
       }
     },
-    [form]
+    [form, setCoverImagePreview]
   );
 
-  const handleBack = useCallback(() => {
-    router.push('/admin/blogs');
-  }, [router]);
+  // Form submit handler
+  const handleSubmitForm = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      form.setValue('content', editor?.getHTML() || '');
+      form.handleSubmit(onSubmit)();
+    },
+    [editor, form, onSubmit]
+  );
 
   return (
-    <>
-      {/* Form Status Messages */}
-      <div className="fixed right-4 top-4 z-50">
+    <div className="w-full px-6 mb-20">
+      {/* Inline Status Messages */}
+      <div className="mb-4">
         <FormError message={error} />
         <FormSuccess message={success} />
       </div>
 
       <Form {...form}>
-        <form
-          id="blogForm"
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.setValue('content', editor?.getHTML() || '');
-            form.handleSubmit(onSubmit)();
-          }}
-          className="flex w-full min-w-0 flex-col gap-6 pb-24"
-        >
-          {/* Basic Blog Information */}
-          <div className="flex w-full flex-col gap-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-6">
-                <div>
-                  <h2 className="mb-4 text-lg font-semibold text-gray-700">Basic Information</h2>
-
-                  <div className="space-y-4">
-                    <FormField
-                      name="title"
-                      control={form.control}
-                      render={({ field, fieldState }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium text-gray-600">Blog Title</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="text"
-                              disabled={isPending}
-                              placeholder="Enter a descriptive title..."
-                              className={fieldState.invalid ? 'border-red-500' : ''}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="isPaid"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex flex-col space-y-2">
-                            <FormLabel className="text-sm font-medium text-gray-600">Access Type</FormLabel>
-                            <div className="flex items-center gap-3">
-                              <FormControl>
-                                <CustomSwitch checked={field.value} onCheckedChange={field.onChange} />
-                              </FormControl>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium text-gray-700">
-                                  {field.value ? 'Premium Content' : 'Free Content'}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {field.value
-                                    ? 'This blog will only be accessible to paid subscribers'
-                                    : 'This blog will be accessible to all users'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <FormLabel className="text-sm font-medium text-gray-600">Cover Image</FormLabel>
-                  <Controller
-                    name="coverImage"
-                    control={form.control}
-                    rules={{ required: 'Cover image is required.' }}
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleContainerClick}
-                            className={`${fieldState.error ? 'border-red-500 hover:border-red-600' : ''}`}
-                          >
-                            Upload Image
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              ref={fileInputRef}
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  handleCoverImageChange(file);
-                                  form.setValue('coverImage', file.name);
-                                }
-                              }}
-                            />
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            disabled={!coverImagePreview}
-                            onClick={() => setShowImagePreview(true)}
-                          >
-                            Preview
-                          </Button>
-                          {fieldState.error && <span className="text-sm text-red-500">{fieldState.error.message}</span>}
-                          {coverImagePreview && <span className="text-sm text-gray-600">✓ Image selected</span>}
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+        <form id="blogForm" onSubmit={handleSubmitForm} className="space-y-6 rounded-lg bg-white">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Left Column: Basic Information & Cover Image */}
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div>
+                <FormField
+                  name="title"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-gray-600">Blog Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="text"
+                          disabled={isPending}
+                          placeholder="Enter a descriptive title..."
+                          className={fieldState.invalid ? 'border-red-500' : ''}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </div>
 
+              {/* Cover Image */}
               <div className="space-y-4">
-                <h2 className="mb-4 text-lg font-semibold text-gray-700">Categories</h2>
+                <FormLabel className="text-sm font-medium text-gray-600">Cover Image</FormLabel>
+                <Controller
+                  name="coverImage"
+                  control={form.control}
+                  rules={{ required: 'Cover image is required.' }}
+                  render={({ field, fieldState }) => (
+                    <FormItem>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleContainerClick}
+                          className={fieldState.error ? 'border-red-500 hover:border-red-600' : ''}
+                        >
+                          Upload Image
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleCoverImageChange(file);
+                                // Optionally track the file name
+                                form.setValue('coverImage', file.name);
+                              }
+                            }}
+                          />
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={!coverImagePreview}
+                          onClick={() => setShowImagePreview(true)}
+                        >
+                          Preview
+                        </Button>
+                        {fieldState.error && <span className="text-sm text-red-500">{fieldState.error.message}</span>}
+                        {coverImagePreview && <span className="text-sm text-green-600">✓ Image selected</span>}
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Categories & Access Type */}
+            <div className="space-y-6">
+              {/* Categories */}
+              <div className="space-y-2">
+                <FormLabel className="text-sm font-semibold text-gray-700">Categories</FormLabel>
                 <Controller
                   name="categories"
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-gray-600">Blog Categories</FormLabel>
                       <FormControl>
                         <MultiSelect
                           {...field}
@@ -194,40 +167,66 @@ export const BlogForm = ({
                           disabled={isPending}
                           options={blogCategories}
                           placeholder="Select up to 3 categories..."
-                          className={`rounded-md border-gray-300 text-gray-500 ${fieldState.invalid ? 'border-red-500' : ''}`}
+                          className={`rounded-md border-gray-300 ${fieldState.invalid ? 'border-red-500' : ''}`}
                         />
                       </FormControl>
                       <p className="mt-1 text-xs text-gray-500">
-                        Choose up to 3 categories that best describe your blog content
+                        Choose up to 3 categories that best describe your blog content.
                       </p>
                     </FormItem>
                   )}
                 />
               </div>
-            </div>
 
-            {/* Blog Content Editor */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-gray-700">Blog Content</h2>
-              <div className="min-w-0 overflow-hidden">
-                <RichTextEditor editor={editor} error={form.formState.errors.content?.message || null} />
+              {/* Access Type */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="isPaid"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex flex-col space-y-2">
+                        <FormLabel className="text-sm font-medium text-gray-600">Access Type</FormLabel>
+                        <div className="flex items-center gap-3">
+                          <FormControl>
+                            <CustomSwitch checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-700">
+                              {field.value ? 'Premium Content' : 'Free Content'}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {field.value ? 'Only accessible to paid subscribers' : 'Accessible to all users'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
           </div>
-        </form>
 
-        {/* Form Actions */}
-        <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
-          <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
-            <Button type="button" variant="ghost" onClick={handleBack} className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <Button type="submit" form="blogForm" className="px-6">
-              {isEditing ? 'Update Blog' : 'Create Blog'}
-            </Button>
+          {/* Blog Content Editor */}
+          <div className="space-y-4">
+            <FormLabel className="text-lg font-semibold text-gray-700">Blog Content</FormLabel>
+            <RichTextEditor editor={editor} error={form.formState.errors.content?.message || null} />
           </div>
-        </div>
+
+          {/* Form Actions */}
+          <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
+            <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
+              <Button type="button" variant="ghost" onClick={handleResetBlog} className="flex items-center gap-2">
+                <Icon name="reset" className="h-4 w-4" />
+                Reset
+              </Button>
+              <Button type="submit" form="blogForm" className="px-6">
+                {isEditing ? 'Update Blog' : 'Create Blog'}
+              </Button>
+            </div>
+          </div>
+        </form>
       </Form>
 
       {/* Image Preview Dialog */}
@@ -249,6 +248,6 @@ export const BlogForm = ({
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 };
