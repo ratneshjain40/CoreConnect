@@ -133,10 +133,10 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
               </div>
               <div className="my-4 h-[1px] w-full bg-gray-100"></div>
               <RegistrationForm
-                slug={data.slug}
+                userId={user?.id ?? ''}
                 isAuthenticated={!!user}
                 isRegistered={!!isRegistered}
-                status={data.status}
+                eventData={data}
               />
             </div>
           </div>

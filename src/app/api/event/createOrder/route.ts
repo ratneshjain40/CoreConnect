@@ -3,41 +3,80 @@ import { prisma } from '@/db/prisma';
 import { v4 as uuidv4 } from 'uuid';
 import Razorpay from 'razorpay';
 
+// Validate Razorpay configuration
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error('Razorpay credentials are not properly configured');
+}
+
 const razorpayInstance = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID as string,
-  key_secret: process.env.RAZORPAY_KEY_SECRET as string,
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const { eventId, userId, amount } = await req.json();
+    const body = await req.json();
+    
+    // Validate required fields
+    if (!body.eventId || !body.userId || !body.amount) {
+      return NextResponse.json(
+        { message: 'Missing required fields: eventId, userId, or amount' },
+        { status: 400 }
+      );
+    }
+
+    const { eventId, userId, amount } = body;
+
+    // Validate amount is a number and greater than 0
+    if (typeof amount !== 'number' || amount <= 0) {
+      return NextResponse.json(
+        { message: 'Amount must be a positive number' },
+        { status: 400 }
+      );
+    }
+
+    const trx = uuidv4();
+    const orderAmount = Math.round(amount * 100); // Convert to paise and ensure it's an integer
 
     // Create Razorpay order
-    const order = await razorpayInstance.orders.create({
-      amount: amount * 100, // Amount in paise (smallest unit of INR)
+    const orderData = {
+      amount: orderAmount,
       currency: 'INR',
-      receipt: `order-${eventId}-${userId}-${uuidv4().slice(0, 8)}`,
+      receipt: `trx-${trx}`,
       payment_capture: true,
-    });
+    };
 
-    if (!order) {
-      return NextResponse.json({ message: 'Order creation failed' }, { status: 500 });
+    const order = await razorpayInstance.orders.create(orderData);
+
+    if (!order || !order.id) {
+      return NextResponse.json(
+        { message: 'Invalid order response from Razorpay' },
+        { status: 500 }
+      );
     }
 
     await prisma.payment.create({
       data: {
+        trxId: trx,
         userId,
         eventId,
         razorpayOrderId: order.id,
-        razorpayPaymentId: '',
         amount,
         status: 'PENDING',
       },
     });
 
+    console.log(JSON.stringify(order, null, 2));
+
     return NextResponse.json(order);
-  } catch (error) {
-    console.error('Error creating order:', error);
-    return NextResponse.json({ message: 'Error creating order' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Error creating Razorpay order:', error.message);
+    return NextResponse.json(
+      { 
+        message: 'Error creating order',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }, 
+      { status: 500 }
+    );
   }
 }

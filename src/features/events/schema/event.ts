@@ -59,6 +59,7 @@ const eventUnregistrationSchema = z.object({
 
 type CreateEvent = z.infer<typeof createEventSchema>;
 type UpdateEvent = z.infer<typeof updateEventSchema>;
+type EventRegistration = z.infer<typeof eventRegistrationSchema>;
 
 export {
   getEventByStatusSchema,
@@ -67,4 +68,4 @@ export {
   eventRegistrationSchema,
   eventUnregistrationSchema,
 };
-export type { CreateEvent, UpdateEvent };
+export type { CreateEvent, UpdateEvent, EventRegistration };

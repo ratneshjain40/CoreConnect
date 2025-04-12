@@ -10,9 +10,26 @@ import {
 } from '@/lib/routes';
 import { getToken } from 'next-auth/jwt';
 
+// Add paths that should be excluded from authentication checks
+const EXCLUDED_PATHS = [
+  '/robots.txt',       // Robots file
+  '/sitemap.xml',      // Sitemap
+  '/favicon.ico',      // Favicon
+  '/manifest.json',    // Web manifest
+  '/api/event/webhook',
+];
+
 type routeMapping = keyof typeof ROUTE_MAPPINGS;
 
 export async function middleware(req: NextRequest) {
+  const nextUrl = req.nextUrl;
+  const pathname = nextUrl.pathname as routeMapping;
+
+  // Skip auth checks for excluded paths
+  if (EXCLUDED_PATHS.includes(pathname)) {
+    return NextResponse.next();
+  }
+
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
@@ -22,9 +39,6 @@ export async function middleware(req: NextRequest) {
 
   const role = token?.role;
   const isLoggedIn = !!token;
-
-  const nextUrl = req.nextUrl;
-  const pathname = nextUrl.pathname as routeMapping;
 
   // Handle route mappings
   if (pathname in ROUTE_MAPPINGS) {

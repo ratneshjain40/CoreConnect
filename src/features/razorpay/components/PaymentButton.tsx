@@ -4,15 +4,16 @@ import { Suspense, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Loading } from '@/components/custom';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { EventRegistration } from '@/features/events/schema/event';
 
 type PaymentButtonProps = {
-  eventSlug: string;
+  eventRegistration: EventRegistration;
   eventId: string;
   userId: string;
   amount: number;
 };
 
-const PaymentButton = ({ eventSlug, eventId, userId, amount }: PaymentButtonProps) => {
+const PaymentButton = ({ eventRegistration, eventId, userId, amount }: PaymentButtonProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePayment = async () => {
@@ -27,16 +28,17 @@ const PaymentButton = ({ eventSlug, eventId, userId, amount }: PaymentButtonProp
       });
 
       const orderData = await res.json();
+      console.log(orderData);
 
       if (res.ok) {
         // Step 2: Initialize Razorpay Checkout
         const options = {
-          key: process.env.RAZORPAY_KEY_ID, // Razorpay key ID
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Razorpay key ID
           amount: orderData.amount, // Amount in paise
           currency: 'INR',
           order_id: orderData.id,
           name: 'Event Payment',
-          description: `Payment for Event ${eventSlug}`,
+          description: `Payment for Event ${eventRegistration.eventSlug}`,
           handler: async (response: any) => {
             // Step 3: Verify payment on the backend
             const verifyRes = await fetch('/api/event/verifyPayment', {
@@ -65,8 +67,11 @@ const PaymentButton = ({ eventSlug, eventId, userId, amount }: PaymentButtonProp
           notes: {
             event_id: eventId,
             user_id: userId,
+            eventRegistrationData: JSON.stringify(eventRegistration),
           },
         };
+
+        console.log(options);
 
         const razorpay = new (window as any).Razorpay(options);
         razorpay.open();

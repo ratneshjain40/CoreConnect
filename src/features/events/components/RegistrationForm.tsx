@@ -12,18 +12,22 @@ import { eventRegistrationSchema } from '../schema/event';
 import { registerUserForEvent, unregisterUserForEvent } from '../server/actions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useRouter } from 'next/navigation';
+import PaymentButton from '@/features/razorpay/components/PaymentButton';
+import { EventDataType } from '../types/event';
 
 export const RegistrationForm = ({
-  slug,
+  userId,
   isRegistered,
   isAuthenticated,
-  status,
+  eventData,
 }: {
-  slug: string;
+  userId: string;
   isRegistered: boolean;
   isAuthenticated: boolean;
-  status: string;
+  eventData: EventDataType;
 }) => {
+  const { slug, id, price, status } = eventData;
+  const isPaid = parseInt(price) > 0;
   const router = useRouter();
   const { execute: register, result: registerResult, isPending: isRegistering } = useAction(registerUserForEvent);
 
@@ -95,6 +99,11 @@ export const RegistrationForm = ({
           </Button>
         </form>
       </Form>
+      {isPaid && (
+        <div className="mt-4 text-sm text-gray-500">
+          <PaymentButton eventRegistration={form.getValues()} eventId={id} userId={userId} amount={parseInt(price)} />
+        </div>
+      )}
     </>
   );
 };

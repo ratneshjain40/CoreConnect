@@ -133,8 +133,8 @@ model Payment {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
   userId            String   @db.ObjectId
   eventId           String   @db.ObjectId
+  trxId             String   @unique
   razorpayOrderId   String   @unique
-  razorpayPaymentId String   @unique
   amount            Float
   status            String
   createdAt         DateTime @default(now())
