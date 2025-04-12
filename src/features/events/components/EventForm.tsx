@@ -16,9 +16,6 @@ import { FormError, FormSuccess } from '@/components/custom';
 import { RichTextEditor } from '@/components/custom/editor';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { EventStatus } from '@prisma/client';
 import { Icon } from '@/constants/icons';
 
 export const EventForm = ({
