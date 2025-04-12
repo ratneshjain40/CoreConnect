@@ -12,8 +12,9 @@ import { eventRegistrationSchema } from '../schema/event';
 import { registerUserForEvent, unregisterUserForEvent } from '../server/actions';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useRouter } from 'next/navigation';
-import PaymentButton from '@/features/razorpay/components/PaymentButton';
 import { EventDataType } from '../types/event';
+import { useRazorpayPayment } from '@/features/razorpay/hooks/useRazorpayPayment';
+import { RefundMessage } from '@/features/events/components/RefundMessage';
 
 export const RegistrationForm = ({
   userId,
@@ -31,12 +32,6 @@ export const RegistrationForm = ({
   const router = useRouter();
   const { execute: register, result: registerResult, isPending: isRegistering } = useAction(registerUserForEvent);
 
-  const {
-    execute: unregister,
-    result: unregisterResult,
-    isPending: isUnregistering,
-  } = useAction(unregisterUserForEvent);
-
   const form = useForm<z.infer<typeof eventRegistrationSchema>>({
     resolver: zodResolver(eventRegistrationSchema),
     defaultValues: {
@@ -45,12 +40,34 @@ export const RegistrationForm = ({
     },
   });
 
-  const onRegisterSubmit = (values: z.infer<typeof eventRegistrationSchema>) => {
+  const { isProcessing, paymentStatus, handlePayment } = useRazorpayPayment({
+    eventRegistration: form.getValues(),
+    eventId: eventData.id,
+    userId,
+    amount: parseInt(eventData.price),
+  });
+
+  const {
+    execute: unregister,
+    result: unregisterResult,
+    isPending: isUnregistering,
+  } = useAction(unregisterUserForEvent);
+
+  const onRegisterSubmit = async (values: z.infer<typeof eventRegistrationSchema>) => {
     form.clearErrors();
     form.reset();
-    register(values);
-    router.refresh();
+    if (isPaid) {
+      handlePayment();
+    } else {
+      register(values);
+      router.refresh();
+    }
   };
+
+  if (paymentStatus === 'success') {
+    console.log('Payment successful');
+    router.refresh();
+  }
 
   const onUnregisterSubmit = () => {
     unregister({ slug });
@@ -58,6 +75,10 @@ export const RegistrationForm = ({
   };
 
   if (isRegistered) {
+    // Message box only to show "please contact admin for refund"
+    if (isPaid) {
+      return <RefundMessage />;
+    }
     return (
       <>
         <FormError message={unregisterResult.serverError?.toString()} />
@@ -99,11 +120,6 @@ export const RegistrationForm = ({
           </Button>
         </form>
       </Form>
-      {isPaid && (
-        <div className="mt-4 text-sm text-gray-500">
-          <PaymentButton eventRegistration={form.getValues()} eventId={id} userId={userId} amount={parseInt(price)} />
-        </div>
-      )}
     </>
   );
 };

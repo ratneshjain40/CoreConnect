@@ -1,23 +1,33 @@
-'use client';
-import { Suspense, useState } from 'react';
-
-import { cn } from '@/lib/utils';
-import { Loading } from '@/components/custom';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { useState } from 'react';
 import { EventRegistration } from '@/features/events/schema/event';
 
-type PaymentButtonProps = {
+type UseRazorpayPaymentProps = {
   eventRegistration: EventRegistration;
   eventId: string;
   userId: string;
   amount: number;
 };
 
-const PaymentButton = ({ eventRegistration, eventId, userId, amount }: PaymentButtonProps) => {
+type PaymentStatus = 'idle' | 'success' | 'failed' | 'verification_failed';
+
+type UseRazorpayPaymentReturn = {
+  isProcessing: boolean;
+  paymentStatus: PaymentStatus;
+  handlePayment: () => Promise<void>;
+};
+
+export const useRazorpayPayment = ({
+  eventRegistration,
+  eventId,
+  userId,
+  amount,
+}: UseRazorpayPaymentProps): UseRazorpayPaymentReturn => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
 
   const handlePayment = async () => {
     setIsProcessing(true);
+    setPaymentStatus('idle');
 
     try {
       // Step 1: Create order on the backend
@@ -54,9 +64,9 @@ const PaymentButton = ({ eventRegistration, eventId, userId, amount }: PaymentBu
             const verifyData = await verifyRes.json();
 
             if (verifyRes.ok) {
-              alert('Payment successful!');
+              setPaymentStatus('success');
             } else {
-              alert('Payment verification failed');
+              setPaymentStatus('verification_failed');
             }
           },
           prefill: {
@@ -76,24 +86,18 @@ const PaymentButton = ({ eventRegistration, eventId, userId, amount }: PaymentBu
         const razorpay = new (window as any).Razorpay(options);
         razorpay.open();
       } else {
-        alert('Order creation failed');
+        setPaymentStatus('failed');
       }
     } catch (error) {
-      alert('Payment initiation failed');
+      setPaymentStatus('failed');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  return (
-    <Suspense fallback={<Loading />}>
-      <div>
-        <Button className={cn(buttonVariants({ size: 'lg' }))} disabled={isProcessing} onClick={handlePayment}>
-          {isProcessing ? 'Processing...' : 'Pay Now'}
-        </Button>
-      </div>
-    </Suspense>
-  );
-};
-
-export default PaymentButton;
+  return {
+    isProcessing,
+    paymentStatus,
+    handlePayment,
+  };
+}; 
