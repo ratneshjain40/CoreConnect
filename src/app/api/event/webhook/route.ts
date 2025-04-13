@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import crypto from 'crypto';
 import { prisma } from '@/db/prisma';
-import { sendPaymentConfirmationEmail } from '@/features/razorpay/server/mail';
+import { sendPaymentConfirmationEmail, sendPaymentSuccessEmailToAdmin } from '@/features/razorpay/server/mail';
 import { EventRegistration } from '@/features/events/schema/event';
 import { eventService } from '@/features/events/server/service';
 
@@ -59,7 +59,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: 'Invalid payment data' }, { status: 400 });
       }
 
-      const eventId = notes.event_id;
       const userId = notes.user_id;
       const eventRegistrationData = JSON.parse(notes.eventRegistrationData) as EventRegistration;
 
@@ -68,8 +67,9 @@ export async function POST(req: NextRequest) {
         include: {
           user: {
             select: {
-              email: true
-            }
+              email: true,
+              name: true,
+            },
           },
           event: {
             select: {
@@ -94,12 +94,18 @@ export async function POST(req: NextRequest) {
       // Register user for event
       await eventService.registerUserForEvent(userId, eventRegistrationData);
 
-      // Send confirmation email
-      await sendPaymentConfirmationEmail({
+      // Email
+      const emailData = {
         email: paymentData.user.email,
         productId: { name: paymentData.event.title },
+        name: paymentData.user.name,
         amount: paymentData.amount,
-      });
+      };
+
+      // Send confirmation email
+      await sendPaymentConfirmationEmail(emailData);
+      // Send success email to admin
+      await sendPaymentSuccessEmailToAdmin(emailData);
     }
 
     return NextResponse.json({ message: 'Webhook processed successfully' });
