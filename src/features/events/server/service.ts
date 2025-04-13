@@ -109,7 +109,7 @@ async function registerUserForEvent(
   }
 
   // Check if the user is already registered for the event
-  let existingRegistration = await eventRepo.getEventRegistrationByUserId(userId);
+  let existingRegistration = await eventRepo.getEventRegistrationByEventIdAndUserId(event.id, userId);
   if (existingRegistration) {
     throw new ErrorResponse('User is already registered for this event');
   }

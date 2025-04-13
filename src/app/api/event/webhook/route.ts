@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
         data: { status: 'SUCCESS' },
       });
 
+      console.log('Payment data:', paymentData);
       // Register user for event
       await eventService.registerUserForEvent(userId, eventRegistrationData);
 
