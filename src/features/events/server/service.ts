@@ -108,6 +108,12 @@ async function registerUserForEvent(
     throw new ErrorResponse('Cannot register for an event that is paused');
   }
 
+  // Check if the user is already registered for the event
+  let existingRegistration = await eventRepo.getEventRegistrationByUserId(userId);
+  if (existingRegistration) {
+    throw new ErrorResponse('User is already registered for this event');
+  }
+
   return await eventRepo.registerUserForEvent({
     eventId: event.id,
     userId: userId,

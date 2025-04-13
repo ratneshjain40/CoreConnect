@@ -66,7 +66,6 @@ export const registerUserForEvent = authActionClient
   .schema(eventRegistrationSchema)
   .action(async (data) => {
     await eventService.registerUserForEvent(data.ctx.session.user.id, data.parsedInput);
-    revalidatePath;
     return { success: 'User registered successfully' };
   });
 

@@ -4,6 +4,7 @@ import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormError, FormSuccess } from '@/components/custom';
+import { useEffect } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -64,10 +65,12 @@ export const RegistrationForm = ({
     }
   };
 
-  if (paymentStatus === 'success') {
-    console.log('Payment successful');
-    router.refresh();
-  }
+  useEffect(() => {
+    if (paymentStatus === 'success') {
+      console.log('Payment successful');
+      router.refresh();
+    }
+  }, [paymentStatus, router]);
 
   const onUnregisterSubmit = () => {
     unregister({ slug });
