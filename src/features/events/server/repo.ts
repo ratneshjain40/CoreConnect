@@ -137,7 +137,10 @@ async function getEventRegistrationByUserId(userId: string): Promise<EventRegist
   });
 }
 
-async function getEventRegistrationByEventIdAndUserId(eventId: string, userId: string): Promise<EventRegistration | null> {
+async function getEventRegistrationByEventIdAndUserId(
+  eventId: string,
+  userId: string
+): Promise<EventRegistration | null> {
   return await prisma.eventRegistration.findUnique({
     where: {
       eventId_userId: { eventId, userId },

@@ -67,9 +67,16 @@ export const NewPasswordForm = () => {
           />
         </div>
 
+        {!token && <FormError message="Invalid password reset link. Please request a new password reset." />}
         {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
         {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
-        <Button type="submit" disabled={isPending} className="w-full">
+        <Button
+          type="submit"
+          isLoading={isPending}
+          loadingText="Resetting password..."
+          className="w-full"
+          disabled={!token || isPending}
+        >
           Reset Password
         </Button>
       </form>

@@ -34,6 +34,7 @@ export const EventForm = ({
 }: EventFormProps<CreateEvent>) => {
   const router = useRouter();
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const role = useCurrentRole();
 
   const handleCoverImageChange = useCallback(
@@ -48,6 +49,12 @@ export const EventForm = ({
     },
     [form, setCoverImagePreview]
   );
+
+  const handleReset = useCallback(() => {
+    setIsResetting(true);
+    handleResetEvent();
+    setTimeout(() => setIsResetting(false), 500);
+  }, [handleResetEvent]);
 
   return (
     <div className="mb-20 w-full px-6">
@@ -81,7 +88,7 @@ export const EventForm = ({
                       <Input
                         {...field}
                         type="text"
-                        disabled={isPending}
+                        disabled={isPending || isResetting}
                         placeholder="Event Title"
                         className={fieldState.invalid ? 'border-red-500' : ''}
                       />
@@ -103,7 +110,7 @@ export const EventForm = ({
                       <MultiSelect
                         {...field}
                         maxSelect={3}
-                        disabled={isPending}
+                        disabled={isPending || isResetting}
                         options={eventCategories}
                         placeholder="Select categories..."
                         className={`rounded-md border-gray-300 text-gray-500 ${
@@ -131,7 +138,7 @@ export const EventForm = ({
                       <Input
                         {...field}
                         type="text"
-                        disabled={isPending}
+                        disabled={isPending || isResetting}
                         placeholder="Location"
                         className={fieldState.invalid ? 'border-red-500' : ''}
                       />
@@ -198,7 +205,7 @@ export const EventForm = ({
                         {...field}
                         type="number"
                         placeholder="Price"
-                        disabled={isPending}
+                        disabled={isPending || isResetting}
                         className={fieldState.invalid ? 'border-red-500' : ''}
                       />
                     </FormControl>
@@ -221,6 +228,7 @@ export const EventForm = ({
                         type="button"
                         variant="outline"
                         onClick={handleContainerClick}
+                        disabled={isPending || isResetting}
                         className={fieldState.error ? 'border-red-500 hover:border-red-600' : ''}
                       >
                         Upload Image
@@ -229,6 +237,7 @@ export const EventForm = ({
                           accept="image/*"
                           ref={fileInputRef}
                           className="hidden"
+                          disabled={isPending || isResetting}
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
@@ -241,7 +250,7 @@ export const EventForm = ({
                       <Button
                         type="button"
                         variant="secondary"
-                        disabled={!coverImagePreview}
+                        disabled={!coverImagePreview || isPending || isResetting}
                         onClick={() => setShowImagePreview(true)}
                       >
                         Preview
@@ -267,11 +276,26 @@ export const EventForm = ({
         {/* Sticky Form Actions */}
         <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
           <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
-            <Button type="button" variant="ghost" onClick={handleResetEvent} className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleReset}
+              className="flex items-center gap-2"
+              isLoading={isResetting}
+              loadingText="Resetting..."
+              disabled={isPending || isResetting}
+            >
               <Icon name="reset" className="h-4 w-4" />
               Reset
             </Button>
-            <Button type="submit" form="eventForm" className="px-6">
+            <Button
+              type="submit"
+              form="eventForm"
+              className="px-6"
+              isLoading={isPending}
+              loadingText={isEditing ? 'Updating...' : 'Creating...'}
+              disabled={isPending || isResetting}
+            >
               {isEditing ? 'Update Event' : 'Create Event'}
             </Button>
           </div>

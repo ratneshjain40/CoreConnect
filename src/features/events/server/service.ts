@@ -15,7 +15,6 @@ async function getEvents(): Promise<EventWithoutDescriptionType[]> {
 
 async function updateEventStatusBasedOnDates(event: Event): Promise<EventStatus> {
   const currentDate = new Date();
-  console.log(event.startDate, startOfDay(currentDate));
   if (event.startDate <= startOfDay(currentDate)) return 'COMPLETED';
   return event.status;
 }

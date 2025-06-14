@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
-
-import { EventWithoutDescriptionType } from '../types/event';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { categoryFilterList, priceFilterList } from '@/constants/filterLists';
+import { RenderPagination } from '@/components/custom/RenderPagination';
+import { categoryFilterList, priceFilterList, statusFilterList } from '@/constants/filterLists';
 import { FilterList } from '@/features/blog/components/FilterList';
 import { CategoriesFilterList, PriceFilterList } from '@/features/blog/types/blog';
-import { RenderPagination } from '@/components/custom/RenderPagination';
+import { useSearchParams } from 'next/navigation';
+import React, { useMemo } from 'react';
+import { EventWithoutDescriptionType } from '../types/event';
 import { EventList } from './EventList';
 
 type EventListProps = {
@@ -16,96 +15,63 @@ type EventListProps = {
 
 export const CATEGORY_QUERY_KEY = 'category';
 export const PRICE_QUERY_KEY = 'price';
+export const STATUS_QUERY_KEY = 'status';
 export const ITEMS_PER_PAGE = 12;
 
 export const EventListLayout = ({ events }: EventListProps) => {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentCategory = searchParams.get(CATEGORY_QUERY_KEY);
-  const currentPrice = searchParams.get(PRICE_QUERY_KEY);
-  const currentPage = searchParams.get('page');
+  const currentCategory = searchParams.get(CATEGORY_QUERY_KEY) ?? "all";
+  const currentPrice = searchParams.get(PRICE_QUERY_KEY) ?? "all";
+  const currentStatus = searchParams.get(STATUS_QUERY_KEY) ?? "UPCOMING";
 
   const filteredEvents = useMemo(() => {
-    if (!currentCategory || !currentPrice) return events;
-    if (currentCategory === 'all' && currentPrice === 'all') return events;
-
-    return events.filter((d) => {
-      const isPaid = parseInt(d.price) > 0;
-
-      if (currentCategory === 'all') return isPaid === (currentPrice === 'paid');
-      if (currentPrice === 'all') return d.categories.includes(currentCategory);
-
-      return d.categories.includes(currentCategory) && isPaid === (currentPrice === 'paid');
+    if (!currentCategory || !currentPrice || !currentStatus) return events;
+    
+    return events.filter((event) => {
+      const isPaid = parseInt(event.price) > 0;
+      
+      // Status filter (always applied unless 'all')
+      const matchesStatus = currentStatus === 'all' || event.status === currentStatus;
+      
+      // Category filter
+      const matchesCategory = currentCategory === 'all' || event.categories.includes(currentCategory);
+      
+      // Price filter
+      const matchesPrice = currentPrice === 'all' || isPaid === (currentPrice === 'paid');
+      
+      return matchesStatus && matchesCategory && matchesPrice;
     });
-  }, [events, currentCategory, currentPrice]);
-
-  useEffect(() => {
-    let query: URLSearchParams;
-
-    if (searchParams.size === 0) query = new URLSearchParams();
-    else query = new URLSearchParams(searchParams.toString());
-
-    let queryChanged = false;
-
-    if (!currentCategory) {
-      query.set(CATEGORY_QUERY_KEY, 'all');
-      queryChanged = true;
-    } else {
-      const categoryExists = categoryFilterList.some((category) => category.value === currentCategory);
-
-      if (!categoryExists) {
-        query.set(CATEGORY_QUERY_KEY, 'all');
-        queryChanged = true;
-      }
-    }
-
-    if (!currentPrice) {
-      query.set(PRICE_QUERY_KEY, 'all');
-      queryChanged = true;
-    } else {
-      const priceExists = priceFilterList.some((price) => price.value === currentPrice);
-
-      if (!priceExists) {
-        query.set(PRICE_QUERY_KEY, 'all');
-        queryChanged = true;
-      }
-    }
-
-    if (!currentPage) {
-      query.set('page', '1');
-      queryChanged = true;
-    } else {
-      const page = parseInt(currentPage);
-
-      if (Number.isNaN(page) || page < 1) {
-        query.set('page', '1');
-        queryChanged = true;
-      }
-    }
-
-    if (queryChanged) router.replace(`${pathname}?${query.toString()}`, { scroll: false });
-  }, [pathname, router]);
+  }, [events, currentCategory, currentPrice, currentStatus]);
 
   return (
     <React.Fragment>
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="p-2 text-3xl font-bold tracking-tight">Events</h2>
-        <div className="flex items-center gap-4">
-          <FilterList<Omit<PriceFilterList, 'checked'>>
-            allSelectionText="All Prices"
-            queryKey={PRICE_QUERY_KEY}
-            filterListItems={priceFilterList}
-          />
-          <FilterList<Omit<CategoriesFilterList, 'checked'>>
-            allSelectionText="All Categories"
-            queryKey={CATEGORY_QUERY_KEY}
-            filterListItems={categoryFilterList}
-          />
+      {/* Header with filters */}      <div className="mb-8 space-y-4">
+        <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">Events</h2>
+
+          {/* Filters - responsive layout */}
+          <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 lg:space-x-6">
+            <FilterList<Omit<CategoriesFilterList, 'checked'>>
+              allSelectionText="All Status"
+              queryKey={STATUS_QUERY_KEY}
+              filterListItems={statusFilterList}
+            />
+            <FilterList<Omit<PriceFilterList, 'checked'>>
+              allSelectionText="All Prices"
+              queryKey={PRICE_QUERY_KEY}
+              filterListItems={priceFilterList}
+            />
+            <FilterList<Omit<CategoriesFilterList, 'checked'>>
+              allSelectionText="All Categories"
+              queryKey={CATEGORY_QUERY_KEY}
+              filterListItems={categoryFilterList}
+            />
+          </div>
         </div>
       </div>
+
       <EventList events={filteredEvents ?? []} />
-      <div className="">
+      <div className="mt-8">
         <RenderPagination totalItems={filteredEvents.length} itemsPerPage={ITEMS_PER_PAGE} />
       </div>
     </React.Fragment>

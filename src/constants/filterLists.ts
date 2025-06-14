@@ -12,3 +12,9 @@ export const priceFilterList = [
   { label: 'Paid', value: 'paid', checked: true },
   { label: 'Free', value: 'free', checked: false },
 ] as const satisfies Array<PriceFilterList>;
+
+export const statusFilterList = [
+  { label: 'Upcoming', value: 'UPCOMING', checked: true },
+  { label: 'Paused', value: 'PAUSED', checked: false },
+  { label: 'Completed', value: 'COMPLETED', checked: false },
+] as const satisfies Array<CategoriesFilterList>;

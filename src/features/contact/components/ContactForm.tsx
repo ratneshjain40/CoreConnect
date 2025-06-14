@@ -1,17 +1,17 @@
 'use client';
 
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { contactSchema } from '../schema/contact';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { contactSchema } from '../schema/contact';
 
-import { Input } from '@/components/ui/input';
-import { sendContact } from '../server/action';
-import { Button } from '@/components/ui/button';
-import { useAction } from 'next-safe-action/hooks';
-import { Textarea } from '@/components/ui/textarea';
 import { FormError, FormSuccess } from '@/components/custom';
+import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useAction } from 'next-safe-action/hooks';
+import { sendContact } from '../server/action';
 
 export const ContactForm = () => {
   const { execute, result, isPending } = useAction(sendContact);
@@ -34,15 +34,22 @@ export const ContactForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           name="name"
           control={form.control}
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} className={fieldState.invalid ? 'border-red-500' : ''} />
+                <Input
+                  placeholder="Your full name"
+                  {...field}
+                  className={`h-12 rounded-xl border-gray-300 focus:border-green-500 focus:ring-green-500 transition-colors ${
+                    fieldState.invalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                  }`}
+                  disabled={isPending}
+                />
               </FormControl>
             </FormItem>
           )}
@@ -53,13 +60,16 @@ export const ContactForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">Email</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="email"
                   placeholder="you@example.com"
-                  className={fieldState.invalid ? 'border-red-500' : ''}
+                  className={`h-12 rounded-xl border-gray-300 focus:border-green-500 focus:ring-green-500 transition-colors ${
+                    fieldState.invalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                  }`}
+                  disabled={isPending}
                 />
               </FormControl>
             </FormItem>
@@ -71,13 +81,16 @@ export const ContactForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Phone (optional)</FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">Phone (optional)</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="tel"
                   placeholder="Your phone number"
-                  className={fieldState.invalid ? 'border-red-500' : ''}
+                  className={`h-12 rounded-xl border-gray-300 focus:border-green-500 focus:ring-green-500 transition-colors ${
+                    fieldState.invalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                  }`}
+                  disabled={isPending}
                 />
               </FormControl>
             </FormItem>
@@ -89,24 +102,35 @@ export const ContactForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <FormItem>
-              <FormLabel>Message</FormLabel>
+              <FormLabel className="text-gray-900 font-semibold">Message</FormLabel>
               <FormControl>
                 <Textarea
-                  rows={4}
+                  rows={5}
                   {...field}
-                  placeholder="Your message"
-                  className={fieldState.invalid ? 'border-red-500' : ''}
+                  placeholder="Tell us about your inquiry, collaboration ideas, or questions..."
+                  className={`rounded-xl border-gray-300 focus:border-green-500 focus:ring-green-500 transition-colors resize-none ${
+                    fieldState.invalid ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''
+                  }`}
+                  disabled={isPending}
                 />
               </FormControl>
             </FormItem>
           )}
         />
 
-        <FormError message={result.serverError?.toString()} />
-        <FormSuccess message={result?.data?.success} />
-        <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800" disabled={isPending}>
-          Send Message
-        </Button>
+        <div className="space-y-4">
+          <FormError message={result.serverError?.toString()} />
+          <FormSuccess message={result?.data?.success} />
+
+          <Button
+            type="submit"
+            className="w-full h-12 bg-green-600 text-white hover:bg-green-700 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+            isLoading={isPending}
+            loadingText="Sending message..."
+          >
+            Send Message
+          </Button>
+        </div>
       </form>
     </Form>
   );

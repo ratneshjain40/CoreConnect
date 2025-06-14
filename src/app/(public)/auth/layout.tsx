@@ -1,6 +1,50 @@
 import { ChevronLeft } from 'lucide-react';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Auth',
+  description: 'Secure authentication for Entomon Institute. Login to access your dashboard, register for events, and manage your account.',
+  keywords: [
+    'Entomon Login',
+    'Entomon Register',
+    'Entomon Authentication',
+    'Entomon Account',
+    'Entomon Sign In',
+    'Entomon Sign Up',
+    'Entomon Institute Login',
+    'Entomon Institute Registration',
+    'Secure Login',
+    'Account Access',
+  ],
+  robots: {
+    index: false,
+    follow: true,
+  },
+  openGraph: {
+    title: 'Authentication - Entomon Institute',
+    description: 'Secure access to your Entomon Institute account. Login or register to access exclusive content, events, and resources.',
+    type: 'website',
+    images: [
+      {
+        url: '/images/entomon-logo.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Entomon Institute Authentication',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Authentication - Entomon Institute',
+    description: 'Secure access to your Entomon Institute account.',
+    images: ['/images/entomon-logo.webp'],
+  },
+  alternates: {
+    canonical: '/auth',
+  },
+};
 
 export default function AuthLayout({ children }: { readonly children: React.ReactNode }) {
   return (

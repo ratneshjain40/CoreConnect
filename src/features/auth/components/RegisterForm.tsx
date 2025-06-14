@@ -54,7 +54,12 @@ export const RegisterForm = () => {
               <FormItem>
                 <FormLabel>First name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Max" {...field} className={fieldState.invalid ? 'border-red-500' : ''} />
+                  <Input
+                    placeholder="Max"
+                    {...field}
+                    className={fieldState.invalid ? 'border-red-500' : ''}
+                    disabled={isPending}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -68,7 +73,12 @@ export const RegisterForm = () => {
               <FormItem>
                 <FormLabel>Last name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Robinson" {...field} className={fieldState.invalid ? 'border-red-500' : ''} />
+                  <Input
+                    placeholder="Robinson"
+                    {...field}
+                    className={fieldState.invalid ? 'border-red-500' : ''}
+                    disabled={isPending}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -88,6 +98,7 @@ export const RegisterForm = () => {
                   type="email"
                   placeholder="m@example.com"
                   className={fieldState.invalid ? 'border-red-500' : ''}
+                  disabled={isPending}
                 />
               </FormControl>
               <FormMessage />
@@ -107,6 +118,7 @@ export const RegisterForm = () => {
                   type="password"
                   placeholder="******"
                   className={fieldState.invalid ? 'border-red-500' : ''}
+                  disabled={isPending}
                 />
               </FormControl>
               <FormMessage />
@@ -116,7 +128,7 @@ export const RegisterForm = () => {
 
         {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
         {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
-        <Button type="submit" disabled={isPending} className="w-full">
+        <Button type="submit" isLoading={isPending} loadingText="Creating account..." className="w-full">
           Create an account
         </Button>
       </form>

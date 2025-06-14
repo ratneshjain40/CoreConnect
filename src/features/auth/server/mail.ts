@@ -1,4 +1,5 @@
 import 'server-only';
+
 import { resend, domain_email, domain, EmailLayout, Button, CodeDisplay } from '@/lib/mail';
 
 export async function sendTwoFactorEmail(email: string, token: string) {
@@ -20,14 +21,12 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 }
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const result = await resend.emails.send({
+  await resend.emails.send({
     from: domain_email as string,
     to: email,
     subject: 'Confirm Your Email',
     html: verificationEmailTemplate(token, domain ?? ''),
   });
-  console.log(result);
-  return result;
 }
 
 // Template for password reset email

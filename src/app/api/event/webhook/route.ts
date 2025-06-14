@@ -27,7 +27,6 @@ type RazorpayWebhookPayload = {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('Webhook received');
     const body = await req.text();
     const signature = req.headers.get('X-Razorpay-Signature');
 
@@ -48,12 +47,12 @@ export async function POST(req: NextRequest) {
       console.error('Signature mismatch');
       return NextResponse.json({ message: 'Signature mismatch' }, { status: 400 });
     }
-    
+
     const payload = JSON.parse(body) as RazorpayWebhookPayload;
-    
+
     if (payload.event === 'payment.captured') {
       const { order_id: razorpayOrderId, notes } = payload.payload.payment.entity;
-      
+
       if (!notes?.event_id || !notes?.user_id || !notes?.eventRegistrationData) {
         console.error('Missing required notes in payment entity');
         return NextResponse.json({ message: 'Invalid payment data' }, { status: 400 });
@@ -73,12 +72,12 @@ export async function POST(req: NextRequest) {
           },
           event: {
             select: {
-              title: true
-            }
-          }
-        }
+              title: true,
+            },
+          },
+        },
       });
-  
+
       if (!paymentData) {
         console.error('Payment not found for order:', razorpayOrderId);
         return NextResponse.json({ message: 'Payment not found' }, { status: 404 });
@@ -90,7 +89,6 @@ export async function POST(req: NextRequest) {
         data: { status: 'SUCCESS' },
       });
 
-      console.log('Payment data:', paymentData);
       // Register user for event
       await eventService.registerUserForEvent(userId, eventRegistrationData);
 
@@ -112,10 +110,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error processing webhook:', error);
     return NextResponse.json(
-      { 
+      {
         message: 'Error processing webhook',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }, 
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

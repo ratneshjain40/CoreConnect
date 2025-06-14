@@ -128,6 +128,9 @@ async function getAllBlogComments(blogId: string): Promise<CommentsWithAuthor[]>
     where: {
       blogId,
     },
+    orderBy: {
+      createdAt: 'desc',
+    },
     include: {
       author: {
         select: {

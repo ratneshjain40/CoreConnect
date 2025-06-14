@@ -67,6 +67,7 @@ export const SingleBlog = async ({ data }: SingleBlogProps) => {
         </div>
         {data.coverImage && (
           <Image
+            priority
             width={1200}
             height={630}
             alt={data.title}
@@ -80,7 +81,8 @@ export const SingleBlog = async ({ data }: SingleBlogProps) => {
       <Comments
         blogSlug={data.slug}
         isAuthenticated={!!user}
-        userId={user?.id ?? null}
+        userId={user?.id ?? ''}
+        username={user?.name ?? ''}
         role={user?.role ?? 'USER'}
         comments={comments?.data ?? []}
       />

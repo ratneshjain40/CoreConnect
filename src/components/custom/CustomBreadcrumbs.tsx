@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +7,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import React from 'react';
 
 const unclickableSegments = ['edit', 'create'];
 
@@ -32,7 +32,9 @@ export const CustomBreadcrumbs = () => {
                   <BreadcrumbPage>{segmentLabel}</BreadcrumbPage>
                 ) : (
                   <Link href={url} passHref>
-                    <BreadcrumbPage className="cursor-pointer hover:underline">{segmentLabel}</BreadcrumbPage>
+                    <BreadcrumbPage className="cursor-pointer relative text-gray-700 transition-all duration-200 hover:text-green-600 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-green-600 after:transition-all after:duration-200 hover:after:w-full">
+                      {segmentLabel}
+                    </BreadcrumbPage>
                   </Link>
                 )}
               </BreadcrumbItem>

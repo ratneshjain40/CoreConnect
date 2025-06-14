@@ -1,34 +1,34 @@
 'use server';
 
-import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 
-import { UserNav } from './UserNav';
-import { User } from '@prisma/client';
-import { ButtonLink } from './ButtonLink';
-import { SearchInput } from './SearchInput';
 import { Icon } from '@/constants/icons';
-import { NAVBAR } from '@/constants/navbar'; // Import the navbar options
+import { NAVBAR } from '@/constants/navbar';
 import { NavbarOption } from '@/types/navbar';
+import { User } from '@prisma/client';
+import { UserNav } from './UserNav';
 
+import logo from '@/assets/entomon-logo.webp';
 import { Button } from '@/components/ui/button';
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { currentUser } from '@/lib/auth';
-import { DropdownNavItem } from './DropdownNavItem';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from '../ui/navigation-menu';
-import logo from '@/assets/entomon-logo.png';
+import { DropdownNavItem } from './DropdownNavItem';
+
+// Prefetchable routes that are most commonly accessed
+const PREFETCH_ROUTES = ['/events', '/blogs', '/about'];
 
 const DropdownLink = ({ url, name, description }: NavbarOption) => (
   <Link
     href={url}
-    className="group grid h-auto w-full items-center justify-start gap-1 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
-    prefetch={false}
+    className="group grid h-auto w-full items-center justify-start gap-1 rounded-lg bg-white p-4 text-sm font-medium transition-all duration-200 hover:bg-green-50 hover:text-green-800 focus:bg-green-50 focus:text-green-800 focus:outline-none border border-gray-100 hover:border-green-200"
+    prefetch={PREFETCH_ROUTES.includes(url) ? true : false}
   >
-    <div className="text-sm font-medium leading-none group-hover:underline">{name}</div>
-    {description && <div className="line-clamp-2 text-sm leading-snug text-muted-foreground">{description}</div>}
+    <div className="text-sm font-semibold leading-none group-hover:text-green-800">{name}</div>
+    {description && <div className="line-clamp-2 text-xs leading-snug text-gray-600 group-hover:text-green-700">{description}</div>}
   </Link>
 );
 
@@ -36,23 +36,28 @@ export const Navbar = async () => {
   const user = await currentUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2" prefetch={false}>
-          <Image src={logo} height={47} width={47} alt="Entomon Logo" />
-          <span className="text-lg font-semibold">Entomon Institute</span>
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm backdrop-blur-sm">
+      <div className="container flex h-20 items-center justify-between px-4 md:px-6">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-3 transition-transform" prefetch={true}>
+            <Image src={logo} height={52} width={52} alt="Entomon Logo" className="rounded-full " />
+          <div className="flex flex-col">
+            <span className="text-xl font-bold text-gray-900">Entomon Institute</span>
+            <span className="text-xs text-green-600 font-medium">Invertebrate Zoology</span>
+          </div>
         </Link>
 
-        <NavigationMenu className="hidden items-center gap-6 lg:flex">
-          <NavigationMenuList className="flex items-center gap-6">
+        {/* Desktop Navigation */}
+        <NavigationMenu className="hidden items-center gap-8 lg:flex">
+          <NavigationMenuList className="flex items-center gap-8">
             {NAVBAR.map((item) => {
               if (item.type === 'Link')
                 return (
                   <NavigationMenuItem key={crypto.randomUUID()}>
                     <Link
-                      prefetch={false}
+                      prefetch={PREFETCH_ROUTES.includes(item.url ?? '') ? true : false}
                       href={item.url ?? ''}
-                      className="text-sm font-medium transition-colors hover:text-primary"
+                      className="relative text-sm font-semibold text-gray-700 transition-all duration-200 hover:text-green-600 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-green-600 after:transition-all after:duration-200 hover:after:w-full"
                     >
                       {item.name}
                     </Link>
@@ -62,7 +67,12 @@ export const Navbar = async () => {
               if (item.type === 'Button')
                 return (
                   <NavigationMenuItem key={crypto.randomUUID()}>
-                    <ButtonLink name={item.name} url={item.url ?? ''} />
+                    <Link
+                      href={item.url ?? ''}
+                      className="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-green-700 hover:shadow-xl hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                    >
+                      {item.name}
+                    </Link>
                   </NavigationMenuItem>
                 );
 
@@ -70,19 +80,32 @@ export const Navbar = async () => {
             })}
           </NavigationMenuList>
 
-          <SearchInput />
-          {user ? <UserNav user={user as User} /> : <ButtonLink url="/auth/login" name="Login/Register" />}
+          {user ? (
+            <UserNav user={user as User} />
+          ) : (
+            <Link
+              href="/auth/login"
+              className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:bg-gray-800 hover:shadow-xl hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+            >
+              Login / Register
+            </Link>
+          )}
         </NavigationMenu>
 
+        {/* Mobile Menu Button */}
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="lg:hidden">
+            <Button
+              variant="outline"
+              size="icon"
+              className="lg:hidden border-gray-300 hover:bg-green-50 hover:border-green-300 hover:text-green-700"
+            >
               <Icon name="hamburger" className="h-6 w-6" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
 
-          <SheetContent side="left" className="bg-background">
+          <SheetContent side="left" className="bg-white w-80">
             <SheetTitle>
               <VisuallyHidden.Root>Menu</VisuallyHidden.Root>
             </SheetTitle>
@@ -90,26 +113,36 @@ export const Navbar = async () => {
               <VisuallyHidden.Root>Mobile Menu</VisuallyHidden.Root>
             </SheetDescription>
 
-            <div className="flex h-full flex-col justify-between">
-              <nav className="grid gap-4 px-4 py-6">
+            <div className="flex h-full flex-col">
+              {/* Mobile Logo */}
+              <div className="flex items-center gap-3 border-b border-gray-200 pb-6 mb-6">
+                <Image src={logo} height={40} width={40} alt="Entomon Logo" className="rounded-full" />
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-gray-900">Entomon Institute</span>
+                  <span className="text-xs text-green-600 font-medium">Invertebrate Research</span>
+                </div>
+              </div>
+
+              {/* Mobile Navigation */}
+              <nav className="flex-1 space-y-3">
                 {NAVBAR.map((item) =>
                   item.type === 'Link' ? (
                     <Link
                       key={item.name}
-                      prefetch={false}
+                      prefetch={PREFETCH_ROUTES.includes(item.url ?? '') ? true : false}
                       href={item.url ?? ''}
-                      className="text-lg font-medium transition-colors hover:text-primary"
+                      className="block rounded-lg p-3 text-base font-semibold text-gray-700 transition-all duration-200 hover:bg-green-50 hover:text-green-800"
                     >
                       {item.name}
                     </Link>
                   ) : item.type === 'Dropdown' ? (
-                    <Collapsible key={item.name} className="grid gap-2">
-                      <CollapsibleTrigger className="flex items-center justify-between text-lg font-medium [&[data-state=open]>svg]:rotate-90">
+                    <Collapsible key={item.name} className="space-y-2">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg p-3 text-base font-semibold text-gray-700 hover:bg-green-50 hover:text-green-800 [&[data-state=open]>svg]:rotate-180">
                         {item.name}
-                        <Icon name="chevronDown" className="h-4 w-4 transition-all" />
+                        <Icon name="chevronDown" className="h-4 w-4 transition-transform duration-200" />
                       </CollapsibleTrigger>
                       <CollapsibleContent>
-                        <div className="-mx-4 grid gap-2 bg-muted p-4">
+                        <div className="ml-4 space-y-2 border-l-2 border-green-200 pl-4">
                           {item.options?.map((option) => (
                             <DropdownLink
                               url={option.url}
@@ -122,11 +155,30 @@ export const Navbar = async () => {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : item.type === 'Button' ? (
-                    <ButtonLink key={item.name} name={item.name} url={item.url ?? ''} />
+                    <Link
+                      key={item.name}
+                      href={item.url ?? ''}
+                      className="block rounded-lg bg-green-600 p-3 text-center text-base font-semibold text-white transition-all duration-200 hover:bg-green-700"
+                    >
+                      {item.name}
+                    </Link>
                   ) : null
                 )}
-                <SearchInput />
               </nav>
+
+              {/* Mobile Auth Section */}
+              <div className="border-t border-gray-200 pt-6">
+                {user ? (
+                  <UserNav user={user as User} />
+                ) : (
+                  <Link
+                    href="/auth/login"
+                    className="block rounded-lg bg-gray-900 p-3 text-center text-base font-semibold text-white transition-all duration-200 hover:bg-gray-800"
+                  >
+                    Login / Register
+                  </Link>
+                )}
+              </div>
             </div>
           </SheetContent>
         </Sheet>

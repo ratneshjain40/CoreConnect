@@ -7,7 +7,7 @@ const AUTH_ROUTES = ['/auth/login', '/auth/register', '/auth/error', '/auth/rese
 
 const API_AUTH_PREFIX = '/api/auth';
 
-const DEFAULT_LOGIN_REDIRECT = '/user/dashboard';
+const DEFAULT_LOGIN_REDIRECT = '/';
 
 const ROUTE_MAPPINGS = {
   '/user': '/user/dashboard',

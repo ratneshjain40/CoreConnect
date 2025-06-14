@@ -86,7 +86,7 @@ export const RegistrationForm = ({
       <>
         <FormError message={unregisterResult.serverError?.toString()} />
         {/* <FormSuccess message={unregisterResult?.data?.success} /> */}
-        <Button onClick={onUnregisterSubmit} className="w-full" disabled={isUnregistering}>
+        <Button onClick={onUnregisterSubmit} className="w-full" isLoading={isUnregistering} loadingText="Processing...">
           Unregister from Event
         </Button>
       </>
@@ -106,7 +106,7 @@ export const RegistrationForm = ({
                   <Input
                     {...field}
                     type="tel"
-                    disabled={isRegistered}
+                    disabled={isRegistered || isRegistering || isProcessing}
                     placeholder="+91 1234567890"
                     className={fieldState.invalid ? 'border-red-500' : ''}
                   />
@@ -118,8 +118,20 @@ export const RegistrationForm = ({
 
           <FormError message={registerResult.serverError?.toString()} />
           <FormSuccess message={registerResult?.data?.success} />
-          <Button type="submit" className="w-full" disabled={!isAuthenticated || isRegistering || status === 'PAUSED'}>
-            Attend Event
+          <Button
+            type="submit"
+            className="w-full"
+            isLoading={isRegistering || isProcessing}
+            loadingText={isPaid ? 'Processing payment...' : 'Registering...'}
+            disabled={
+              !isAuthenticated || isRegistering || isProcessing || status === 'PAUSED' || status === 'COMPLETED'
+            }
+          >
+            {status === 'COMPLETED'
+              ? 'Event Completed'
+              : status === 'PAUSED'
+                ? 'Registrations are Paused'
+                : 'Register for Event'}
           </Button>
         </form>
       </Form>

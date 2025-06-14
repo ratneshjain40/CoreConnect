@@ -16,23 +16,17 @@ const razorpayInstance = new Razorpay({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
+
     // Validate required fields
     if (!body.eventId || !body.userId || !body.amount) {
-      return NextResponse.json(
-        { message: 'Missing required fields: eventId, userId, or amount' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Missing required fields: eventId, userId, or amount' }, { status: 400 });
     }
 
     const { eventId, userId, amount } = body;
 
     // Validate amount is a number and greater than 0
     if (typeof amount !== 'number' || amount <= 0) {
-      return NextResponse.json(
-        { message: 'Amount must be a positive number' },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Amount must be a positive number' }, { status: 400 });
     }
 
     const trx = uuidv4();
@@ -49,10 +43,7 @@ export async function POST(req: NextRequest) {
     const order = await razorpayInstance.orders.create(orderData);
 
     if (!order || !order.id) {
-      return NextResponse.json(
-        { message: 'Invalid order response from Razorpay' },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: 'Invalid order response from Razorpay' }, { status: 500 });
     }
 
     await prisma.payment.create({
@@ -66,15 +57,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log(JSON.stringify(order, null, 2));
-
     return NextResponse.json(order);
   } catch (error: any) {
     return NextResponse.json(
-      { 
+      {
         message: 'Error creating order',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }, 
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

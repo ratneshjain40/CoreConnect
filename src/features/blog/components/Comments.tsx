@@ -1,11 +1,10 @@
 'use client';
-import { useState } from 'react';
 
+import { useState } from 'react';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
 import initials from 'initials';
 import { Button } from '@/components/ui/button';
 import { useAction } from 'next-safe-action/hooks';
@@ -13,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createCommentSchema } from '../schema/blog';
 import { createBlogComment } from '../server/actions';
 import { DeleteCommentButton } from './DeleteCommentButton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 export type Comment = {
@@ -29,33 +28,55 @@ export const Comments = ({
   userId,
   comments,
   blogSlug,
+  username,
   isAuthenticated,
 }: {
-  userId: string | null;
+  userId: string;
+  username: string;
   blogSlug: string;
   role: 'USER' | 'ADMIN';
   comments: Comment[];
   isAuthenticated: boolean;
 }) => {
+  const [localComments, setLocalComments] = useState<Comment[]>(comments);
+  const { execute: createExecute, isPending: isCreating } = useAction(createBlogComment);
+  
   const [showMore, setShowMore] = useState(false);
-  const { execute } = useAction(createBlogComment);
+  const [isPosting, setIsPosting] = useState(false);
+  const toggleComments = () => setShowMore(prev => !prev);
 
   const form = useForm<z.infer<typeof createCommentSchema>>({
     resolver: zodResolver(createCommentSchema),
-    defaultValues: {
-      content: '',
-      blogSlug,
-    },
+    defaultValues: { content: '', blogSlug },
   });
 
-  const onSubmit = (values: z.infer<typeof createCommentSchema>) => {
+  const onSubmit = async (values: z.infer<typeof createCommentSchema>) => {
     form.clearErrors();
+    setIsPosting(true);
+    
+    const tempId = `temp-${Date.now()}`;
+    const optimisticComment: Comment = {
+      id: tempId,
+      author: username,       
+      content: values.content,
+      createdAt: new Date(),
+      userId: userId!,
+    };
+
+    setLocalComments(prev => [optimisticComment, ...prev]);
+    setIsPosting(false);
     form.reset();
-    execute(values);
+    
+    try {
+      createExecute(values);
+    } catch (error) {
+      setLocalComments(prev => prev.filter(c => c.id !== tempId));
+      console.error('Failed to post comment', error);
+    }
   };
 
-  const toggleComments = () => {
-    setShowMore((prev) => !prev);
+  const handleDeleteOptimistic = (commentId: string) => {
+    setLocalComments(prev => prev.filter(c => c.id !== commentId));
   };
 
   return (
@@ -80,13 +101,20 @@ export const Comments = ({
             )}
           />
 
-          <Button type="submit" className="mt-2" disabled={!isAuthenticated}>
+          <Button
+            type="submit"
+            className="mt-2"
+            isLoading={isPosting}
+            disabled={!isAuthenticated || isPosting}
+            loadingText="Commenting..."
+          >
             Post Comment
           </Button>
         </form>
       </Form>
+
       <div className="space-y-6">
-        {comments.slice(0, showMore ? comments.length : 3).map((comment) => (
+        {localComments.slice(0, showMore ? localComments.length : 3).map(comment => (
           <div key={comment.id} className="flex w-full space-x-4">
             <div className="flex flex-1 space-x-2">
               <Avatar className="h-8 w-8">
@@ -96,20 +124,22 @@ export const Comments = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1">
                     <h3 className="text-sm font-semibold">{comment.author}</h3>
-                    <span className="text-xs text-gray-500">{format(comment.createdAt, 'dd MMM yyyy')}</span>
+                    <span className="text-xs text-gray-500">
+                      {format(comment.createdAt, 'dd MMM yyyy')}
+                    </span>
                   </div>
+                  {(comment.userId === userId || role === 'ADMIN') && (
+                    <DeleteCommentButton comment={comment} role={role} onDelete={handleDeleteOptimistic} />
+                  )}
                 </div>
                 <p className="mt-1 text-sm">{comment.content}</p>
               </div>
-            </div>
-            <div>
-              {(comment.userId === userId || role === 'ADMIN') && <DeleteCommentButton comment={comment} role={role} />}
             </div>
           </div>
         ))}
       </div>
       <div className="mt-4 text-center">
-        {comments.length > 3 && (
+        {localComments.length > 3 && (
           <button
             onClick={toggleComments}
             className="mt-6 text-sm text-gray-500 transition-colors hover:text-primary hover:underline"

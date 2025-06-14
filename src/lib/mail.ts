@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { Resend } from 'resend';
 
 export const resend = new Resend(process.env.RESEND_API_KEY);
@@ -7,7 +9,7 @@ export const domain_email = process.env.EMAIL_ADDRESS;
 // Common header and footer components for all emails
 export const EmailHeader = (props: { title: string; color: string }) => `
   <div style="text-align: center; padding: 30px 0 20px 0;">
-    <img src="https://entomoninstitute.com/images/entomon-logo.png" alt="Entomon Institute Logo" style="max-width: 180px; height: auto;" />
+    <img src="https://entomoninstitute.com/images/entomon-logo.webp" alt="Entomon Institute Logo" style="max-width: 180px; height: auto;" />
     <h1 style="color: ${props.color}; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 20px 0 10px; font-size: 24px; font-weight: 600;">${props.title}</h1>
   </div>
 `;

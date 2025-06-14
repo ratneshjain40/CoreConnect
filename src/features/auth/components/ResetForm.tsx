@@ -43,6 +43,7 @@ export const ResetForm = () => {
                     type="email"
                     placeholder="m@example.com"
                     className={fieldState.invalid ? 'border-red-500' : ''}
+                    disabled={isPending}
                   />
                 </FormControl>
                 <FormMessage>{fieldState.error?.message}</FormMessage>
@@ -53,7 +54,7 @@ export const ResetForm = () => {
 
         {!isPending && hasErrored && <FormError message={result.serverError?.toString()} />}
         {!isPending && hasSucceeded && <FormSuccess message={result?.data?.success} />}
-        <Button type="submit" disabled={isPending} className="w-full">
+        <Button type="submit" isLoading={isPending} loadingText="Sending..." className="w-full">
           Send reset email
         </Button>
       </form>

@@ -12,10 +12,10 @@ import { getToken } from 'next-auth/jwt';
 
 // Add paths that should be excluded from authentication checks
 const EXCLUDED_PATHS = [
-  '/robots.txt',       // Robots file
-  '/sitemap.xml',      // Sitemap
-  '/favicon.ico',      // Favicon
-  '/manifest.json',    // Web manifest
+  '/robots.txt', // Robots file
+  '/sitemap.xml', // Sitemap
+  '/favicon.ico', // Favicon
+  '/manifest.json', // Web manifest
   '/api/event/webhook',
 ];
 

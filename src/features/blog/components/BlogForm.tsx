@@ -41,6 +41,7 @@ export const BlogForm = ({
 }: BlogFormProps<BlogFormType>) => {
   const router = useRouter();
   const [showImagePreview, setShowImagePreview] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Convert image file to base64
   const handleCoverImageChange = useCallback(
@@ -66,8 +67,14 @@ export const BlogForm = ({
     [editor, form, onSubmit]
   );
 
+  const handleReset = useCallback(() => {
+    setIsResetting(true);
+    handleResetBlog();
+    setTimeout(() => setIsResetting(false), 500);
+  }, [handleResetBlog]);
+
   return (
-    <div className="w-full px-6 mb-20">
+    <div className="mb-20 w-full px-6">
       {/* Inline Status Messages */}
       <div className="mb-4">
         <FormError message={error} />
@@ -115,6 +122,7 @@ export const BlogForm = ({
                           type="button"
                           variant="outline"
                           onClick={handleContainerClick}
+                          disabled={isPending}
                           className={fieldState.error ? 'border-red-500 hover:border-red-600' : ''}
                         >
                           Upload Image
@@ -123,6 +131,7 @@ export const BlogForm = ({
                             accept="image/*"
                             ref={fileInputRef}
                             className="hidden"
+                            disabled={isPending}
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
@@ -136,7 +145,7 @@ export const BlogForm = ({
                         <Button
                           type="button"
                           variant="secondary"
-                          disabled={!coverImagePreview}
+                          disabled={!coverImagePreview || isPending}
                           onClick={() => setShowImagePreview(true)}
                         >
                           Preview
@@ -189,7 +198,7 @@ export const BlogForm = ({
                         <FormLabel className="text-sm font-medium text-gray-600">Access Type</FormLabel>
                         <div className="flex items-center gap-3">
                           <FormControl>
-                            <CustomSwitch checked={field.value} onCheckedChange={field.onChange} />
+                            <CustomSwitch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                           </FormControl>
                           <div className="flex flex-col">
                             <span className="text-sm font-medium text-gray-700">
@@ -217,11 +226,25 @@ export const BlogForm = ({
           {/* Form Actions */}
           <div className="fixed bottom-0 left-0 right-0 border-t bg-white py-4 shadow-lg">
             <div className="mx-auto flex max-w-[1400px] items-center justify-end gap-4 px-6">
-              <Button type="button" variant="ghost" onClick={handleResetBlog} className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleReset}
+                className="flex items-center gap-2"
+                isLoading={isResetting}
+                loadingText="Resetting..."
+                disabled={isPending || isResetting}
+              >
                 <Icon name="reset" className="h-4 w-4" />
                 Reset
               </Button>
-              <Button type="submit" form="blogForm" className="px-6">
+              <Button
+                type="submit"
+                form="blogForm"
+                className="px-6"
+                isLoading={isPending}
+                loadingText={isEditing ? 'Updating...' : 'Creating...'}
+              >
                 {isEditing ? 'Update Blog' : 'Create Blog'}
               </Button>
             </div>

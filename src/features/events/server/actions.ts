@@ -96,7 +96,6 @@ export const getEventRegistrationsByEventId = authActionClient
   )
   .action(async (data) => {
     const participants = await eventService.getEventRegistrationsByEventId(data.parsedInput.slug);
-    console.log('participants', participants);
     if (!participants || participants.length === 0) return '';
 
     const headers = ['name', 'email', 'phone'];

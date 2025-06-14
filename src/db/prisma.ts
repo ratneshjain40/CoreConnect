@@ -19,19 +19,4 @@ await prisma.$runCommandRaw({
   ],
 });
 
-// prisma.$extends({
-//   query: {
-//     $allModels: {
-//       $allOperations({ model, operation, args, query }) {
-//         /* your custom logic here */
-//         const before = Date.now()
-//         const res = query(args)
-//         const after = Date.now()
-//         console.log(`Query ${model}.${operation} took ${after - before}ms`)
-//         return res
-//       },
-//     },
-//   },
-// })
-
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;

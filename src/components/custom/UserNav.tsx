@@ -1,34 +1,34 @@
 import Link from 'next/link';
 
-import initials from 'initials';
-import { User } from '@prisma/client';
 import { LogoutButton } from '@/features/auth/components/LogoutButton';
+import { User } from '@prisma/client';
+import initials from 'initials';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuGroup,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuShortcut,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-const userNavItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', shortcut: '⌘P' },
-  { href: '/admin/settings', label: 'Settings', shortcut: '⌘S' },
-];
 
 export const UserNav = ({ user }: { user: User }) => {
+  const userNavItems = [
+    { href: `/${user.role.toLowerCase()}/dashboard`, label: 'Dashboard', shortcut: '⌘P' },
+    { href: `/${user.role.toLowerCase()}/settings`, label: 'Settings', shortcut: '⌘S' },
+  ];
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative size-9 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="relative size-9 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0 hover:bg-green-50 hover:text-green-600"
         >
           <Avatar className="size-9">
             {user?.image && <AvatarImage src={user?.image} alt={initials(user?.name as string)} />}
@@ -49,7 +49,7 @@ export const UserNav = ({ user }: { user: User }) => {
         <DropdownMenuGroup>
           {userNavItems.map((item, index) => (
             <DropdownMenuItem key={index} asChild>
-              <Link href={item.href} className="w-full cursor-pointer">
+              <Link href={item.href} className="w-full cursor-pointer hover:bg-green-50 hover:text-green-600">
                 {item.label}
                 {item.shortcut && <DropdownMenuShortcut>{item.shortcut}</DropdownMenuShortcut>}
               </Link>
@@ -58,7 +58,7 @@ export const UserNav = ({ user }: { user: User }) => {
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem className="hover:bg-green-50 hover:text-green-600">
           <LogoutButton>Logout</LogoutButton>
         </DropdownMenuItem>
       </DropdownMenuContent>

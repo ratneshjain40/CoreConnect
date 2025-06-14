@@ -1,10 +1,8 @@
-import React from 'react';
-
-import { Newsletter } from './NewsLetter';
-import { Events } from './Events';
 import { About } from './About';
-import { Services } from './Services';
+import { Events } from './Events';
 import { Hero } from './Hero';
+import { Newsletter } from './NewsLetter';
+import { Services } from './Services';
 
 export const Home = () => {
   return (

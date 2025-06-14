@@ -74,6 +74,7 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
           <div className="lg:basis-4/6">
             {data.coverImage && (
               <Image
+                priority
                 width={1200}
                 height={630}
                 alt={data.title}
@@ -91,19 +92,27 @@ export const SingleEvent = async ({ data }: SingleEventProps) => {
                 Entomon Institute
               </div>
               <div className="my-4 h-[1px] w-full bg-gray-100"></div>
-              <div className="mb-4 flex items-center gap-1 text-sm text-gray-500">
-                <div
-                  className={`flex w-max items-center gap-1 rounded-full pr-2 text-sm text-gray-500 ${getPriceTextBgColor(data.price)}`}
-                >
-                  <span
-                    className={`flex items-center justify-center rounded-full p-2 ${getPriceTagBgColor(data.price)}`}
+              <div className="mb-4">
+                <div className="flex items-center gap-1 text-sm text-gray-500">
+                  <div
+                    className={`flex w-max items-center gap-1 rounded-full pr-2 text-sm text-gray-500 ${getPriceTextBgColor(data.price)}`}
                   >
-                    <TagIcon className="h-4 w-4" />
-                  </span>
-                  <span className={`font-semibold ${getPriceTextColor(data.price)}`}>
-                    {parseInt(data.price) === 0 ? 'Free Event' : `₹ ${data.price}`}
-                  </span>
+                    <span
+                      className={`flex items-center justify-center rounded-full p-2 ${getPriceTagBgColor(data.price)}`}
+                    >
+                      <TagIcon className="h-4 w-4" />
+                    </span>
+                    <span className={`font-semibold ${getPriceTextColor(data.price)}`}>
+                      {parseInt(data.price) === 0 ? 'Free Event' : `₹ ${data.price}`}
+                    </span>
+                  </div>
                 </div>
+                {/* Disclaimer if it's a paid event */}
+                {parseInt(data.price) !== 0 && (
+                  <p className="mt-2 text-xs text-gray-600">
+                    Note: This is a paid event. For refunds, please contact entomoninstitute@gmail.com
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-1 text-sm text-gray-500">

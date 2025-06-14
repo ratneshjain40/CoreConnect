@@ -114,7 +114,12 @@ export const LoginForm = () => {
 
         <FormError message={result.serverError?.toString()} />
         <FormSuccess message={result?.data?.success} />
-        <Button type="submit" disabled={isPending} className="w-full">
+        <Button
+          type="submit"
+          isLoading={isPending}
+          loadingText={showTwoFactor ? 'Confirming...' : 'Logging in...'}
+          className="w-full"
+        >
           {showTwoFactor ? 'Confirm' : 'Login'}
         </Button>
       </form>
